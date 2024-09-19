@@ -306,25 +306,21 @@
         document.getElementById('find-student-form').addEventListener('submit', function(event) {
             event.preventDefault();
 
-            // Getting values from the form
             let lastName = document.getElementById('last-name').value.trim();
             let firstName = document.getElementById('first-name').value.trim();
             let studentId = document.getElementById('student-id').value.trim();
             let altId = document.getElementById('alt_id').value.trim();
             let feeType = document.getElementById('fee_type').value;
 
-            // Flag to track if there are any errors
             let hasError = false;
 
-            // Validate Last Name
-            if (!lastName) {
+]            if (!lastName) {
                 document.getElementById('lastNameError').textContent = 'Enter Last Name.';
                 hasError = true;
             } else {
                 document.getElementById('lastNameError').textContent = '';
             }
 
-            // Validate First Name
             if (!firstName) {
                 document.getElementById('firstNameError').textContent = 'Enter First Name.';
                 hasError = true;
@@ -332,7 +328,6 @@
                 document.getElementById('firstNameError').textContent = '';
             }
 
-            // Validate Student ID
             if (!studentId) {
                 document.getElementById('studentIdError').textContent = 'Enter Student ID.';
                 hasError = true;
@@ -340,7 +335,6 @@
                 document.getElementById('studentIdError').textContent = '';
             }
 
-            // Validate Alt ID
             if (!altId) {
                 document.getElementById('altIdError').textContent = 'Enter Alt Id.';
                 hasError = true;
@@ -348,7 +342,6 @@
                 document.getElementById('altIdError').textContent = '';
             }
 
-            // Validate Fees Type
             if (!feeType) {
                 document.getElementById('feeTypeError').textContent = 'Select any Fees type.';
                 hasError = true;
@@ -356,17 +349,15 @@
                 document.getElementById('feeTypeError').textContent = '';
             }
 
-            // If there's an error, stop the form submission
             if (hasError) {
                 return;
             }
 
-            // If no errors, proceed with form submission (AJAX or other logic)
-            // ...
+           
         });
     </script>
 
-        
+        <script>
         $(document).ready(function() {
             $("#find-student-form").submit(function(event) {
                 event.preventDefault();

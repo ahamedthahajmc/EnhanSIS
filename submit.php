@@ -1,7 +1,6 @@
 <?php
 header('Content-Type: application/json');
 
-// Database connection
 $servername = "localhost";
 $username = "root";
 $password = "";
@@ -9,10 +8,7 @@ $dbname = "opensis";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 
-// // Check connection
-// if ($conn->connect_error) {
-//     die("Connection failed: " . $conn->connect_error);
-// }
+
 
 $alt_id = "";
 $fee_table = "";
@@ -90,7 +86,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             die("Prepare failed: " . $conn->error);
         }
 
-        $types = str_repeat('s', count($params)); // Create type string for binding parameters
+        $types = str_repeat('s', count($params));
         $stmt->bind_param($types, ...$params);
 
         $stmt->execute();

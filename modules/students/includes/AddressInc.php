@@ -1,31 +1,6 @@
 <?php
 error_reporting(0);
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+
 
 
 include('../../../RedirectIncludes.php');
@@ -109,7 +84,7 @@ echo '</div>
 
 if (clean_param($_REQUEST['values'], PARAM_NOTAGS) && ($_POST['values'] || $_REQUEST['ajax'])) {
     if ($_REQUEST['r7'] == 'Y') {
-        $get_home_add = DBGet(DBQuery('SELECT street_address_1,street_address_2,city,state,zipcode,bus_pickup,bus_dropoff,bus_no FROM student_address WHERE STUDENT_ID=\'' . UserStudentID() . '\' AND SYEAR=\'' . UserSyear() . '\' AND SCHOOL_ID= \'' . UserSchool() . '\' AND TYPE=\'Home Address\' '));
+        $get_home_add = DBGet(DBQuery('SELECT street_address_1,street_address_2,city,state,zipcode,bus_pickup,bus_dropoff,bus_no FROM student_address WHERE STUDENT_ID=\'' . UserStudentID() . '\' AND SYEAR=\'' . UserSyear() . '\' AND INSTITUTE_ID= \'' . UserInstitute() . '\' AND TYPE=\'Home Address\' '));
 
         if (count($get_home_add) > 0) {
             foreach ($get_home_add[1] as $gh_i => $gh_d) {
@@ -691,7 +666,7 @@ if (clean_param($_REQUEST['values'], PARAM_NOTAGS) && ($_POST['values'] || $_REQ
                     if ($ind == 'HOME' || $ind == 'MAIL')
                     // if ($ind == 'MAIL')
                     {
-                        $qry = 'INSERT INTO ' . $table . ' (student_id,syear,school_id,' . $fields . ',' . $type_n . ') VALUES (' . UserStudentID() . ',' . UserSyear() . ',' . UserSchool() . ',' . $field_vals . ',' . $ind_n . ') ';
+                        $qry = 'INSERT INTO ' . $table . ' (student_id,syear,institute_id,' . $fields . ',' . $type_n . ') VALUES (' . UserStudentID() . ',' . UserSyear() . ',' . UserInstitute() . ',' . $field_vals . ',' . $ind_n . ') ';
                     }
                     if (($ind == 'PRIMARY') || ($ind == 'SECONDARY') || ($ind == 'OTHER')) {
                         if ($fields != '' && substr($fields, 0, 1) != ',')
@@ -700,11 +675,11 @@ if (clean_param($_REQUEST['values'], PARAM_NOTAGS) && ($_POST['values'] || $_REQ
                             $field_vals = ',' . $field_vals;
                         if ($ind == 'SECONDARY' && $_REQUEST['values']['people']['SECONDARY']['FIRST_NAME'] != '' && $_REQUEST['values']['people']['SECONDARY']['LAST_NAME'] != '') {
                             $go = 'true';
-                            $qry = 'INSERT INTO ' . $table . ' (student_id,syear,school_id' . $fields . ',' . $type_n . ') VALUES (' . UserStudentID() . ',' . UserSyear() . ',' . UserSchool()  . $field_vals . ',' . $ind_n . ') ';
+                            $qry = 'INSERT INTO ' . $table . ' (student_id,syear,institute_id' . $fields . ',' . $type_n . ') VALUES (' . UserStudentID() . ',' . UserSyear() . ',' . UserInstitute()  . $field_vals . ',' . $ind_n . ') ';
                         }
 
                         if ($ind != 'SECONDARY')
-                            $qry = 'INSERT INTO ' . $table . ' (student_id,syear,school_id' . $fields . ',' . $type_n . ') VALUES (' . UserStudentID() . ',' . UserSyear() . ',' . UserSchool()  . $field_vals . ',' . $ind_n . ') ';
+                            $qry = 'INSERT INTO ' . $table . ' (student_id,syear,institute_id' . $fields . ',' . $type_n . ') VALUES (' . UserStudentID() . ',' . UserSyear() . ',' . UserInstitute()  . $field_vals . ',' . $ind_n . ') ';
                     }
                 }
 
@@ -716,9 +691,9 @@ if (clean_param($_REQUEST['values'], PARAM_NOTAGS) && ($_POST['values'] || $_REQ
                         $peo_fields_ar = explode(',', $peo_fields);
 
                         if (!in_array('PROFILE_ID', $peo_fields_ar)) {
-                            $sql_peo = 'INSERT INTO people (CURRENT_SCHOOL_ID,profile,profile_id,' . $peo_fields . ') VALUES (' . UserSchool() . ',\'parent\',4,' . $peo_field_vals . ')';
+                            $sql_peo = 'INSERT INTO people (CURRENT_INSTITUTE_ID,profile,profile_id,' . $peo_fields . ') VALUES (' . UserInstitute() . ',\'parent\',4,' . $peo_field_vals . ')';
                         } else {
-                            $sql_peo = 'INSERT INTO people (CURRENT_SCHOOL_ID,profile,' . $peo_fields . ') VALUES (' . UserSchool() . ',\'parent\',' . $peo_field_vals . ')';
+                            $sql_peo = 'INSERT INTO people (CURRENT_INSTITUTE_ID,profile,' . $peo_fields . ') VALUES (' . UserInstitute() . ',\'parent\',' . $peo_field_vals . ')';
                         }
                     } else if (($ind == 'PRIMARY' && $pri_pep_exists == 'Y') || ($ind == 'SECONDARY' && $sec_pep_exists == 'Y') || ($ind == 'OTHER' && $oth_pep_exists == 'Y')) {
                         $sql_sjp = 'INSERT INTO students_join_people (' . $sjp_field . 'student_id,emergency_type,person_id) VALUES (' . $sjp_value . UserStudentID() . ',' . $ind_n . ')';
@@ -995,7 +970,7 @@ if (clean_param($_REQUEST['modfunc'], PARAM_ALPHAMOD) == 'delete') {
 }
 
 if (!isset($_REQUEST['modfunc'])) {
-    $addres_id = DBGet(DBQuery('SELECT ID AS ADDRESS_ID FROM student_address WHERE STUDENT_ID=\'' . UserStudentID() . '\' AND SYEAR=\'' . UserSyear() . '\' AND SCHOOL_ID=\'' . UserSchool() . '\' AND TYPE=\'Home Address\' '));
+    $addres_id = DBGet(DBQuery('SELECT ID AS ADDRESS_ID FROM student_address WHERE STUDENT_ID=\'' . UserStudentID() . '\' AND SYEAR=\'' . UserSyear() . '\' AND INSTITUTE_ID=\'' . UserInstitute() . '\' AND TYPE=\'Home Address\' '));
 
 
     if (count($addres_id) == 1 && $addres_id[1]['ADDRESS_ID'] != '')
@@ -1108,7 +1083,7 @@ if (!isset($_REQUEST['modfunc'])) {
     echo '<div class="col-md-12">';
     if (isset($_REQUEST['address_id']) && (!isset($_REQUEST['con_info']) || $_REQUEST['con_info'] != 'old')) {
         $h_addr = DBGet(DBQuery(' SELECT sa.ID AS ADDRESS_ID,sa.STREET_ADDRESS_1 as ADDRESS,sa.STREET_ADDRESS_2 as STREET,sa.CITY,sa.STATE,sa.ZIPCODE,sa.BUS_PICKUP,sa.BUS_DROPOFF,sa.BUS_NO from student_address sa WHERE 
-                                   sa.TYPE=\'Home Address\' AND sa.STUDENT_ID=\'' . UserStudentID() . '\' AND sa.SCHOOL_ID=\'' . UserSchool() . '\' '));
+                                   sa.TYPE=\'Home Address\' AND sa.STUDENT_ID=\'' . UserStudentID() . '\' AND sa.INSTITUTE_ID=\'' . UserInstitute() . '\' '));
 
 
         $pri_par_id = DBGet(DBQuery('SELECT * FROM students_join_people WHERE STUDENT_ID=' . UserStudentID() . ' AND EMERGENCY_TYPE=\'Primary\''));
@@ -1134,7 +1109,7 @@ if (!isset($_REQUEST['modfunc'])) {
         }
 
         $m_addr = DBGet(DBQuery(' SELECT sa.ID AS ADDRESS_ID,sa.STREET_ADDRESS_1 as ADDRESS,sa.STREET_ADDRESS_2 as STREET,sa.CITY,sa.STATE,sa.ZIPCODE,sa.BUS_PICKUP,sa.BUS_DROPOFF,sa.BUS_NO from student_address sa WHERE 
-                                   sa.TYPE=\'Mail\' AND sa.STUDENT_ID=\'' . UserStudentID() . '\'  AND sa.SYEAR=\'' . UserSyear() . '\' AND sa.SCHOOL_ID=\'' . UserSchool() . '\' '));
+                                   sa.TYPE=\'Mail\' AND sa.STUDENT_ID=\'' . UserStudentID() . '\'  AND sa.SYEAR=\'' . UserSyear() . '\' AND sa.INSTITUTE_ID=\'' . UserInstitute() . '\' '));
 
         $sec_par_id = DBGet(DBQuery('SELECT * FROM students_join_people WHERE STUDENT_ID=' . UserStudentID() . ' AND EMERGENCY_TYPE=\'Secondary\''));
 
@@ -1260,8 +1235,8 @@ if (!isset($_REQUEST['modfunc'])) {
             echo '</div>'; //.row
 
             echo '<div class="row">';
-            echo '<div class="col-md-6"><div class="form-group"><label class="control-label text-right col-md-4">' . _schoolBusPickUp . '</label><div id="PUT_BPU" class="col-md-8">' . CheckboxInputMod($h_addr[1]['BUS_PICKUP'], 'values[student_address][HOME][BUS_PICKUP]', '', $new, '<i class="icon-checkbox-checked"></i>', '<i class="icon-checkbox-unchecked"></i>') . '</div></div></div>';
-            echo '<div class="col-md-6"><div class="form-group"><label class="control-label text-right col-md-4">' . _schoolBusDropOff . '</label><div id="PUT_BDO" class="col-md-8">' . CheckboxInputMod($h_addr[1]['BUS_DROPOFF'], 'values[student_address][HOME][BUS_DROPOFF]', '',  $new, '<i class="icon-checkbox-checked"></i>', '<i class="icon-checkbox-unchecked"></i>') . '</div></div></div>';
+            echo '<div class="col-md-6"><div class="form-group"><label class="control-label text-right col-md-4">' . _instituteBusPickUp . '</label><div id="PUT_BPU" class="col-md-8">' . CheckboxInputMod($h_addr[1]['BUS_PICKUP'], 'values[student_address][HOME][BUS_PICKUP]', '', $new, '<i class="icon-checkbox-checked"></i>', '<i class="icon-checkbox-unchecked"></i>') . '</div></div></div>';
+            echo '<div class="col-md-6"><div class="form-group"><label class="control-label text-right col-md-4">' . _instituteBusDropOff . '</label><div id="PUT_BDO" class="col-md-8">' . CheckboxInputMod($h_addr[1]['BUS_DROPOFF'], 'values[student_address][HOME][BUS_DROPOFF]', '',  $new, '<i class="icon-checkbox-checked"></i>', '<i class="icon-checkbox-unchecked"></i>') . '</div></div></div>';
             echo '</div>'; //.row
 
             echo '</FIELDSET>';
@@ -1809,8 +1784,8 @@ if ($_REQUEST['person_id'] && $_REQUEST['con_info'] == 'old') {
             echo '</div>'; //.row
 
             echo '<div class="row">';
-            echo '<div class="col-md-6"><div class="form-group"><label class="control-label text-right col-md-4">' . _schoolBusPickUp . '</label><div class="col-md-8">' . CheckboxInputMod($o_addr[1]['BUS_PICKUP'], 'values[student_address][OTHER][BUS_PICKUP]', '', 'CHECKED', $new, '<i class="icon-checkbox-checked"></i>', '<i class="icon-checkbox-unchecked"></i>') . '</div></div></div>';
-            echo '<div class="col-md-6"><div class="form-group"><label class="control-label text-right col-md-4">' . _schoolBusDropOff . '</label><div class="col-md-8">' . CheckboxInputMod($o_addr[1]['BUS_DROPOFF'], 'values[student_address][OTHER][BUS_DROPOFF]', '', 'CHECKED', $new, '<i class="icon-checkbox-checked"></i>', '<i class="icon-checkbox-unchecked"></i>') . '</div></div></div>';
+            echo '<div class="col-md-6"><div class="form-group"><label class="control-label text-right col-md-4">' . _instituteBusPickUp . '</label><div class="col-md-8">' . CheckboxInputMod($o_addr[1]['BUS_PICKUP'], 'values[student_address][OTHER][BUS_PICKUP]', '', 'CHECKED', $new, '<i class="icon-checkbox-checked"></i>', '<i class="icon-checkbox-unchecked"></i>') . '</div></div></div>';
+            echo '<div class="col-md-6"><div class="form-group"><label class="control-label text-right col-md-4">' . _instituteBusDropOff . '</label><div class="col-md-8">' . CheckboxInputMod($o_addr[1]['BUS_DROPOFF'], 'values[student_address][OTHER][BUS_DROPOFF]', '', 'CHECKED', $new, '<i class="icon-checkbox-checked"></i>', '<i class="icon-checkbox-unchecked"></i>') . '</div></div></div>';
             echo '</div>'; //.row
 
             echo '<div class="row">';
@@ -1916,8 +1891,8 @@ if ($_REQUEST['person_id'] && $_REQUEST['con_info'] == 'old') {
             echo '</div>'; //.row
 
             echo '<div class="row">';
-            echo '<div class="col-md-6"><div class="form-group"><label class="control-label text-right col-md-4">' . _schoolBusPickUp . '</label><div class="col-md-8">' . CheckboxInputMod($o_addr[1]['BUS_PICKUP'], 'values[student_address][OTHER][BUS_PICKUP]', '', 'CHECKED', $new, '<i class="icon-checkbox-checked"></i>', '<i class="icon-checkbox-unchecked"></i>', false) . '</div></div></div>';
-            echo '<div class="col-md-6"><div class="form-group"><label class="control-label text-right col-md-4">' . _schoolBusDropOff . '</label><div class="col-md-8">' . CheckboxInputMod($o_addr[1]['BUS_DROPOFF'], 'values[student_address][OTHER][BUS_DROPOFF]', '', 'CHECKED', $new, '<i class="icon-checkbox-checked"></i>', '<i class="icon-checkbox-unchecked"></i>', false) . '</div></div></div>';
+            echo '<div class="col-md-6"><div class="form-group"><label class="control-label text-right col-md-4">' . _instituteBusPickUp . '</label><div class="col-md-8">' . CheckboxInputMod($o_addr[1]['BUS_PICKUP'], 'values[student_address][OTHER][BUS_PICKUP]', '', 'CHECKED', $new, '<i class="icon-checkbox-checked"></i>', '<i class="icon-checkbox-unchecked"></i>', false) . '</div></div></div>';
+            echo '<div class="col-md-6"><div class="form-group"><label class="control-label text-right col-md-4">' . _instituteBusDropOff . '</label><div class="col-md-8">' . CheckboxInputMod($o_addr[1]['BUS_DROPOFF'], 'values[student_address][OTHER][BUS_DROPOFF]', '', 'CHECKED', $new, '<i class="icon-checkbox-checked"></i>', '<i class="icon-checkbox-unchecked"></i>', false) . '</div></div></div>';
             echo '</div>'; //.row
 
             echo '</div>'; //#addn_hideShow

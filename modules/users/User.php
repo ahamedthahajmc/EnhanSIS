@@ -1,31 +1,6 @@
 <?php
 
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+
 //session_start();
 !empty($_SESSION['USERNAME']) or die('Access denied!');
 include('../../RedirectModulesInc.php');
@@ -43,7 +18,7 @@ if (isset($_REQUEST['user_checkbox']) && count($_REQUEST['user_checkbox']) > 0) 
 
 $st_flag = false;
 $error = false;
-$error_school = '';
+$error_institute = '';
 if ($_REQUEST['staff_id'] != 'new') {
     $profile = DBGet(DBQuery('SELECT id FROM user_profiles WHERE profile = \'' . 'parent' . '\''));
     $parent_ids_arr = array();
@@ -127,10 +102,10 @@ if ($_REQUEST['modfunc'] == 'remove_stu') {
                 $can_edit_RET = DBGet(DBQuery('SELECT MODNAME FROM profile_exceptions WHERE PROFILE_ID=\'' . $profile_id_mod . '\' AND MODNAME=\'' . 'users/User.php&category_id=' . $_REQUEST['category_id'] . '\' AND CAN_EDIT=\'' . 'Y' . '\''), array(), array('MODNAME'));
         }
         if ($can_edit_RET)
-            $_openSIS['allow_edit'] = true;
+            $_hani['allow_edit'] = true;
     }
 
-    unset($schools);
+    unset($institutes);
 
     if ($_REQUEST['modfunc'] == 'update') {
         $up_go = 'n';
@@ -442,12 +417,12 @@ if ($_REQUEST['modfunc'] == 'remove_stu') {
         }
 
 
-        $_openSIS['selected_tab'] = "Modules.php?modname=$_REQUEST[modname]&include=$_REQUEST[include]";
+        $_hani['selected_tab'] = "Modules.php?modname=$_REQUEST[modname]&include=$_REQUEST[include]";
         if ($_REQUEST['category_id'])
-            $_openSIS['selected_tab'] .= '&category_id=' . $_REQUEST['category_id'];
+            $_hani['selected_tab'] .= '&category_id=' . $_REQUEST['category_id'];
         if (User('PROFILE_ID') != 4)
-            $_openSIS['selected_tab'] .= '&staff_id=' . $_REQUEST['staff_id'];
-        $_openSIS['selected_tab'] .= ($_REQUEST['profile'] == 'none' ? '&profile=none' : '');
+            $_hani['selected_tab'] .= '&staff_id=' . $_REQUEST['staff_id'];
+        $_hani['selected_tab'] .= ($_REQUEST['profile'] == 'none' ? '&profile=none' : '');
 
         //echo '<div class="panel">';
         PopTable('header', $tabs);
@@ -462,9 +437,9 @@ if ($_REQUEST['modfunc'] == 'remove_stu') {
         }
 
 
-        $sql = 'SELECT count(s.ID) as schools FROM schools s,staff st INNER JOIN staff_school_relationship ssr USING(staff_id) WHERE s.id=ssr.school_id AND ssr.syear=' . UserSyear() . ' AND st.staff_id=' . User('STAFF_ID');
-        $school_admin = DBGet(DBQuery($sql));
-        $submit_btn = SubmitButton(_save, '', 'id="saveUserBtn" class="btn btn-primary pull-right" onclick="return formcheck_user_user_mod(' . $_SESSION['staff_school_chkbox_id'] . ', this);"');
+        $sql = 'SELECT count(s.ID) as institutes FROM institutes s,staff st INNER JOIN staff_institute_relationship ssr USING(staff_id) WHERE s.id=ssr.institute_id AND ssr.syear=' . UserSyear() . ' AND st.staff_id=' . User('STAFF_ID');
+        $institute_admin = DBGet(DBQuery($sql));
+        $submit_btn = SubmitButton(_save, '', 'id="saveUserBtn" class="btn btn-primary pull-right" onclick="return formcheck_user_user_mod(' . $_SESSION['staff_institute_chkbox_id'] . ', this);"');
 
         PopTable('footer', $submit_btn);
         echo '</FORM>';

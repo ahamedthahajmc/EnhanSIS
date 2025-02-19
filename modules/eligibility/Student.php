@@ -1,31 +1,6 @@
 <?php
 
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+ 
 error_reporting(0);
 include('../../RedirectModulesInc.php');
 DrawBC("" . _extracurricular . " > " . ProgramTitle());
@@ -58,7 +33,7 @@ if ($_REQUEST['search_modfunc'] != 'list') {
     echo '<center><div id="conf_div"></div></center>';
     echo '<table id="resp_table"><tr><td valign="top">';
     echo '<div>';
-    $sql = "SELECT SUBJECT_ID,TITLE FROM course_subjects WHERE SCHOOL_ID='" . UserSchool() . "' AND SYEAR='" . UserSyear() . "' ORDER BY TITLE";
+    $sql = "SELECT SUBJECT_ID,TITLE FROM course_subjects WHERE INSTITUTE_ID='" . UserInstitute() . "' AND SYEAR='" . UserSyear() . "' ORDER BY TITLE";
     $QI = DBQuery($sql);
     $subjects_RET = DBGet($QI);
 
@@ -127,7 +102,7 @@ if ($_REQUEST['modfunc'] == 'remove' && AllowEdit()) {
 }
 
 if (UserStudentID() && !$_REQUEST['modfunc']) {
-    $start_end_RET = DBGet(DBQuery('SELECT TITLE,VALUE FROM program_config WHERE SYEAR=\'' . UserSyear() . '\' AND SCHOOL_ID=\'' . UserSchool() . '\' AND PROGRAM=\'eligibility\' AND TITLE IN (\'' . 'START_DAY' . '\',\'' . 'END_DAY' . '\')'));
+    $start_end_RET = DBGet(DBQuery('SELECT TITLE,VALUE FROM program_config WHERE SYEAR=\'' . UserSyear() . '\' AND INSTITUTE_ID=\'' . UserInstitute() . '\' AND PROGRAM=\'eligibility\' AND TITLE IN (\'' . 'START_DAY' . '\',\'' . 'END_DAY' . '\')'));
     if (count($start_end_RET)) {
         foreach ($start_end_RET as $value)
             $$value['TITLE'] = $value['VALUE'];
@@ -174,7 +149,7 @@ if (UserStudentID() && !$_REQUEST['modfunc']) {
         $end_date = strtoupper(date('d-M-y', $start_time + 60 * 60 * 24 * 6));
     }
 
-    $sql = 'SELECT max(unix_timestamp(END_DATE)) as END_DATE FROM eligibility_activities WHERE SCHOOL_ID=\'' . UserSchool() . '\' AND SYEAR=\'' . UserSyear() . '\'';
+    $sql = 'SELECT max(unix_timestamp(END_DATE)) as END_DATE FROM eligibility_activities WHERE INSTITUTE_ID=\'' . UserInstitute() . '\' AND SYEAR=\'' . UserSyear() . '\'';
     $end_year = DBGet(DBQuery($sql));
     $end_year = $end_year[1]['END_DATE'];
 
@@ -221,7 +196,7 @@ if (UserStudentID() && !$_REQUEST['modfunc']) {
 
     $RET = DBGet(DBQuery($qr), array('START_DATE' => 'ProperDate', 'END_DATE' => 'ProperDate'));
 
-    $activities_RET = DBGet(DBQuery('SELECT ID,TITLE FROM eligibility_activities WHERE SYEAR=\'' . UserSyear() . '\' AND SCHOOL_ID=\'' . UserSchool() . '\''));
+    $activities_RET = DBGet(DBQuery('SELECT ID,TITLE FROM eligibility_activities WHERE SYEAR=\'' . UserSyear() . '\' AND INSTITUTE_ID=\'' . UserInstitute() . '\''));
     if (count($activities_RET)) {
         foreach ($activities_RET as $value)
             $activities[$value['ID']] = $value['TITLE'];
@@ -245,7 +220,7 @@ if (UserStudentID() && !$_REQUEST['modfunc']) {
     echo '</FORM>';
 
     echo '</div><div class="col-md-6">';
-    $RET = DBGet(DBQuery('SELECT e.ELIGIBILITY_CODE,c.TITLE as COURSE_TITLE FROM eligibility e,courses c,course_periods cp WHERE e.STUDENT_ID=\'' . UserStudentID() . '\' AND e.SYEAR=\'' . UserSyear() . '\' AND e.COURSE_PERIOD_ID=cp.COURSE_PERIOD_ID AND cp.COURSE_ID=c.COURSE_ID AND e.SCHOOL_DATE BETWEEN \'' . date('Y-m-d', strtotime($start_date)) . '\' AND \'' . date('Y-m-d', strtotime($end_date)) . '\''), array('ELIGIBILITY_CODE' => '_makeLower'));
+    $RET = DBGet(DBQuery('SELECT e.ELIGIBILITY_CODE,c.TITLE as COURSE_TITLE FROM eligibility e,courses c,course_periods cp WHERE e.STUDENT_ID=\'' . UserStudentID() . '\' AND e.SYEAR=\'' . UserSyear() . '\' AND e.COURSE_PERIOD_ID=cp.COURSE_PERIOD_ID AND cp.COURSE_ID=c.COURSE_ID AND e.INSTITUTE_DATE BETWEEN \'' . date('Y-m-d', strtotime($start_date)) . '\' AND \'' . date('Y-m-d', strtotime($end_date)) . '\''), array('ELIGIBILITY_CODE' => '_makeLower'));
     $columns = array(
         'COURSE_TITLE' => _course,
         'ELIGIBILITY_CODE' => _grade,

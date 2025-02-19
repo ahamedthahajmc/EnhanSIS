@@ -1,31 +1,5 @@
 <?php
-
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that
-#  include student demographic info, scheduling, grade book, attendance,
-#  report cards, eligibility, transcripts, parent portal,
-#  student portal and more.
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as
-#  published by the Free Software Foundation, version 2 of the License.
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+ 
 include '../../RedirectModulesInc.php';
 include 'lang/language.php';
 
@@ -63,18 +37,18 @@ if ($function('' . _confirmSchedulerRun . '', '' . _confirmSchedulerRun . '', '
     flush();
     ini_set('MAX_EXECUTION_TIME', 0);
     // get the fy marking period id, there should be exactly one fy marking period
-    $fy_id = DBGet(DBQuery('SELECT MARKING_PERIOD_ID FROM school_years WHERE SYEAR=\'' . UserSyear() . '\' AND SCHOOL_ID=\'' . UserSchool() . '\''));
+    $fy_id = DBGet(DBQuery('SELECT MARKING_PERIOD_ID FROM institute_years WHERE SYEAR=\'' . UserSyear() . '\' AND INSTITUTE_ID=\'' . UserInstitute() . '\''));
     $fy_id = $fy_id[1]['MARKING_PERIOD_ID'];
 
     $sql = 'SELECT r.REQUEST_ID,r.STUDENT_ID,s.GENDER as GENDER,r.SUBJECT_ID,r.COURSE_ID,MARKING_PERIOD_ID,WITH_TEACHER_ID,NOT_TEACHER_ID,WITH_PERIOD_ID,NOT_PERIOD_ID,(SELECT COUNT(*) FROM course_periods cp2 WHERE cp2.COURSE_ID=r.COURSE_ID) AS SECTIONS
 	FROM schedule_requests r,students s,student_enrollment ssm
 	WHERE s.STUDENT_ID=ssm.STUDENT_ID AND ssm.SYEAR=r.SYEAR
 	AND (\'' . DBDate() . '\' BETWEEN ssm.START_DATE AND ssm.END_DATE OR ssm.END_DATE IS NULL)
-	AND s.STUDENT_ID=r.STUDENT_ID AND r.SYEAR=\'' . UserSyear() . '\' AND r.SCHOOL_ID=\'' . UserSchool() . '\' ORDER BY SECTIONS';
+	AND s.STUDENT_ID=r.STUDENT_ID AND r.SYEAR=\'' . UserSyear() . '\' AND r.INSTITUTE_ID=\'' . UserInstitute() . '\' ORDER BY SECTIONS';
 
     $requests_RET = DBGet(DBQuery($sql), array(), array('REQUEST_ID'));
     if ($_REQUEST['delete_mode'] == 'Y') {
-        $not_delete = DBGet(DBQuery('SELECT DISTINCT SC.ID AS NOT_DEL FROM schedule SC,attendance_period AP WHERE (SC.STUDENT_ID=AP.STUDENT_ID AND SC.COURSE_PERIOD_ID=AP.COURSE_PERIOD_ID AND SC.SCHOOL_ID=\'' . UserSchool() . '\' AND SC.SYEAR=\'' . UserSyear() . '\') UNION SELECT DISTINCT SC.ID AS NOT_DEL FROM schedule SC,gradebook_grades SRCG WHERE (SC.STUDENT_ID=SRCG.STUDENT_ID AND SC.COURSE_PERIOD_ID=SRCG.COURSE_PERIOD_ID AND SC.SCHOOL_ID=\'' . UserSchool() . '\' AND SC.SYEAR=\'' . UserSyear() . '\')'));
+        $not_delete = DBGet(DBQuery('SELECT DISTINCT SC.ID AS NOT_DEL FROM schedule SC,attendance_period AP WHERE (SC.STUDENT_ID=AP.STUDENT_ID AND SC.COURSE_PERIOD_ID=AP.COURSE_PERIOD_ID AND SC.INSTITUTE_ID=\'' . UserInstitute() . '\' AND SC.SYEAR=\'' . UserSyear() . '\') UNION SELECT DISTINCT SC.ID AS NOT_DEL FROM schedule SC,gradebook_grades SRCG WHERE (SC.STUDENT_ID=SRCG.STUDENT_ID AND SC.COURSE_PERIOD_ID=SRCG.COURSE_PERIOD_ID AND SC.INSTITUTE_ID=\'' . UserInstitute() . '\' AND SC.SYEAR=\'' . UserSyear() . '\')'));
         $notin = '';
         foreach ($not_delete as $value) {
             $notin .= $value['NOT_DEL'] . ",";
@@ -82,10 +56,10 @@ if ($function('' . _confirmSchedulerRun . '', '' . _confirmSchedulerRun . '', '
         if ($notin != '') {
             $notin = substr($notin, 0, -1);
 
-            DBQuery('DELETE FROM schedule WHERE SCHOOL_ID=\'' . UserSchool() . '\' AND SYEAR=\'' . UserSyear() . '\' AND (SCHEDULER_LOCK!=\'Y\' OR SCHEDULER_LOCK IS NULL OR SCHEDULER_LOCK=\'\') AND ID NOT IN (' . $notin . ')');
+            DBQuery('DELETE FROM schedule WHERE INSTITUTE_ID=\'' . UserInstitute() . '\' AND SYEAR=\'' . UserSyear() . '\' AND (SCHEDULER_LOCK!=\'Y\' OR SCHEDULER_LOCK IS NULL OR SCHEDULER_LOCK=\'\') AND ID NOT IN (' . $notin . ')');
         } else {
 
-            DBQuery('DELETE FROM schedule WHERE SCHOOL_ID=\'' . UserSchool() . '\' AND SYEAR=\'' . UserSyear() . '\' AND (SCHEDULER_LOCK!=\'' . 'Y' . '\' OR SCHEDULER_LOCK IS NULL OR SCHEDULER_LOCK=\'' . '' . '\')');
+            DBQuery('DELETE FROM schedule WHERE INSTITUTE_ID=\'' . UserInstitute() . '\' AND SYEAR=\'' . UserSyear() . '\' AND (SCHEDULER_LOCK!=\'' . 'Y' . '\' OR SCHEDULER_LOCK IS NULL OR SCHEDULER_LOCK=\'' . '' . '\')');
         }
 
         // FIX THIS
@@ -209,18 +183,18 @@ if ($function('' . _confirmSchedulerRun . '', '' . _confirmSchedulerRun . '', '
             $stu_id = $stu_cp_arr[0];
             $cp_end_dt = DBGet(DBQuery('SELECT end_date FROM  course_periods WHERE COURSE_PERIOD_ID=' . $cp_id['COURSE_PERIOD_ID']));
 
-            DBQuery('INSERT INTO schedule (SYEAR,SCHOOL_ID,STUDENT_ID,START_DATE,END_DATE,MODIFIED_BY,COURSE_ID,COURSE_PERIOD_ID,MP,MARKING_PERIOD_ID,DROPPED) VALUES (' . UserSyear() . ',' . UserSchool() . ',' . $stu_id . ',\'' . $s_date . '\',\'' . $cp_end_dt[1]['END_DATE'] . '\',' . UserID() . ',\'' . $cp_id['COURSE_ID'] . '\',\'' . $cp_id['COURSE_PERIOD_ID'] . '\',\'' . ($cp_id['MARKING_PERIOD_ID'] != '' ? $cp_id['MP'] : 'FY') . '\',\'' . ($cp_id['MARKING_PERIOD_ID'] != '' ? $cp_id['MARKING_PERIOD_ID'] : GetMPId('FY')) . '\',\'N\')');
+            DBQuery('INSERT INTO schedule (SYEAR,INSTITUTE_ID,STUDENT_ID,START_DATE,END_DATE,MODIFIED_BY,COURSE_ID,COURSE_PERIOD_ID,MP,MARKING_PERIOD_ID,DROPPED) VALUES (' . UserSyear() . ',' . UserInstitute() . ',' . $stu_id . ',\'' . $s_date . '\',\'' . $cp_end_dt[1]['END_DATE'] . '\',' . UserID() . ',\'' . $cp_id['COURSE_ID'] . '\',\'' . $cp_id['COURSE_PERIOD_ID'] . '\',\'' . ($cp_id['MARKING_PERIOD_ID'] != '' ? $cp_id['MP'] : 'FY') . '\',\'' . ($cp_id['MARKING_PERIOD_ID'] != '' ? $cp_id['MARKING_PERIOD_ID'] : GetMPId('FY')) . '\',\'N\')');
             DBQuery('DELETE FROM schedule_requests WHERE REQUEST_ID=' . $cp_id['REQUEST_ID']);
             if (strtotime($s_date) <= strtotime(date('Y-m-d'))) {
                 $check_d_att = DBGet(DBQuery('SELECT * FROM course_period_var WHERE COURSE_PERIOD_ID=' . $cp_id['COURSE_PERIOD_ID'] . ' AND DOES_ATTENDANCE=\'Y\''));
                 if (count($check_d_att) > 0) {
                     for ($j = strtotime($s_date); $j < strtotime(date('Y-m-d')); $j = $j + 86400) {
-                        $chk_date = DBGet(DBQuery('SELECT COUNT(*) as REC_EX FROM attendance_calendar WHERE SCHOOL_ID=' . UserSchool() . ' AND SYEAR=' . UserSyear() . ' AND SCHOOL_DATE=\'' . date('Y-m-d', $j) . '\' AND CALENDAR_ID=' . $cp_id['CALENDAR_ID']));
+                        $chk_date = DBGet(DBQuery('SELECT COUNT(*) as REC_EX FROM attendance_calendar WHERE INSTITUTE_ID=' . UserInstitute() . ' AND SYEAR=' . UserSyear() . ' AND INSTITUTE_DATE=\'' . date('Y-m-d', $j) . '\' AND CALENDAR_ID=' . $cp_id['CALENDAR_ID']));
                         if ($chk_date[1]['REC_EX'] != 0) {
                             foreach ($check_d_att as $catt) {
                                 $cpsMarkingPeriod = DBGet(DBQuery("select marking_period_id from course_periods where course_period_id = $cp_id[COURSE_PERIOD_ID];"))[1]['MARKING_PERIOD_ID'];
                                 if (isDateInMarkingPeriodWorkingDates($cpsMarkingPeriod, $dates_all)) {
-                                    DBQuery('INSERT INTO missing_attendance (SCHOOL_ID,SYEAR,SCHOOL_DATE,COURSE_PERIOD_ID,PERIOD_ID,TEACHER_ID) VALUES (' . UserSchool() . ',' . UserSyear() . ',' . date('Y-m-d', $j) . ',' . $cp_id['COURSE_PERIOD_ID'] . ',' . $catt['PERIOD_ID'] . ',' . $cp_id['TEACHER_ID'] . ')');
+                                    DBQuery('INSERT INTO missing_attendance (INSTITUTE_ID,SYEAR,INSTITUTE_DATE,COURSE_PERIOD_ID,PERIOD_ID,TEACHER_ID) VALUES (' . UserInstitute() . ',' . UserSyear() . ',' . date('Y-m-d', $j) . ',' . $cp_id['COURSE_PERIOD_ID'] . ',' . $catt['PERIOD_ID'] . ',' . $cp_id['TEACHER_ID'] . ')');
                                 }
                             }
                         }
@@ -248,7 +222,7 @@ if ($function('' . _confirmSchedulerRun . '', '' . _confirmSchedulerRun . '', '
         flush();
     }
 
-    $check_request = DBGet(DBQuery("SELECT REQUEST_ID FROM schedule_requests WHERE SCHOOL_ID='" . UserSchool() . "' AND SYEAR='" . UserSyear() . "'"));
+    $check_request = DBGet(DBQuery("SELECT REQUEST_ID FROM schedule_requests WHERE INSTITUTE_ID='" . UserInstitute() . "' AND SYEAR='" . UserSyear() . "'"));
     $check_request = $check_request[1]['REQUEST_ID'];
     if ($check_request > 0) {
         $warn = _followingStudentsCannotBeAccommodatedAsNoMoreSeatsAvailableOrPeriodsConflict;
@@ -427,7 +401,7 @@ function Prompt_Home_Schedule($title = 'Confirm', $question = '', $message = '',
     $tmp_REQUEST = $_REQUEST;
     unset($tmp_REQUEST['delete_ok']);
     if ($pdf == true) {
-        $tmp_REQUEST['_openSIS_PDF'] = true;
+        $tmp_REQUEST['HaniIMS_PDF'] = true;
     }
 
     $PHP_tmp_SELF = PreparePHP_SELF($tmp_REQUEST);

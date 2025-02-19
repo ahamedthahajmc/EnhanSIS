@@ -1,31 +1,6 @@
 <?php
 
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+ 
 
 include('RedirectRootInc.php');
 include 'Warehouse.php';
@@ -35,7 +10,7 @@ session_start();
 
 if ($_REQUEST['modfunc'] != 'remove') {
         
-    $sql = 'SELECT FILTER_ID, FILTER_NAME,NULL AS REMOVE_LINK,NULL AS MODIFY_LINK FROM filters WHERE SCHOOL_ID IN ('.UserSchool().',0) AND SHOW_TO IN ('. UserID().',0)';
+    $sql = 'SELECT FILTER_ID, FILTER_NAME,NULL AS REMOVE_LINK,NULL AS MODIFY_LINK FROM filters WHERE INSTITUTE_ID IN ('.UserInstitute().',0) AND SHOW_TO IN ('. UserID().',0)';
     $F = DBQuery($sql);
 
     $filters_RET = DBGet($F);

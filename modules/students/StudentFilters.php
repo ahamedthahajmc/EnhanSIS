@@ -1,30 +1,5 @@
 <?php
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+
 include('../../RedirectModulesInc.php');
 include('RedirectRootInc.php');
 include('Warehouse.php');
@@ -36,7 +11,7 @@ session_start();
 
 if (clean_param($_REQUEST['modfunc'], PARAM_ALPHAMOD) == 'filter_edit_save' && $_REQUEST['filter_id'] != '')
 {
-    $filter_names = array("last", "first", "stuid", "altid", "addr", "grade", "section", "address_group", "_search_all_schools", "include_inactive", "mp_comment","GENDER","ETHNICITY_ID","LANGUAGE_ID", "goal_title", "goal_description", "progress_name", "progress_description", "doctors_note_comments", "type", "imm_comments", "med_alrt_title", "reason", "result", "med_vist_comments");
+    $filter_names = array("last", "first", "stuid", "altid", "addr", "grade", "section", "address_group", "_search_all_institutes", "include_inactive", "mp_comment","GENDER","ETHNICITY_ID","LANGUAGE_ID", "goal_title", "goal_description", "progress_name", "progress_description", "doctors_note_comments", "type", "imm_comments", "med_alrt_title", "reason", "result", "med_vist_comments");
 
     $cust_filters = array();
 
@@ -90,11 +65,11 @@ if (clean_param($_REQUEST['modfunc'], PARAM_ALPHAMOD) == 'filter_edit_save' && $
     }
 
 
-    $get_filter_name = DBGet(DBQuery('SELECT * FROM filters WHERE SCHOOL_ID IN (' . UserSchool() . ',0) AND SHOW_TO IN (' . UserID() . ',0) AND FILTER_ID =' . $_REQUEST['filter_id']));
+    $get_filter_name = DBGet(DBQuery('SELECT * FROM filters WHERE INSTITUTE_ID IN (' . UserInstitute() . ',0) AND SHOW_TO IN (' . UserID() . ',0) AND FILTER_ID =' . $_REQUEST['filter_id']));
     
     $this_SHOW_TO= $get_filter_name[1]['SHOW_TO'];
     
-    $this_ALL_SCHOOL=$get_filter_name[1]['SCHOOL_ID'];
+    $this_ALL_INSTITUTE=$get_filter_name[1]['INSTITUTE_ID'];
     
     if(isset($_REQUEST['filter_public']))
     {
@@ -113,22 +88,22 @@ if (clean_param($_REQUEST['modfunc'], PARAM_ALPHAMOD) == 'filter_edit_save' && $
     }
 
 
-    if(isset($_REQUEST['filter_all_school']))
+    if(isset($_REQUEST['filter_all_institute']))
     {
-        if($_REQUEST['filter_all_school']=='Y')
+        if($_REQUEST['filter_all_institute']=='Y')
         {
-            $this_ALL_SCHOOL='0';
+            $this_ALL_INSTITUTE='0';
         }
         else
         {
-            $this_ALL_SCHOOL=UserSchool();
+            $this_ALL_INSTITUTE=UserInstitute();
         }
     }
-    else if($get_filter_name[1]['SCHOOL_ID'] == 0 && !isset($_REQUEST['filter_all_school']))
+    else if($get_filter_name[1]['INSTITUTE_ID'] == 0 && !isset($_REQUEST['filter_all_institute']))
     {
-        $this_ALL_SCHOOL=UserSchool();
+        $this_ALL_INSTITUTE=UserInstitute();
     }
-    DBQuery('UPDATE filters SET filter_name = "'.$_REQUEST['filter_name'].'", show_to = "' . $this_SHOW_TO . '", school_id = "' . $this_ALL_SCHOOL . '" WHERE FILTER_ID = "' . $_REQUEST['filter_id'] . '"'); 
+    DBQuery('UPDATE filters SET filter_name = "'.$_REQUEST['filter_name'].'", show_to = "' . $this_SHOW_TO . '", institute_id = "' . $this_ALL_INSTITUTE . '" WHERE FILTER_ID = "' . $_REQUEST['filter_id'] . '"'); 
 }
 
 if (clean_param($_REQUEST['modfunc'], PARAM_ALPHAMOD) == 'remove' && $_REQUEST['filter_id'] != '') {
@@ -163,25 +138,25 @@ if ((clean_param($_REQUEST['modfunc'], PARAM_ALPHAMOD) == 'filter_edit' || clean
     $get_filters2 = DBGet(DBQuery('SELECT * FROM filters WHERE FILTER_ID=' . $_REQUEST['filter_id']));
     
     foreach ($get_filters2 as $get_results2) {
-        if ($get_results2['SHOW_TO'] == '0' && $get_results2['SCHOOL_ID'] == '0')
+        if ($get_results2['SHOW_TO'] == '0' && $get_results2['INSTITUTE_ID'] == '0')
         {
             $_REQUEST['filter_public'] = 'Y';
-            $_REQUEST['filter_all_school'] = 'Y';
+            $_REQUEST['filter_all_institute'] = 'Y';
         }
-        if ($get_results2['SHOW_TO'] != '0' && $get_results2['SCHOOL_ID'] == '0')
+        if ($get_results2['SHOW_TO'] != '0' && $get_results2['INSTITUTE_ID'] == '0')
         {
             $_REQUEST['filter_public'] = 'N';
-            $_REQUEST['filter_all_school'] = 'Y';
+            $_REQUEST['filter_all_institute'] = 'Y';
         }
-        if ($get_results2['SHOW_TO'] == '0' && $get_results2['SCHOOL_ID'] != '0')
+        if ($get_results2['SHOW_TO'] == '0' && $get_results2['INSTITUTE_ID'] != '0')
         {
             $_REQUEST['filter_public'] = 'Y';
-            $_REQUEST['filter_all_school'] = 'N';
+            $_REQUEST['filter_all_institute'] = 'N';
         }
-        if ($get_results2['SHOW_TO'] != '0' && $get_results2['SCHOOL_ID'] != '0')
+        if ($get_results2['SHOW_TO'] != '0' && $get_results2['INSTITUTE_ID'] != '0')
         {
             $_REQUEST['filter_public'] = 'N';
-            $_REQUEST['filter_all_school'] = 'N';
+            $_REQUEST['filter_all_institute'] = 'N';
         }
             
     }
@@ -193,20 +168,20 @@ if ((clean_param($_REQUEST['modfunc'], PARAM_ALPHAMOD) == 'filter_edit' || clean
     echo '<ul class="nav nav-tabs nav-tabs-bottom no-margin-bottom"><li class="active" id="tab[]"><a href="javascript:void(0);">'._editFilter.'</a></li></ul>';
     echo '<div class="panel-body">';
 
-    $get_filter_name = DBGet(DBQuery('SELECT * FROM filters WHERE SCHOOL_ID IN (' . UserSchool() . ',0) AND SHOW_TO IN (' . UserID() . ',0) AND FILTER_ID =' . $_REQUEST['filter_id']));
+    $get_filter_name = DBGet(DBQuery('SELECT * FROM filters WHERE INSTITUTE_ID IN (' . UserInstitute() . ',0) AND SHOW_TO IN (' . UserID() . ',0) AND FILTER_ID =' . $_REQUEST['filter_id']));
     $_REQUEST['filter_name']=$get_filter_name[1]['FILTER_NAME'];
     if ( $get_filter_name[1]['SHOW_TO'] == 0)
             $get_filter_show_to = 'checked';
     else 
             $get_filter_show_to = '';
 
-    if ( $get_filter_name[1]['SCHOOL_ID'] == 0)
-            $get_filter_school_id = 'checked';
+    if ( $get_filter_name[1]['INSTITUTE_ID'] == 0)
+            $get_filter_institute_id = 'checked';
     else 
-            $get_filter_school_id = '';
+            $get_filter_institute_id = '';
 
 
-    $filter_modal = DBGet(DBQuery('SELECT FILTER_NAME FROM filters WHERE SCHOOL_ID IN ('.UserSchool().',0) AND SHOW_TO IN ('. UserID().',0)'));
+    $filter_modal = DBGet(DBQuery('SELECT FILTER_NAME FROM filters WHERE INSTITUTE_ID IN ('.UserInstitute().',0) AND SHOW_TO IN ('. UserID().',0)'));
 
     $filter_name = array_column($filter_modal, 'FILTER_NAME');
 
@@ -237,12 +212,12 @@ if ((clean_param($_REQUEST['modfunc'], PARAM_ALPHAMOD) == 'filter_edit' || clean
     echo '<tr>';
     echo '<th><span class="text-primary">'._filterName.'</span></th>';
     echo '<th><span class="text-primary">'._makePublic.'</span></th>';
-    echo '<th><span class="text-primary">'._allSchool.'</span></th>';
+    echo '<th><span class="text-primary">'._allInstitute.'</span></th>';
     echo '</tr>';
     echo '<tr>';
     echo '<td><input class="form-control" type="text" id="filter_name" name="filter_name" value="' . $_REQUEST['filter_name'] . '"/></td>';
     echo '<td><div class="checkbox checkbox-switch switch-success"><label><input type="checkbox" name="filter_public" '.$get_filter_show_to.' value="Y" ><span></span></label></div></td>';
-    echo '<td><div class="checkbox checkbox-switch switch-success"><label><input type="checkbox" name="filter_all_school" '.$get_filter_school_id.' value="Y" ><span></span></label></div></td>';
+    echo '<td><div class="checkbox checkbox-switch switch-success"><label><input type="checkbox" name="filter_all_institute" '.$get_filter_institute_id.' value="Y" ><span></span></label></div></td>';
     echo '</tr>';
     echo '</tbody>';
     echo '</table>';
@@ -255,7 +230,7 @@ if ((clean_param($_REQUEST['modfunc'], PARAM_ALPHAMOD) == 'filter_edit' || clean
     //
     //    echo '<div class="col-md-3"> Make Public <div class="checkbox checkbox-switch switch-success"><label><input type="checkbox" name="filter_public" '.$get_filter_show_to.' value="Y" ><span></span></label></div></div>';
     //
-    //    echo '<div class="col-md-3"> All School <div class="checkbox checkbox-switch switch-success"><label><input type="checkbox" name="filter_all_school" '.$get_filter_school_id.' value="Y" ><span></span></label></div></div>';
+    //    echo '<div class="col-md-3"> All Institute <div class="checkbox checkbox-switch switch-success"><label><input type="checkbox" name="filter_all_institute" '.$get_filter_institute_id.' value="Y" ><span></span></label></div></div>';
     //    echo '</div>'; // .row
     
 
@@ -304,7 +279,7 @@ if ((clean_param($_REQUEST['modfunc'], PARAM_ALPHAMOD) == 'filter_edit' || clean
         echo '<td><div onclick="divToggle(\'#toggleAddress\');" id="toggleAddress">Any</div><div style="display:none;" id="toggleAddress_element" class="hide-element"><input type="text" id="addr" name="addr" class="form-control p-t-0 p-b-0 input-xs" placeholder="'._address.'" /></div></td>';
 
 
-    $list = DBGet(DBQuery("SELECT DISTINCT TITLE,ID,SORT_ORDER FROM school_gradelevels WHERE SCHOOL_ID='" . UserSchool() . "' ORDER BY SORT_ORDER"));
+    $list = DBGet(DBQuery("SELECT DISTINCT TITLE,ID,SORT_ORDER FROM institute_gradelevels WHERE INSTITUTE_ID='" . UserInstitute() . "' ORDER BY SORT_ORDER"));
 
     if ($_REQUEST['grade'] != '') {
         echo '<td><div id="toggleGrade_element"><select id="grade" name=grade class="form-control p-t-0 p-b-0 input-xs"><option value="">-- Select --</option>';
@@ -322,12 +297,12 @@ if ((clean_param($_REQUEST['modfunc'], PARAM_ALPHAMOD) == 'filter_edit' || clean
     echo '<tr>';
     echo '<th><a href="javascript:void(0);" onclick="divToggle(\'#toggleSection\');">'._section.'</a></th>';
     echo '<th><a href="javascript:void(0);" onclick="divToggle(\'#toggleGrpByFamily\');">'._groupByFamily.'</a></th>';
-    echo '<th><a href="javascript:void(0);" onclick="divToggle(\'#toggleSearchAllSchool\');">'._searchAllSchools.'</a></th>';
+    echo '<th><a href="javascript:void(0);" onclick="divToggle(\'#toggleSearchAllInstitute\');">'._searchAllInstitutes.'</a></th>';
     echo '<th colspan="3"><a href="javascript:void(0);" onclick="divToggle(\'#toggleIncludeInactive\');">'._includeInactiveStudents.'</a></th>';
     echo '</tr>';
 
 
-    $list = DBGet(DBQuery("SELECT DISTINCT NAME,ID,SORT_ORDER FROM school_gradelevel_sections WHERE SCHOOL_ID='" . UserSchool() . "' ORDER BY SORT_ORDER"));
+    $list = DBGet(DBQuery("SELECT DISTINCT NAME,ID,SORT_ORDER FROM institute_gradelevel_sections WHERE INSTITUTE_ID='" . UserInstitute() . "' ORDER BY SORT_ORDER"));
     echo '<tr>';
 
     if ($_REQUEST['section'] != '') {
@@ -349,10 +324,10 @@ if ((clean_param($_REQUEST['modfunc'], PARAM_ALPHAMOD) == 'filter_edit' || clean
     else
         echo '<td><div onclick="divToggle(\'#toggleGrpByFamily\');" id="toggleGrpByFamily">No</div><div style="display:none;" id="toggleGrpByFamily_element" class="hide-element"><div class="checkbox m-b-0"><label><input type="checkbox" id="address_group" name="address_group" value="Y"/></label></div></div></td>';
 
-    if ($_REQUEST['_search_all_schools'] != '')
-        echo '<td><div id="toggleSearchAllSchool_element"><div class="checkbox m-b-0"><label><input type="checkbox" id="_search_all_schools" name="_search_all_schools" value="Y" checked/></label></div></div></td>';
+    if ($_REQUEST['_search_all_institutes'] != '')
+        echo '<td><div id="toggleSearchAllInstitute_element"><div class="checkbox m-b-0"><label><input type="checkbox" id="_search_all_institutes" name="_search_all_institutes" value="Y" checked/></label></div></div></td>';
     else
-        echo '<td><div onclick="divToggle(\'#toggleSearchAllSchool\');" id="toggleSearchAllSchool">No</div><div style="display:none;" id="toggleSearchAllSchool_element" class="hide-element"><div class="checkbox m-b-0"><label><input type="checkbox" id="_search_all_schools" name="_search_all_schools" value="Y"/></label></div></div></td>';
+        echo '<td><div onclick="divToggle(\'#toggleSearchAllInstitute\');" id="toggleSearchAllInstitute">No</div><div style="display:none;" id="toggleSearchAllInstitute_element" class="hide-element"><div class="checkbox m-b-0"><label><input type="checkbox" id="_search_all_institutes" name="_search_all_institutes" value="Y"/></label></div></div></td>';
 
     if ($_REQUEST['include_inactive'] != '')
         echo '<td colspan="3"><div id="toggleIncludeInactive_element"><div class="checkbox m-b-0"><label><input type="checkbox" id="include_inactive" name="include_inactive" value="Y" checked/></label></div></div></td>';
@@ -603,7 +578,7 @@ if ((clean_param($_REQUEST['modfunc'], PARAM_ALPHAMOD) == 'filter_edit' || clean
     echo  '<input type="hidden" id="LANGUAGE_ID_hidden" name="LANGUAGE_ID"/>';
 
     echo '<div id="address_group_hidden"></div>';
-    echo '<div id="_search_all_schools_hidden"></div>';
+    echo '<div id="_search_all_institutes_hidden"></div>';
     echo '<div id="include_inactive_hidden"></div>';
 
     echo  '<input type="hidden" id="mp_comment_hidden" name="mp_comment"/>';

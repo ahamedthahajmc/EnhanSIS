@@ -1,33 +1,8 @@
 <?php
 
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that
-#  include student demographic info, scheduling, grade book, attendance,
-#  report cards, eligibility, transcripts, parent portal,
-#  student portal and more.
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as
-#  published by the Free Software Foundation, version 2 of the License.
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+
 include('../../RedirectModulesInc.php');
-if ($_openSIS['modules_search'] && $extra['force_search'])
+if ($_hani['modules_search'] && $extra['force_search'])
     $_REQUEST['search_modfunc'] = '';
 
 if (Preferences('SEARCH') != 'Y' && !$extra['force_search'])
@@ -241,10 +216,10 @@ if ($_REQUEST['search_modfunc'] == 'search_fnc' || !$_REQUEST['search_modfunc'])
 
             echo '<div class="row">';
             echo '<div class="col-md-6">';
-            echo '<div class="form-group"><label class="control-label col-lg-4 text-right">' . _schoolBusPickUp . '</label><div class="col-lg-8"><label class="checkbox-inline"><input class="styled" type=checkbox name="home_bus_pickup"></label></div></div>';
+            echo '<div class="form-group"><label class="control-label col-lg-4 text-right">' . _instituteBusPickUp . '</label><div class="col-lg-8"><label class="checkbox-inline"><input class="styled" type=checkbox name="home_bus_pickup"></label></div></div>';
             echo '</div>'; //.col-md-6
             echo '<div class="col-md-6">';
-            echo '<div class="form-group"><label class="control-label col-lg-4 text-right">' . _schoolBusDropOff . ' </label><div class="col-lg-8"><label class="checkbox-inline"><input class="styled" type=checkbox name="home_bus_droppoff"></label></div></div>';
+            echo '<div class="form-group"><label class="control-label col-lg-4 text-right">' . _instituteBusDropOff . ' </label><div class="col-lg-8"><label class="checkbox-inline"><input class="styled" type=checkbox name="home_bus_droppoff"></label></div></div>';
             echo '</div>'; //.col-md-6
             echo '</div>'; //.row
 
@@ -465,7 +440,7 @@ if ($_REQUEST['search_modfunc'] == 'search_fnc' || !$_REQUEST['search_modfunc'])
             echo '<div class="col-md-12">';
             if (User('PROFILE') == 'admin') {
                 echo '<label class="checkbox-inline"><INPUT class="styled" type=checkbox name=address_group value=Y' . (Preferences('DEFAULT_FAMILIES') == 'Y' ? ' CHECKED' : '') . '> ' . _groupByFamily . '</label>';
-                echo '<label class="checkbox-inline"><INPUT class="styled" type=checkbox name=_search_all_schools value=Y' . (Preferences('DEFAULT_ALL_SCHOOLS') == 'Y' ? ' CHECKED' : '') . '> ' . _searchAllSchools . '</label>';
+                echo '<label class="checkbox-inline"><INPUT class="styled" type=checkbox name=_search_all_institutes value=Y' . (Preferences('DEFAULT_ALL_INSTITUTES') == 'Y' ? ' CHECKED' : '') . '> ' . _searchAllInstitutes . '</label>';
             }
             if ($_REQUEST['modname'] != 'students/StudentReenroll.php')
                 echo '<label class="checkbox-inline"><INPUT class="styled" type=checkbox name=include_inactive value=Y> ' . _includeInactiveStudents . '</label>';
@@ -519,12 +494,12 @@ if ($_REQUEST['search_modfunc'] == 'search_fnc' || !$_REQUEST['search_modfunc'])
         // $filter_id = DBGet(DBQuery("SHOW TABLE STATUS LIKE 'filters'"));
         // $filter_id = $filter_id[1]['AUTO_INCREMENT'];
 
-        DBQuery('INSERT INTO filters (FILTER_NAME' . ($_REQUEST['filter_all_school'] == 'Y' ? '' : ',SCHOOL_ID') . ($_REQUEST['filter_public'] == 'Y' ? '' : ',SHOW_TO') . ') VALUES (\'' . singleQuoteReplace("", "", $_REQUEST['filter_name']) . '\'' . ($_REQUEST['filter_all_school'] == 'Y' ? '' : ',' . UserSchool()) . ($_REQUEST['filter_public'] == 'Y' ? '' : ',' . UserID()) . ')');
+        DBQuery('INSERT INTO filters (FILTER_NAME' . ($_REQUEST['filter_all_institute'] == 'Y' ? '' : ',INSTITUTE_ID') . ($_REQUEST['filter_public'] == 'Y' ? '' : ',SHOW_TO') . ') VALUES (\'' . singleQuoteReplace("", "", $_REQUEST['filter_name']) . '\'' . ($_REQUEST['filter_all_institute'] == 'Y' ? '' : ',' . UserInstitute()) . ($_REQUEST['filter_public'] == 'Y' ? '' : ',' . UserID()) . ')');
         // $filter_id = mysqli_insert_id($connection);
 
         $filter_id = DBGet(DBQuery("SELECT MAX(FILTER_ID) AS FILTER_ID FROM filters"))[1]['FILTER_ID'];
 
-        $filters = array("last", "first", "stuid", "altid", "addr", "grade", "section", "address_group", "GENDER", "ETHNICITY_ID", "LANGUAGE_ID", "age_from", "age_to", "_search_all_schools", "include_inactive", "mp_comment", "goal_title", "goal_description", "progress_name", "progress_description", "doctors_note_comments", "type", "imm_comments", "med_alrt_title", "reason", "result", "med_vist_comments");
+        $filters = array("last", "first", "stuid", "altid", "addr", "grade", "section", "address_group", "GENDER", "ETHNICITY_ID", "LANGUAGE_ID", "age_from", "age_to", "_search_all_institutes", "include_inactive", "mp_comment", "goal_title", "goal_description", "progress_name", "progress_description", "doctors_note_comments", "type", "imm_comments", "med_alrt_title", "reason", "result", "med_vist_comments");
 
         $cust_filters = array();
 
@@ -560,7 +535,7 @@ if ($_REQUEST['search_modfunc'] == 'search_fnc' || !$_REQUEST['search_modfunc'])
     // echo "<pre>";print_r($_REQUEST);echo "</pre>";
 
     if ($_REQUEST['filter'] != '') {
-        $filters = array("last", "first", "stuid", "altid", "addr", "grade", "section", "address_group", "GENDER", "ETHNICITY_ID", "LANGUAGE_ID", "age_from", "age_to", "_search_all_schools", "include_inactive", "mp_comment", "goal_title", "goal_description", "progress_name", "progress_description", "doctors_note_comments", "type", "imm_comments", "med_alrt_title", "reason", "result", "med_vist_comments");
+        $filters = array("last", "first", "stuid", "altid", "addr", "grade", "section", "address_group", "GENDER", "ETHNICITY_ID", "LANGUAGE_ID", "age_from", "age_to", "_search_all_institutes", "include_inactive", "mp_comment", "goal_title", "goal_description", "progress_name", "progress_description", "doctors_note_comments", "type", "imm_comments", "med_alrt_title", "reason", "result", "med_vist_comments");
 
         foreach ($filters as $one_f) {
             $_REQUEST[$one_f] = '';
@@ -656,8 +631,8 @@ if ($_REQUEST['search_modfunc'] == 'search_fnc' || !$_REQUEST['search_modfunc'])
     );
     $name_link['FULL_NAME']['link'] = "Modules.php?modname=$_REQUEST[next_modname]";
     $name_link['FULL_NAME']['variables'] = array('student_id' => 'STUDENT_ID');
-    if ($_REQUEST['_search_all_schools'])
-        $name_link['FULL_NAME']['variables'] += array('school_id' => 'SCHOOL_ID');
+    if ($_REQUEST['_search_all_institutes'])
+        $name_link['FULL_NAME']['variables'] += array('institute_id' => 'INSTITUTE_ID');
 
     if (is_array($extra['link']))
         $link = $extra['link'] + $name_link;
@@ -723,7 +698,7 @@ if ($_REQUEST['search_modfunc'] == 'search_fnc' || !$_REQUEST['search_modfunc'])
             echo '<td><div onclick="divToggle(\'#toggleAddress\');" id="toggleAddress">' . _any . '</div><div style="display:none;" id="toggleAddress_element" class="hide-element"><input type="text" id="addr" name="addr" class="form-control p-t-0 p-b-0 input-xs" placeholder="' . _address . '" /></div></td>';
 
 
-        $list = DBGet(DBQuery("SELECT DISTINCT TITLE,ID,SORT_ORDER FROM school_gradelevels WHERE SCHOOL_ID='" . UserSchool() . "' ORDER BY SORT_ORDER"));
+        $list = DBGet(DBQuery("SELECT DISTINCT TITLE,ID,SORT_ORDER FROM institute_gradelevels WHERE INSTITUTE_ID='" . UserInstitute() . "' ORDER BY SORT_ORDER"));
 
         if ($_REQUEST['filter_form'] == 'Y' && $_REQUEST['grade'] != '') {
             echo '<td><div id="toggleGrade_element"><select id="grade" name=grade class="form-control p-t-0 p-b-0 input-xs"><option value="">-- Select --</option>';
@@ -741,12 +716,12 @@ if ($_REQUEST['search_modfunc'] == 'search_fnc' || !$_REQUEST['search_modfunc'])
         echo '<tr>';
         echo '<th><a href="javascript:void(0);" onclick="divToggle(\'#toggleSection\');">' . _section . '</a></th>';
         echo '<th><a href="javascript:void(0);" onclick="divToggle(\'#toggleGrpByFamily\');">' . _groupByFamily . '</a></th>';
-        echo '<th><a href="javascript:void(0);" onclick="divToggle(\'#toggleSearchAllSchool\');">' . _searchAllSchools . '</a></th>';
+        echo '<th><a href="javascript:void(0);" onclick="divToggle(\'#toggleSearchAllInstitute\');">' . _searchAllInstitutes . '</a></th>';
         echo '<th colspan="3"><a href="javascript:void(0);" onclick="divToggle(\'#toggleIncludeInactive\');">' . _includeInactiveStudents . '</a></th>';
         echo '</tr>';
 
 
-        $list = DBGet(DBQuery("SELECT DISTINCT NAME,ID,SORT_ORDER FROM school_gradelevel_sections WHERE SCHOOL_ID='" . UserSchool() . "' ORDER BY SORT_ORDER"));
+        $list = DBGet(DBQuery("SELECT DISTINCT NAME,ID,SORT_ORDER FROM institute_gradelevel_sections WHERE INSTITUTE_ID='" . UserInstitute() . "' ORDER BY SORT_ORDER"));
         echo '<tr>';
 
         if ($_REQUEST['filter_form'] == 'Y' && $_REQUEST['section'] != '') {
@@ -768,10 +743,10 @@ if ($_REQUEST['search_modfunc'] == 'search_fnc' || !$_REQUEST['search_modfunc'])
         else
             echo '<td><div onclick="divToggle(\'#toggleGrpByFamily\');" id="toggleGrpByFamily">' . _no . '</div><div style="display:none;" id="toggleGrpByFamily_element" class="hide-element"><div class="checkbox m-b-0"><label><input type="checkbox" id="address_group" name="address_group" value="Y"/></label></div></div></td>';
 
-        if ($_REQUEST['filter_form'] == 'Y' && $_REQUEST['_search_all_schools'] != '')
-            echo '<td><div id="toggleSearchAllSchool_element"><div class="checkbox m-b-0"><label><input type="checkbox" id="_search_all_schools" name="_search_all_schools" value="Y" checked/></label></div></div></td>';
+        if ($_REQUEST['filter_form'] == 'Y' && $_REQUEST['_search_all_institutes'] != '')
+            echo '<td><div id="toggleSearchAllInstitute_element"><div class="checkbox m-b-0"><label><input type="checkbox" id="_search_all_institutes" name="_search_all_institutes" value="Y" checked/></label></div></div></td>';
         else
-            echo '<td><div onclick="divToggle(\'#toggleSearchAllSchool\');" id="toggleSearchAllSchool">' . _no . '</div><div style="display:none;" id="toggleSearchAllSchool_element" class="hide-element"><div class="checkbox m-b-0"><label><input type="checkbox" id="_search_all_schools" name="_search_all_schools" value="Y"/></label></div></div></td>';
+            echo '<td><div onclick="divToggle(\'#toggleSearchAllInstitute\');" id="toggleSearchAllInstitute">' . _no . '</div><div style="display:none;" id="toggleSearchAllInstitute_element" class="hide-element"><div class="checkbox m-b-0"><label><input type="checkbox" id="_search_all_institutes" name="_search_all_institutes" value="Y"/></label></div></div></td>';
 
         if ($_REQUEST['filter_form'] == 'Y' && $_REQUEST['include_inactive'] != '')
             echo '<td colspan="3"><div id="toggleIncludeInactive_element"><div class="checkbox m-b-0"><label><input type="checkbox" id="include_inactive" name="include_inactive" value="Y" checked/></label></div></div></td>';
@@ -1024,7 +999,7 @@ if ($_REQUEST['search_modfunc'] == 'search_fnc' || !$_REQUEST['search_modfunc'])
         echo '</div>';
         echo '<div class="col-sm-6 col-md-6 col-lg-6 text-lg-right text-md-right text-sm-right">';
         echo '<a HREF=javascript:void(0) data-toggle="modal" data-target="#modal_default_filter" class="btn btn-primary display-inline-block" onClick="setFilterValues();">' . _saveFilter . '</a>';
-        $filters = DBGet(DBQuery('SELECT * FROM filters WHERE SCHOOL_ID IN (' . UserSchool() . ',0) AND SHOW_TO IN (' . UserID() . ',0)'));
+        $filters = DBGet(DBQuery('SELECT * FROM filters WHERE INSTITUTE_ID IN (' . UserInstitute() . ',0) AND SHOW_TO IN (' . UserID() . ',0)'));
         echo '<div class="m-l-10 display-inline-block"><select name="filter" class="form-control form-control-bordered width-auto"  onchange="this.form.submit();"><option value="">-- ' . _loadFilter . ' --</option>';
         foreach ($filters as $value)
             echo '<option value=' . $value['FILTER_ID'] . ' ' . ($_REQUEST['filter'] == $value['FILTER_ID'] ? 'SELECTED' : '') . ' >' . $value['FILTER_NAME'] . '</option>';
@@ -1078,7 +1053,7 @@ if ($_REQUEST['search_modfunc'] == 'search_fnc' || !$_REQUEST['search_modfunc'])
         echo '<h5 class="modal-title">' . _saveCurrentFilter . '</h5>';
         echo '</div>';
 
-        $filter_modal = DBGet(DBQuery('SELECT FILTER_NAME FROM filters WHERE SCHOOL_ID IN (' . UserSchool() . ',0) AND SHOW_TO IN (' . UserID() . ',0)'));
+        $filter_modal = DBGet(DBQuery('SELECT FILTER_NAME FROM filters WHERE INSTITUTE_ID IN (' . UserInstitute() . ',0) AND SHOW_TO IN (' . UserID() . ',0)'));
         $filter_name = json_encode(array_column($filter_modal, 'FILTER_NAME'));
 
         echo "<form onSubmit='return validate_filter($filter_name);' class='form-horizontal m-b-0' action=Modules.php?modname=$_REQUEST[modname]&modfunc=$_REQUEST[modfunc]&search_modfunc=list&next_modname=$_REQUEST[next_modname]" . $extra['action'] . " method=POST>";
@@ -1106,7 +1081,7 @@ if ($_REQUEST['search_modfunc'] == 'search_fnc' || !$_REQUEST['search_modfunc'])
         echo  '<input type="hidden" id="LANGUAGE_ID_hidden" name="LANGUAGE_ID"/>';
 
         echo '<div id="address_group_hidden"></div>';
-        echo '<div id="_search_all_schools_hidden"></div>';
+        echo '<div id="_search_all_institutes_hidden"></div>';
         echo '<div id="include_inactive_hidden"></div>';
 
         echo  '<input type="hidden" id="mp_comment_hidden" name="mp_comment"/>';
@@ -1155,9 +1130,9 @@ if ($_REQUEST['search_modfunc'] == 'search_fnc' || !$_REQUEST['search_modfunc'])
         echo '</div>'; //.form-group
 
         echo '<div class="form-group">';
-        echo '<label class="control-label text-right col-lg-4">' . _allSchool . '</label>';
+        echo '<label class="control-label text-right col-lg-4">' . _allInstitute . '</label>';
         echo '<div class="col-lg-8">';
-        echo '<div class="checkbox checkbox-switch switch-success"><label><input type="checkbox" name="filter_all_school" value="Y"><span></span></label></div>';
+        echo '<div class="checkbox checkbox-switch switch-success"><label><input type="checkbox" name="filter_all_institute" value="Y"><span></span></label></div>';
         echo '</div>'; //.col-lg-8
         echo '</div>'; //.form-group
 
@@ -1176,10 +1151,10 @@ if ($_REQUEST['search_modfunc'] == 'search_fnc' || !$_REQUEST['search_modfunc'])
         unset($tmp_REQUEST['expanded_view']);
         if ($_REQUEST['expanded_view'] != 'true' && !UserStudentID() && count($students_RET) != 0) {
             DrawHeader("<A HREF=" . PreparePHP_SELF($tmp_REQUEST) . "&expanded_view=true><i class=\"icon-square-down-right\"></i> " . _expandedView . "</A>", $extra['header_right']);
-            DrawHeader(str_replace('', '', substr($_openSIS['SearchTerms'], 0, -4)));
+            DrawHeader(str_replace('', '', substr($_hani['SearchTerms'], 0, -4)));
         } elseif (!UserStudentID() && count($students_RET) != 0) {
             DrawHeader("<A HREF=" . PreparePHP_SELF($tmp_REQUEST) . "&expanded_view=false><i class=\"icon-square-up-left\"></i> " . _originalView . "</A>", $extra['header_right']);
-            DrawHeader(str_replace('', '', substr($_openSIS['Search'], 0, -4)));
+            DrawHeader(str_replace('', '', substr($_hani['Search'], 0, -4)));
         }
         DrawHeader($extra['extra_header_left'], $extra['extra_header_right']);
         if ($_REQUEST['LO_save'] != '1' && !$extra['suppress_save']) {
@@ -1218,9 +1193,9 @@ if ($_REQUEST['search_modfunc'] == 'search_fnc' || !$_REQUEST['search_modfunc'])
 
 
             if (User('PROFILE') == 'admin')
-                $_SESSION['UserSchool'] = $students_RET[1]['LIST_SCHOOL_ID'];
+                $_SESSION['UserInstitute'] = $students_RET[1]['LIST_INSTITUTE_ID'];
             if (User('PROFILE') == 'teacher')
-                $_SESSION['UserSchool'] = $students_RET[1]['SCHOOL_ID'];
+                $_SESSION['UserInstitute'] = $students_RET[1]['INSTITUTE_ID'];
 
 
             //echo '<script language=JavaScript>parent.side.location="' . $_SESSION['Side_PHP_SELF'] . '?modcat="+parent.side.document.forms[0].modcat.value;</script>';
@@ -1243,7 +1218,7 @@ if ($_REQUEST['search_modfunc'] == 'search_fnc' || !$_REQUEST['search_modfunc'])
 // function _make_sections($value)
 // {
 //     if ($value != '') {
-//         $get = DBGet(DBQuery('SELECT NAME FROM school_gradelevel_sections WHERE ID=' . $value));
+//         $get = DBGet(DBQuery('SELECT NAME FROM institute_gradelevel_sections WHERE ID=' . $value));
 //         return $get[1]['NAME'];
 //     } else
 //         return '';

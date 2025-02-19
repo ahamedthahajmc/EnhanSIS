@@ -1,50 +1,25 @@
 <?php
 
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+ 
 include('../../RedirectModulesInc.php');
 include_once('functions/MiscExportFnc.php');
 unset($extra['DATE']);
 $extra['search'] .= '<TR><TD align=center colspan=2><TABLE><TR><TD><DIV id=fields_div></DIV></TD></TR></TABLE></TD></TR>';
 $extra['new'] = true;
-$_openSIS['CustomFields'] = true;
+$_HaniIMS['CustomFields'] = true;
 if ($_REQUEST['fields']['PARENTS']) {
     $extra['SELECT'] .= ',ssm.STUDENT_ID AS PARENTS';
     $view_other_RET['ALL_CONTACTS'][1]['VALUE'] = 'Y';
     if ($_REQUEST['relation'] != '') {
-        $_openSIS['makeParents'] = $_REQUEST['relation'];
+        $_HaniIMS['makeParents'] = $_REQUEST['relation'];
         $extra['students_join_address'] .= ' AND EXISTS (SELECT \'\' FROM students_join_people sjp WHERE sjp.STUDENT_ID=sa.STUDENT_ID AND LOWER(sjp.RELATIONSHIP) LIKE \'' . strtolower($_REQUEST['relation']) . '%\') ';
     }
 }
-$extra['SELECT'] .= ',ssm.NEXT_SCHOOL,ssm.CALENDAR_ID,ssm.SECTION_ID,ssm.SYEAR,s.*';
+$extra['SELECT'] .= ',ssm.NEXT_INSTITUTE,ssm.CALENDAR_ID,ssm.SECTION_ID,ssm.SYEAR,s.*';
 if ($_REQUEST['fields']['FIRST_INIT'])
     $extra['SELECT'] .= ',substr(s.FIRST_NAME,1,1) AS FIRST_INIT';
 if (!$extra['functions'])
-    $extra['functions'] = array('NEXT_SCHOOL' => '_makeNextSchool', 'CALENDAR_ID' => '_makeCalendar', 'SCHOOL_ID' => 'GetSchool', 'PARENTS' => 'makeParents', 'BIRTHDATE' => 'ProperDate', 'SECTION_ID' => '_makeSectionVal');
+    $extra['functions'] = array('NEXT_INSTITUTE' => '_makeNextInstitute', 'CALENDAR_ID' => '_makeCalendar', 'INSTITUTE_ID' => 'GetInstitute', 'PARENTS' => 'makeParents', 'BIRTHDATE' => 'ProperDate', 'SECTION_ID' => '_makeSectionVal');
 if ($_REQUEST['search_modfunc'] == 'list') {
     if (!$fields_list) {
         $fields_list = array(
@@ -60,8 +35,8 @@ if ($_REQUEST['search_modfunc'] == 'list') {
             'STUDENT_ID' => _studentId,
             'GRADE_ID' => _grade,
             'SECTION_ID' => _section,
-            'SCHOOL_ID' => _school,
-            'NEXT_SCHOOL' => _rollingRetentionOptions,
+            'INSTITUTE_ID' => _institute,
+            'NEXT_INSTITUTE' => _rollingRetentionOptions,
             'CALENDAR_ID' => _calendar,
             'USERNAME' => _username,
             'PASSWORD' => _password,
@@ -82,7 +57,7 @@ if ($_REQUEST['search_modfunc'] == 'list') {
         if ($extra['field_names'])
             $fields_list += $extra['field_names'];
 
-        $periods_RET = DBGet(DBQuery('SELECT TITLE,PERIOD_ID FROM school_periods WHERE SYEAR=\'' . UserSyear() . '\' AND SCHOOL_ID=\'' . UserSchool() . '\' ORDER BY SORT_ORDER'));
+        $periods_RET = DBGet(DBQuery('SELECT TITLE,PERIOD_ID FROM institute_periods WHERE SYEAR=\'' . UserSyear() . '\' AND INSTITUTE_ID=\'' . UserInstitute() . '\' ORDER BY SORT_ORDER'));
 
         foreach ($periods_RET as $period)
             $fields_list['PERIOD_' . $period['PERIOD_ID']] = $period['TITLE'] . ' Teacher - Room';
@@ -116,7 +91,7 @@ if ($_REQUEST['search_modfunc'] == 'list') {
         }
     }
 
-    if ($openSISModules['Food_Service'] && ($_REQUEST['fields']['FS_ACCOUNT_ID'] == 'Y' || $_REQUEST['fields']['FS_DISCOUNT'] == 'Y' || $_REQUEST['fields']['FS_STATUS'] == 'Y' || $_REQUEST['fields']['FS_BARCODE'] == 'Y' || $_REQUEST['fields']['FS_BALANCE'] == 'Y')) {
+    if ($haniModules['Food_Service'] && ($_REQUEST['fields']['FS_ACCOUNT_ID'] == 'Y' || $_REQUEST['fields']['FS_DISCOUNT'] == 'Y' || $_REQUEST['fields']['FS_STATUS'] == 'Y' || $_REQUEST['fields']['FS_BARCODE'] == 'Y' || $_REQUEST['fields']['FS_BALANCE'] == 'Y')) {
         $extra['FROM'] = ',FOOD_SERVICE_STUDENT_ACCOUNTS fssa';
         $extra['WHERE'] = ' AND fssa.STUDENT_ID=ssm.STUDENT_ID';
         if ($_REQUEST['fields']['FS_ACCOUNT_ID'] == 'Y')
@@ -343,8 +318,8 @@ if ($_REQUEST['search_modfunc'] == 'list') {
                 'STUDENT_ID' => _studentId,
                 'GRADE_ID' => _grade,
                 'SECTION_ID' => _section,
-                'SCHOOL_ID' => _school,
-                'NEXT_SCHOOL' => _rollingRetentionOptions,
+                'INSTITUTE_ID' => _institute,
+                'NEXT_INSTITUTE' => _rollingRetentionOptions,
                 'CALENDAR_ID' => _calendar,
                 'USERNAME' => _username,
                 'ALT_ID' => _alternateId,
@@ -398,11 +373,11 @@ if ($_REQUEST['search_modfunc'] == 'list') {
         }
     }
     unset($fields_list[generalInfo]);
-    $periods_RET = DBGet(DBQuery('SELECT TITLE,PERIOD_ID FROM school_periods WHERE SYEAR=\'' . UserSyear() . '\' AND SCHOOL_ID=\'' . UserSchool() . '\'' . ($_REQUEST['period_id'] != '' ? " AND PERIOD_ID=" . $_REQUEST['period_id'] . "" : "") . ' ORDER BY SORT_ORDER'));
+    $periods_RET = DBGet(DBQuery('SELECT TITLE,PERIOD_ID FROM institute_periods WHERE SYEAR=\'' . UserSyear() . '\' AND INSTITUTE_ID=\'' . UserInstitute() . '\'' . ($_REQUEST['period_id'] != '' ? " AND PERIOD_ID=" . $_REQUEST['period_id'] . "" : "") . ' ORDER BY SORT_ORDER'));
     foreach ($periods_RET as $period)
         $fields_list['Schedule']['PERIOD_' . $period['PERIOD_ID']] = $period['TITLE'] . ' Teacher - Room';
 
-    if ($openSISModules['Food_Service'])
+    if ($haniModules['Food_Service'])
         $fields_list['Food_Service'] = array('FS_ACCOUNT_ID' => '' . _accountID . '', 'FS_DISCOUNT' => '' . _discount . '', 'FS_STATUS' => '' . _status . '', 'FS_BARCODE' => '' . _barcode . '', 'FS_BALANCE' => '' . _balance . '');
 
     echo '<div class="row">';
@@ -494,7 +469,7 @@ if ($_REQUEST['search_modfunc'] == 'list') {
 function _makeSectionVal($value)
 {
     if ($value != '') {
-        $section = DBGet(DBQuery('SELECT * FROM school_gradelevel_sections WHERE ID=' . $value));
+        $section = DBGet(DBQuery('SELECT * FROM institute_gradelevel_sections WHERE ID=' . $value));
         $section = $section[1]['NAME'];
     } else
         $section = '';

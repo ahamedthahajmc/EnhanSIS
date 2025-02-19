@@ -1,0 +1,345 @@
+Array
+(
+    [student_id] => 6
+    [student_name] => Harish
+    [academic_year] => 2024
+    [book_fees_amount] => 600.00
+    [discounted_book_fees] => 50
+    [final_book_fees] => 550
+    [tuition_fees_amount] => 450.00
+    [discounted_tuition_fees] => 20
+    [final_tuition_fees] => 430
+    [transport_fees_amount] => 0.00
+    [discounted_transport_fees] => 
+    [final_transport_fees] => 0
+)
+Array
+(
+    [student_id] => 6
+    [student_name] => Harish
+    [academic_year] => 2024
+    [book_fees_amount] => 250.00
+    [discounted_book_fees] => 50
+    [final_book_fees] => 200
+    [tuition_fees_amount] => 300.00
+    [discounted_tuition_fees] => 100
+    [final_tuition_fees] => 200
+    [transport_fees_amount] => 0.00
+    [discounted_transport_fees] => 
+    [final_transport_fees] => 0
+)
+Array
+(
+    [student_id] => 8
+    [student_name] => Shaleem
+    [academic_year] => 2024
+    [book_fees_amount] => 250.00
+    [discounted_book_fees] => 20
+    [final_book_fees] => 230
+    [tuition_fees_amount] => 300.00
+    [discounted_tuition_fees] => 
+    [final_tuition_fees] => 300
+    [transport_fees_amount] => 0.00
+    [discounted_transport_fees] => 
+    [final_transport_fees] => 0
+)
+Array
+(
+    [student_id] => 8
+    [student_name] => Shaleem
+    [academic_year] => 2024
+    [book_fees_amount] => 230.00
+    [discounted_book_fees] => 10
+    [final_book_fees] => 220
+    [tuition_fees_amount] => 300.00
+    [discounted_tuition_fees] => 
+    [final_tuition_fees] => 300
+    [transport_fees_amount] => 0.00
+    [discounted_transport_fees] => 
+    [final_transport_fees] => 0
+)
+Array
+(
+    [student_id] => 8
+    [student_name] => Shaleem
+    [academic_year] => 2024
+    [book_fees_amount] => 220.00
+    [discounted_book_fees] => 20
+    [final_book_fees] => 200
+    [tuition_fees_amount] => 300.00
+    [discounted_tuition_fees] => 
+    [final_tuition_fees] => 300
+    [transport_fees_amount] => 0.00
+    [discounted_transport_fees] => 
+    [final_transport_fees] => 0
+)
+Array
+(
+    [student_id] => 8
+    [student_name] => Shaleem
+    [academic_year] => 2024
+    [book_fees_amount] => 200.00
+    [discounted_book_fees] => 20
+    [final_book_fees] => 180
+    [tuition_fees_amount] => 300.00
+    [discounted_tuition_fees] => 
+    [final_tuition_fees] => 300
+    [transport_fees_amount] => 0.00
+    [discounted_transport_fees] => 
+    [final_transport_fees] => 0
+)
+Array
+(
+    [student_id] => 8
+    [student_name] => Shaleem
+    [academic_year] => 2024
+    [book_fees_amount] => 180.00
+    [discounted_book_fees] => 20
+    [final_book_fees] => 160
+    [tuition_fees_amount] => 300.00
+    [discounted_tuition_fees] => 
+    [final_tuition_fees] => 300
+    [transport_fees_amount] => 0.00
+    [discounted_transport_fees] => 
+    [final_transport_fees] => 0
+)
+Array
+(
+    [student_id] => 8
+    [student_name] => Shaleem
+    [academic_year] => 2024
+    [book_fees_amount] => 180.00
+    [discounted_book_fees] => 20
+    [final_book_fees] => 160
+    [tuition_fees_amount] => 300.00
+    [discounted_tuition_fees] => 
+    [final_tuition_fees] => 300
+    [transport_fees_amount] => 0.00
+    [discounted_transport_fees] => 
+    [final_transport_fees] => 0
+)
+Array
+(
+    [student_id] => 8
+    [student_name] => Shaleem
+    [academic_year] => 2024
+    [book_fees_amount] => 160.00
+    [discounted_book_fees] => 10
+    [final_book_fees] => 150
+    [tuition_fees_amount] => 300.00
+    [discounted_tuition_fees] => 
+    [final_tuition_fees] => 300
+    [transport_fees_amount] => 0.00
+    [discounted_transport_fees] => 
+    [final_transport_fees] => 0
+)
+Array
+(
+    [student_id] => 8
+    [student_name] => Shaleem
+    [academic_year] => 2024
+    [book_fees_amount] => 160.00
+    [discounted_book_fees] => 10
+    [final_book_fees] => 150
+    [tuition_fees_amount] => 300.00
+    [discounted_tuition_fees] => 
+    [final_tuition_fees] => 300
+    [transport_fees_amount] => 0.00
+    [discounted_transport_fees] => 
+    [final_transport_fees] => 0
+)
+Array
+(
+    [student_id] => 8
+    [student_name] => Shaleem
+    [academic_year] => 2024
+    [book_fees_amount] => 150.00
+    [discounted_book_fees] => 20
+    [final_book_fees] => 130
+    [tuition_fees_amount] => 300.00
+    [discounted_tuition_fees] => 
+    [final_tuition_fees] => 300
+    [transport_fees_amount] => 0.00
+    [discounted_transport_fees] => 
+    [final_transport_fees] => 0
+)
+Array
+(
+    [student_id] => 8
+    [student_name] => Shaleem
+    [academic_year] => 2024
+    [book_fees_amount] => 150.00
+    [discounted_book_fees] => 20
+    [final_book_fees] => 130
+    [tuition_fees_amount] => 300.00
+    [discounted_tuition_fees] => 
+    [final_tuition_fees] => 300
+    [transport_fees_amount] => 0.00
+    [discounted_transport_fees] => 
+    [final_transport_fees] => 0
+)
+Array
+(
+    [student_id] => 8
+    [student_name] => Shaleem
+    [academic_year] => 2024
+    [book_fees_amount] => 150.00
+    [discounted_book_fees] => 20
+    [final_book_fees] => 130
+    [tuition_fees_amount] => 300.00
+    [discounted_tuition_fees] => 
+    [final_tuition_fees] => 300
+    [transport_fees_amount] => 0.00
+    [discounted_transport_fees] => 
+    [final_transport_fees] => 0
+)
+Array
+(
+    [student_id] => 8
+    [student_name] => Shaleem
+    [academic_year] => 2024
+    [book_fees_amount] => 130.00
+    [discounted_book_fees] => 20
+    [final_book_fees] => 110
+    [tuition_fees_amount] => 300.00
+    [discounted_tuition_fees] => 
+    [final_tuition_fees] => 300
+    [transport_fees_amount] => 0.00
+    [discounted_transport_fees] => 
+    [final_transport_fees] => 0
+)
+Array
+(
+    [student_id] => 8
+    [student_name] => Shaleem
+    [academic_year] => 2024
+    [book_fees_amount] => 110.00
+    [discounted_book_fees] => 10
+    [final_book_fees] => 100
+    [tuition_fees_amount] => 300.00
+    [discounted_tuition_fees] => 
+    [final_tuition_fees] => 300
+    [transport_fees_amount] => 0.00
+    [discounted_transport_fees] => 
+    [final_transport_fees] => 0
+)
+Array
+(
+    [student_id] => 8
+    [student_name] => Shaleem
+    [academic_year] => 2024
+    [book_fees_amount] => 100.00
+    [discounted_book_fees] => 10
+    [final_book_fees] => 90
+    [tuition_fees_amount] => 300.00
+    [discounted_tuition_fees] => 
+    [final_tuition_fees] => 300
+    [transport_fees_amount] => 0.00
+    [discounted_transport_fees] => 
+    [final_transport_fees] => 0
+)
+Array
+(
+    [student_id] => 8
+    [student_name] => Shaleem
+    [academic_year] => 2024
+    [book_fees_amount] => 90.00
+    [discounted_book_fees] => 10
+    [final_book_fees] => 80
+    [tuition_fees_amount] => 300.00
+    [discounted_tuition_fees] => 
+    [final_tuition_fees] => 300
+    [transport_fees_amount] => 0.00
+    [discounted_transport_fees] => 
+    [final_transport_fees] => 0
+)
+Array
+(
+    [student_id] => 8
+    [student_name] => Shaleem
+    [academic_year] => 2024
+    [book_fees_amount] => 80.00
+    [discounted_book_fees] => 10
+    [final_book_fees] => 70
+    [tuition_fees_amount] => 300.00
+    [discounted_tuition_fees] => 
+    [final_tuition_fees] => 300
+    [transport_fees_amount] => 0.00
+    [discounted_transport_fees] => 
+    [final_transport_fees] => 0
+)
+Array
+(
+    [student_id] => 8
+    [student_name] => Shaleem
+    [academic_year] => 2024
+    [book_fees_amount] => 70.00
+    [discounted_book_fees] => 10
+    [final_book_fees] => 60
+    [tuition_fees_amount] => 300.00
+    [discounted_tuition_fees] => 
+    [final_tuition_fees] => 300
+    [transport_fees_amount] => 0.00
+    [discounted_transport_fees] => 
+    [final_transport_fees] => 0
+)
+Array
+(
+    [student_id] => 8
+    [student_name] => Shaleem
+    [academic_year] => 2024
+    [book_fees_amount] => 70.00
+    [discounted_book_fees] => 10
+    [final_book_fees] => 60
+    [tuition_fees_amount] => 300.00
+    [discounted_tuition_fees] => 
+    [final_tuition_fees] => 300
+    [transport_fees_amount] => 0.00
+    [discounted_transport_fees] => 
+    [final_transport_fees] => 0
+)
+Array
+(
+    [student_id] => 8
+    [student_name] => Shaleem
+    [academic_year] => 2024
+    [book_fees_amount] => 60.00
+    [discounted_book_fees] => 5
+    [final_book_fees] => 55
+    [tuition_fees_amount] => 300.00
+    [discounted_tuition_fees] => 
+    [final_tuition_fees] => 300
+    [transport_fees_amount] => 0.00
+    [discounted_transport_fees] => 
+    [final_transport_fees] => 0
+)
+Array
+(
+    [student_id] => 8
+    [student_name] => Shaleem
+    [academic_year] => 2024
+    [book_fees_amount] => 55.00
+    [discounted_book_fees] => 3
+    [final_book_fees] => 52
+    [tuition_fees_amount] => 300.00
+    [discounted_tuition_fees] => 
+    [final_tuition_fees] => 300
+    [transport_fees_amount] => 0.00
+    [discounted_transport_fees] => 
+    [final_transport_fees] => 0
+)
+Array
+(
+    [student_id] => 8
+    [student_name] => Shaleem
+    [academic_year] => 2024
+    [book_fees_amount] => 52.00
+    [discounted_book_fees] => 2
+    [final_book_fees] => 50
+    [tuition_fees_amount] => 300.00
+    [discounted_tuition_fees] => 
+    [final_tuition_fees] => 300
+    [transport_fees_amount] => 0.00
+    [discounted_transport_fees] => 
+    [final_transport_fees] => 0
+)

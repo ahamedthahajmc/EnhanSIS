@@ -1,34 +1,8 @@
 <?php
-
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+ 
 error_reporting(0);
 include('../../RedirectModulesInc.php');
-$start_end_RET = DBGet(DBQuery('SELECT TITLE,VALUE FROM program_config WHERE SYEAR=\'' . UserSyear() . '\' AND SCHOOL_ID=\'' . UserSchool() . '\' AND PROGRAM=\'eligibility\' AND TITLE IN (\'' . 'START_DAY' . '\',\'' . 'END_DAY' . '\')'));
+$start_end_RET = DBGet(DBQuery('SELECT TITLE,VALUE FROM program_config WHERE SYEAR=\'' . UserSyear() . '\' AND INSTITUTE_ID=\'' . UserInstitute() . '\' AND PROGRAM=\'eligibility\' AND TITLE IN (\'' . 'START_DAY' . '\',\'' . 'END_DAY' . '\')'));
 if (count($start_end_RET)) {
     foreach ($start_end_RET as $value)
         $$value['TITLE'] = $value['VALUE'];
@@ -68,7 +42,7 @@ if (!$_REQUEST['start_date']) {
     $start_date = strtoupper(date('d-M-y', $start_time));
     $end_date = strtoupper(date('d-M-y', $start_time + 60 * 60 * 24 * 7));
 }
-$QI = DBQuery('SELECT PERIOD_ID,TITLE FROM school_periods WHERE SCHOOL_ID=\'' . UserSchool() . '\' AND SYEAR=\'' . UserSyear() . '\' ORDER BY SORT_ORDER ');
+$QI = DBQuery('SELECT PERIOD_ID,TITLE FROM institute_periods WHERE INSTITUTE_ID=\'' . UserInstitute() . '\' AND SYEAR=\'' . UserSyear() . '\' ORDER BY SORT_ORDER ');
 $periods_RET = DBGet($QI);
 $period_select = "<SELECT class=\"form-control\" name=period><OPTION value=''>All</OPTION>";
 foreach ($periods_RET as $period)
@@ -79,8 +53,8 @@ DrawBC(""._extracurricular." > " . ProgramTitle());
 echo '<div class="panel panel-default">';
 echo "<FORM class=\"no-margin-bottom\" name=teach_comp id=teach_comp action=Modules.php?modname=" . strip_tags(trim($_REQUEST[modname])) . " method=POST>";
 
-$begin_year = DBGet(DBQuery('SELECT min(unix_timestamp(SCHOOL_DATE)) as SCHOOL_DATE FROM attendance_calendar WHERE SCHOOL_ID=\'' . UserSchool() . '\' AND SYEAR=\'' . UserSyear() . '\''));
-$begin_year = $begin_year[1]['SCHOOL_DATE'];
+$begin_year = DBGet(DBQuery('SELECT min(unix_timestamp(INSTITUTE_DATE)) as INSTITUTE_DATE FROM attendance_calendar WHERE INSTITUTE_ID=\'' . UserInstitute() . '\' AND SYEAR=\'' . UserSyear() . '\''));
+$begin_year = $begin_year[1]['INSTITUTE_DATE'];
 
 if ($start && $begin_year) {
     $date_select = "<OPTION value=$start>" . date('M d, Y', $start) . ' - ' . date('M d, Y', $end) . '</OPTION>';
@@ -108,13 +82,13 @@ if (!isset($mp))
 
 
 $sql = 'SELECT CONCAT(s.LAST_NAME,\', \',s.FIRST_NAME) AS FULL_NAME,sp.TITLE,cpv.PERIOD_ID,s.STAFF_ID 
-		FROM staff s,course_periods cp,school_periods sp,course_period_var cpv
+		FROM staff s,course_periods cp,institute_periods sp,course_period_var cpv
 		WHERE 
 			sp.PERIOD_ID = cpv.PERIOD_ID AND cp.COURSE_PERIOD_ID=cpv.COURSE_PERIOD_ID
 			AND cp.TEACHER_ID=s.STAFF_ID AND cp.MARKING_PERIOD_ID IN (' . $mp . ')
-			AND cp.SYEAR=\'' . UserSyear() . '\' AND cp.SCHOOL_ID=\'' . UserSchool() . '\' AND s.PROFILE=\'teacher\'
+			AND cp.SYEAR=\'' . UserSyear() . '\' AND cp.INSTITUTE_ID=\'' . UserInstitute() . '\' AND s.PROFILE=\'teacher\'
 			' . ((optional_param('period', '', PARAM_SPCL)) ? ' AND cpv.PERIOD_ID=\'' . optional_param('period', '', PARAM_SPCL) . "'" : '') .
-        'AND NOT EXISTS (SELECT \'\' FROM eligibility_completed ac WHERE ac.STAFF_ID=cp.TEACHER_ID AND ac.PERIOD_ID = sp.PERIOD_ID AND ac.SCHOOL_DATE BETWEEN \'' . date('Y-m-d', $start_time) . '\' AND \'' . date('Y-m-d', $start_time + 60 * 60 * 24 * 7) . '\')';
+        'AND NOT EXISTS (SELECT \'\' FROM eligibility_completed ac WHERE ac.STAFF_ID=cp.TEACHER_ID AND ac.PERIOD_ID = sp.PERIOD_ID AND ac.INSTITUTE_DATE BETWEEN \'' . date('Y-m-d', $start_time) . '\' AND \'' . date('Y-m-d', $start_time + 60 * 60 * 24 * 7) . '\')';
 
 $RET = DBGet(DBQuery($sql), array(), array('STAFF_ID', 'PERIOD_ID'));
 

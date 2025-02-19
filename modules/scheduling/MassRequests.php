@@ -1,31 +1,6 @@
 <?php
 
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+ 
 include('../../RedirectModulesInc.php');
 include('lang/language.php');
 
@@ -52,7 +27,7 @@ if (clean_param($_REQUEST['modfunc'], PARAM_ALPHA) == 'save') {
     if ($_SESSION['MassRequests.php']) {
         $current_RET = DBGet(DBQuery("SELECT STUDENT_ID FROM schedule_requests WHERE COURSE_ID='" . clean_param($_SESSION['MassRequests.php']['course_id'], PARAM_INT) . "' AND SYEAR='" . UserSyear() . "'"), array(), array('STUDENT_ID'));
 
-        $mp_id = DBGet(DBQuery("SELECT MARKING_PERIOD_ID FROM school_years WHERE SYEAR='" . UserSyear() . "' AND SCHOOL_ID='" . UserSchool() . "'"));
+        $mp_id = DBGet(DBQuery("SELECT MARKING_PERIOD_ID FROM institute_years WHERE SYEAR='" . UserSyear() . "' AND INSTITUTE_ID='" . UserInstitute() . "'"));
         $mp_id = $mp_id[1]['MARKING_PERIOD_ID'];
 
         # ------------------  Without Period Selection Request Entry Start  ------------------------------------ #
@@ -86,8 +61,8 @@ if (clean_param($_REQUEST['modfunc'], PARAM_ALPHA) == 'save') {
 
             if ($check_dup < 1) {
                 if ($current_RET[$student_id] != $student_id) {
-                    $sql = "INSERT INTO schedule_requests (SYEAR,SCHOOL_ID,STUDENT_ID,SUBJECT_ID,COURSE_ID,MARKING_PERIOD_ID,WITH_TEACHER_ID,NOT_TEACHER_ID,WITH_PERIOD_ID,NOT_PERIOD_ID)
-									values('" . UserSyear() . "','" . UserSchool() . "','" . $student_id . "','" . $_SESSION['MassRequests.php']['subject_id'] . "','" . $_SESSION['MassRequests.php']['course_id'] . "','" . UserMP() . "','" . $_REQUEST['with_teacher_id'] . "','" . $_REQUEST['without_teacher_id'] . "','" . $_REQUEST['with_period_id'] . "','" . $_REQUEST['without_period_id'] . "')";
+                    $sql = "INSERT INTO schedule_requests (SYEAR,INSTITUTE_ID,STUDENT_ID,SUBJECT_ID,COURSE_ID,MARKING_PERIOD_ID,WITH_TEACHER_ID,NOT_TEACHER_ID,WITH_PERIOD_ID,NOT_PERIOD_ID)
+									values('" . UserSyear() . "','" . UserInstitute() . "','" . $student_id . "','" . $_SESSION['MassRequests.php']['subject_id'] . "','" . $_SESSION['MassRequests.php']['course_id'] . "','" . UserMP() . "','" . $_REQUEST['with_teacher_id'] . "','" . $_REQUEST['without_teacher_id'] . "','" . $_REQUEST['with_period_id'] . "','" . $_REQUEST['without_period_id'] . "')";
                     DBQuery($sql);
 
                     $added_counter++;
@@ -148,11 +123,11 @@ if ($_REQUEST['modfunc'] != 'choose_course') {
         echo '<div class="col-md-4"><label class="control-label">'._withTeacher.' &amp; '._period.'</label>';
         echo '<DIV id=WITH_TEACHER_PERIOD ><SELECT name=with_teacher_id class="form-control"><OPTION value="">'._teacherNA.'</OPTION>';
 
-        $teachers_RET = DBGet(DBQuery("SELECT s.STAFF_ID,s.LAST_NAME,s.FIRST_NAME,MIDDLE_NAME FROM staff s,staff_school_relationship ssr WHERE s.STAFF_ID=ssr.STAFF_ID AND s.CURRENT_SCHOOL_ID=ssr.SCHOOL_ID AND s.CURRENT_SCHOOL_ID LIKE '%" . UserSchool() . "%' AND ssr.SYEAR='" . UserSyear() . "' AND s.PROFILE='teacher' ORDER BY s.LAST_NAME,s.FIRST_NAME"));
+        $teachers_RET = DBGet(DBQuery("SELECT s.STAFF_ID,s.LAST_NAME,s.FIRST_NAME,MIDDLE_NAME FROM staff s,staff_institute_relationship ssr WHERE s.STAFF_ID=ssr.STAFF_ID AND s.CURRENT_INSTITUTE_ID=ssr.INSTITUTE_ID AND s.CURRENT_INSTITUTE_ID LIKE '%" . UserInstitute() . "%' AND ssr.SYEAR='" . UserSyear() . "' AND s.PROFILE='teacher' ORDER BY s.LAST_NAME,s.FIRST_NAME"));
         foreach ($teachers_RET as $teacher)
             echo '<OPTION value=' . $teacher['STAFF_ID'] . '>' . $teacher['LAST_NAME'] . ', ' . $teacher['FIRST_NAME'] . ' ' . $teacher['MIDDLE_NAME'] . '</OPTION>';
         echo '</SELECT><SELECT class="form-control" name=with_period_id><OPTION value="">'._periodNA.'</OPTION>';
-        $periods_RET = DBGet(DBQuery("SELECT PERIOD_ID,TITLE FROM school_periods WHERE SCHOOL_ID='" . UserSchool() . "' AND SYEAR='" . UserSyear() . "' ORDER BY SORT_ORDER"));
+        $periods_RET = DBGet(DBQuery("SELECT PERIOD_ID,TITLE FROM institute_periods WHERE INSTITUTE_ID='" . UserInstitute() . "' AND SYEAR='" . UserSyear() . "' ORDER BY SORT_ORDER"));
         foreach ($periods_RET as $period)
             echo '<OPTION value=' . $period['PERIOD_ID'] . '>' . $period['TITLE'] . '</OPTION>';
         echo '</SELECT></DIV></div>';
@@ -235,7 +210,7 @@ if (clean_param($_REQUEST['modfunc'], PARAM_ALPHAEXT) == 'choose_course') {
             $tp_html .= '<OPTION value=' . $teacher['TEACHER_ID'] . '>' . $teacher['LAST_NAME'] . ', ' . $teacher['FIRST_NAME'] . '</OPTION>';
         }
         $tp_html .= '</SELECT><SELECT name=with_period_id class=form-control><OPTION>'._periodNA.'</OPTION>';
-        $corr_periods = DBGet(DBQuery("SELECT Distinct p.TITLE,p.PERIOD_ID FROM school_periods p,course_periods cp,course_period_var cpv WHERE p.PERIOD_ID=cpv.PERIOD_ID AND cp.COURSE_PERIOD_ID=cpv.COURSE_PERIOD_ID AND cp.COURSE_ID='" . $c . "'"));
+        $corr_periods = DBGet(DBQuery("SELECT Distinct p.TITLE,p.PERIOD_ID FROM institute_periods p,course_periods cp,course_period_var cpv WHERE p.PERIOD_ID=cpv.PERIOD_ID AND cp.COURSE_PERIOD_ID=cpv.COURSE_PERIOD_ID AND cp.COURSE_ID='" . $c . "'"));
         foreach ($corr_periods as $period) {
             $tp_html .= '<OPTION value=' . $period['PERIOD_ID'] . '>' . $period['TITLE'] . '</OPTION>';
         }
@@ -251,7 +226,7 @@ if (clean_param($_REQUEST['modfunc'], PARAM_ALPHAEXT) == 'choose_course') {
             $tp_html_w .= '<OPTION value=' . $teacher['TEACHER_ID'] . '>' . $teacher['LAST_NAME'] . ', ' . $teacher['FIRST_NAME'] . '</OPTION>';
         }
         $tp_html_w .= '</SELECT><SELECT name=without_period_id class=form-control><OPTION>'._periodNA.'</OPTION>';
-        $corr_periods = DBGet(DBQuery("SELECT Distinct p.TITLE,p.PERIOD_ID FROM school_periods p,course_periods cp,course_period_var cpv WHERE p.PERIOD_ID=cpv.PERIOD_ID AND cp.COURSE_ID='" . $c . "' AND cp.COURSE_PERIOD_ID=cpv.COURSE_PERIOD_ID"));
+        $corr_periods = DBGet(DBQuery("SELECT Distinct p.TITLE,p.PERIOD_ID FROM institute_periods p,course_periods cp,course_period_var cpv WHERE p.PERIOD_ID=cpv.PERIOD_ID AND cp.COURSE_ID='" . $c . "' AND cp.COURSE_PERIOD_ID=cpv.COURSE_PERIOD_ID"));
         foreach ($corr_periods as $period) {
             $tp_html_w .= '<OPTION value=' . $period['PERIOD_ID'] . '>' . $period['TITLE'] . '</OPTION>';
         }
@@ -286,7 +261,7 @@ echo '<div class="modal-body">';
 echo '<center><div id="conf_div"></div></center>';
 echo '<table id="resp_table"><tr><td valign="top">';
 echo '<div>';
-$sql = "SELECT SUBJECT_ID,TITLE FROM course_subjects WHERE SCHOOL_ID='" . UserSchool() . "' AND SYEAR='" . UserSyear() . "' ORDER BY TITLE";
+$sql = "SELECT SUBJECT_ID,TITLE FROM course_subjects WHERE INSTITUTE_ID='" . UserInstitute() . "' AND SYEAR='" . UserSyear() . "' ORDER BY TITLE";
 $QI = DBQuery($sql);
 $subjects_RET = DBGet($QI);
 

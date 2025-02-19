@@ -1,35 +1,9 @@
 <?php
 
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
 include('../../RedirectModulesInc.php');
 include('lang/language.php');
 DrawBC("" . _users . " > " . ProgramTitle());
-$_openSIS['allow_edit'] = true;
+$_hani['allow_edit'] = true;
 $not_default = false;
 
 echo '<input id="customFieldModule" type="hidden" value="people">';
@@ -407,8 +381,8 @@ if (!$_REQUEST['modfunc']) {
         $header .= '<input id="DEFAULT_DATATYPE_' . $_REQUEST['id'] . '" name="DEFAULT_DATATYPE_' . $_REQUEST['id'] . '" type="hidden" value="' . $RET['TYPE'] . '">';
 
         if ($_REQUEST['id'] != 'new' && $RET['TYPE'] != 'multiple' && $RET['TYPE'] != 'codeds' && $RET['TYPE'] != 'select' && $RET['TYPE'] != 'autos' && $RET['TYPE'] != 'edits' && $RET['TYPE'] != 'text' && $RET['TYPE'] != 'date' && $RET['TYPE'] != 'radio' && $RET['TYPE'] != 'numeric' && $RET['TYPE'] != 'textarea') {
-            $_openSIS['allow_edit'] = $allow_edit;
-            $_openSIS['AllowEdit'][$modname] = $AllowEdit;
+            $_hani['allow_edit'] = $allow_edit;
+            $_hani['AllowEdit'][$modname] = $AllowEdit;
         }
         foreach ($categories_RET as $type)
             $categories_options[$type['ID']] = $type['TITLE'];
@@ -616,8 +590,8 @@ if (!$_REQUEST['modfunc']) {
                 // case 'Addresses &amp; Contacts':
                 //     $categories_RET[$key]['TITLE'] = _addressesContacts;
                 //     break;
-                // case 'School Information':
-                //     $categories_RET[$key]['TITLE'] = _schoolInformation;
+                // case 'Institute Information':
+                //     $categories_RET[$key]['TITLE'] = _instituteInformation;
                 //     break;
                 // case 'Certification Information':
                 //     $categories_RET[$key]['TITLE'] = _certificationInformation;

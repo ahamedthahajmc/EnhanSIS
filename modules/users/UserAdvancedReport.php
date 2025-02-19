@@ -1,31 +1,5 @@
 <?php
 
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
 include('../../RedirectModulesInc.php');
 if (clean_param($_REQUEST['modfunc'], PARAM_ALPHAMOD) == 'save') {
 
@@ -35,7 +9,7 @@ if (clean_param($_REQUEST['modfunc'], PARAM_ALPHAMOD) == 'save') {
         $extra['WHERE'] = ' AND s.STAFF_ID IN (' . $st_list . ')';
         $extra['user_profile'] = 'parent';
         echo "<table width=100%  style=\" font-family:Arial; font-size:12px;\" >";
-        echo "<tr><td width=105>" . DrawLogo() . "</td><td style=\"font-size:15px; font-weight:bold; padding-top:20px;\">" . GetSchool(UserSchool()) . "<div style=\"font-size:12px;\">"._userAdvancedReport."</div></td><td align=right style=\"padding-top:20px;\">" . ProperDate(DBDate()) . "<br />"._poweredByOpenSis."</td></tr><tr><td colspan=3 style=\"border-top:1px solid #333;\">&nbsp;</td></tr></table>";
+        echo "<tr><td width=105>" . DrawLogo() . "</td><td style=\"font-size:15px; font-weight:bold; padding-top:20px;\">" . GetInstitute(UserInstitute()) . "<div style=\"font-size:12px;\">"._userAdvancedReport."</div></td><td align=right style=\"padding-top:20px;\">" . ProperDate(DBDate()) . "<br />"._poweredByhani."</td></tr><tr><td colspan=3 style=\"border-top:1px solid #333;\">&nbsp;</td></tr></table>";
         echo "<table >";
         include('modules/miscellaneous/UserExport.php');
     }
@@ -44,7 +18,7 @@ if (clean_param($_REQUEST['modfunc'], PARAM_ALPHAMOD) == 'save') {
 if (clean_param($_REQUEST['modfunc'], PARAM_ALPHAMOD) == 'call') {
     $_SESSION['st_arr'] = $_REQUEST['st_arr'];
 
-    echo "<FORM action=ForExport.php?modname=" . strip_tags(trim($_REQUEST[modname])) . "&head_html=Staff+Advanced+Report&modfunc=save&search_modfunc=list&_openSIS_PDF=true&_dis_user=$_REQUEST[_dis_user]&_search_all_schools=$_REQUEST[_search_all_schools] method=POST target=_blank>";
+    echo "<FORM action=ForExport.php?modname=" . strip_tags(trim($_REQUEST[modname])) . "&head_html=Staff+Advanced+Report&modfunc=save&search_modfunc=list&HaniIMS_PDF=true&_dis_user=$_REQUEST[_dis_user]&_search_all_institutes=$_REQUEST[_search_all_institutes] method=POST target=_blank>";
     echo '<DIV id=fields_div></DIV>';
 
     echo '<div class="panel panel-default">';
@@ -72,8 +46,8 @@ if (!$_REQUEST['modfunc'] || $_REQUEST['modfunc'] == 'list') {
         
         if ($_REQUEST['_dis_user'])
             echo '<INPUT type=hidden name=_dis_user value=' . strip_tags(trim($_REQUEST['_dis_user'])) . '>';
-        if ($_REQUEST['_search_all_schools'])
-            echo '<INPUT type=hidden name=_search_all_schools value=' . strip_tags(trim($_REQUEST['_search_all_schools'])) . '>';
+        if ($_REQUEST['_search_all_institutes'])
+            echo '<INPUT type=hidden name=_search_all_institutes value=' . strip_tags(trim($_REQUEST['_search_all_institutes'])) . '>';
         Search('staff_id', $extra);
         if ($_SESSION['count_stf'] != '0') {
             unset($_SESSION['count_stf']);

@@ -1,31 +1,6 @@
 <?php
 
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+
 include('../../../RedirectIncludes.php');
 
 include_once('modules/students/includes/FunctionsInc.php');
@@ -167,9 +142,9 @@ if (!$_REQUEST['modfunc']) {
     $table = 'student_medical_visits';
 
     $functions = array('TIME_IN' => '_makeComments', 'TIME_OUT' => '_makeComments', 'REASON' => '_makeComments', 'RESULT' => '_makeComments', 'COMMENTS' => '_makeLongComments');
-    $med_RET = DBGet(DBQuery('SELECT ID,SCHOOL_DATE,TIME_IN,TIME_OUT,REASON,RESULT,COMMENTS FROM student_medical_visits WHERE STUDENT_ID=\'' . UserStudentID() . '\' ORDER BY SCHOOL_DATE'), $functions);
+    $med_RET = DBGet(DBQuery('SELECT ID,INSTITUTE_DATE,TIME_IN,TIME_OUT,REASON,RESULT,COMMENTS FROM student_medical_visits WHERE STUDENT_ID=\'' . UserStudentID() . '\' ORDER BY INSTITUTE_DATE'), $functions);
     $columns = array(
-        'SCHOOL_DATE' => _date,
+        'INSTITUTE_DATE' => _date,
         'TIME_IN' => _timeIn,
         'TIME_OUT' => _timeOut,
         'REASON' => _reason,
@@ -178,10 +153,10 @@ if (!$_REQUEST['modfunc']) {
     );
     foreach ($med_RET as $mi => $md) {
         $counter_for_date = $counter_for_date + 1;
-        $med_RET[$mi]['SCHOOL_DATE'] = _makeDate($md['SCHOOL_DATE'], 'SCHOOL_DATE', $counter_for_date, array('ID' => $md['ID'], 'TABLE' => 'student_medical_visits'));
+        $med_RET[$mi]['INSTITUTE_DATE'] = _makeDate($md['INSTITUTE_DATE'], 'INSTITUTE_DATE', $counter_for_date, array('ID' => $md['ID'], 'TABLE' => 'student_medical_visits'));
     }
     $counter_for_date = $counter_for_date + 1;
-    $link['add']['html'] = array('SCHOOL_DATE' => _makeDate('', 'SCHOOL_DATE', $counter_for_date), 'TIME_IN' => _makeComments('', 'TIME_IN'), 'TIME_OUT' => _makeComments('', 'TIME_OUT'), 'REASON' => _makeComments('', 'REASON'), 'RESULT' => _makeComments('', 'RESULT'), 'COMMENTS' => _makeLongComments('', 'COMMENTS'));
+    $link['add']['html'] = array('INSTITUTE_DATE' => _makeDate('', 'INSTITUTE_DATE', $counter_for_date), 'TIME_IN' => _makeComments('', 'TIME_IN'), 'TIME_OUT' => _makeComments('', 'TIME_OUT'), 'REASON' => _makeComments('', 'REASON'), 'RESULT' => _makeComments('', 'RESULT'), 'COMMENTS' => _makeLongComments('', 'COMMENTS'));
     $link['remove']['link'] = "Modules.php?modname=$_REQUEST[modname]&include=$_REQUEST[include]&modfunc=delete&table=student_medical_visits&title=" . urlencode('visit');
     $link['remove']['variables'] = array('id' => 'ID');
 

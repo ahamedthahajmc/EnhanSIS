@@ -1,35 +1,9 @@
 <?php
-
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+ 
 error_reporting(0);
 // GET ALL THE config ITEMS FOR eligibility
 include('../../RedirectModulesInc.php');
-$start_end_RET = DBGet(DBQuery('SELECT TITLE,VALUE FROM program_config WHERE SYEAR=\'' . UserSyear() . '\' AND SCHOOL_ID=\'' . UserSchool() . '\' AND PROGRAM=\'eligibility\''));
+$start_end_RET = DBGet(DBQuery('SELECT TITLE,VALUE FROM program_config WHERE SYEAR=\'' . UserSyear() . '\' AND INSTITUTE_ID=\'' . UserInstitute() . '\' AND PROGRAM=\'eligibility\''));
 $arr = array();
 if (count($start_end_RET)) {
     foreach ($start_end_RET as $value)
@@ -72,14 +46,14 @@ if ($_REQUEST['values']) {
         if($key!='START_TIME' && $key!='END_TIME')
         {
             if (isset($$key)) {
-                DBQuery('UPDATE program_config SET VALUE=\'' . $value . '\' WHERE PROGRAM=\'eligibility\' AND TITLE=\'' . $key . '\' AND SCHOOL_ID=\'' . UserSchool() . '\' AND SYEAR=\'' . UserSyear() . '\'');
+                DBQuery('UPDATE program_config SET VALUE=\'' . $value . '\' WHERE PROGRAM=\'eligibility\' AND TITLE=\'' . $key . '\' AND INSTITUTE_ID=\'' . UserInstitute() . '\' AND SYEAR=\'' . UserSyear() . '\'');
             } else {
-                DBQuery('INSERT INTO program_config (SYEAR,SCHOOL_ID,PROGRAM,TITLE,VALUE) values(\'' . UserSyear() . '\',\'' . UserSchool() . '\',\'eligibility\',\'' . $key . '\',\'' . $value . '\')');
+                DBQuery('INSERT INTO program_config (SYEAR,INSTITUTE_ID,PROGRAM,TITLE,VALUE) values(\'' . UserSyear() . '\',\'' . UserInstitute() . '\',\'eligibility\',\'' . $key . '\',\'' . $value . '\')');
             }
         }
     }
 
-    $start_end_RET = DBGet(DBQuery('SELECT TITLE,VALUE FROM program_config WHERE SYEAR=\'' . UserSyear() . '\' AND SCHOOL_ID=\'' . UserSchool() . '\' AND PROGRAM=\'eligibility\''));
+    $start_end_RET = DBGet(DBQuery('SELECT TITLE,VALUE FROM program_config WHERE SYEAR=\'' . UserSyear() . '\' AND INSTITUTE_ID=\'' . UserInstitute() . '\' AND PROGRAM=\'eligibility\''));
     if (count($start_end_RET)) {
         foreach ($start_end_RET as $value)
             $arr[$value['TITLE']] = $value['VALUE'];

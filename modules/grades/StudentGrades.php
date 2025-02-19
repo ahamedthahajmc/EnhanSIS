@@ -1,35 +1,10 @@
 <?php
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+ 
 include('../../RedirectModulesInc.php');
 include 'modules/grades/ConfigInc.php';
 require_once('functions/MakeLetterGradeFnc.php');
-$_openSIS['allow_edit'] = false;
-if ($_REQUEST['_openSIS_PDF'])
+$_HaniIMS['allow_edit'] = false;
+if ($_REQUEST['HaniIMS_PDF'])
     $do_stats = false;
 
 Search('student_id');
@@ -44,12 +19,12 @@ if ($MP_TYPE == 'year') {
 } else {
     $MP_TYPE = '';
 }
-$rank_RET = DBGet(DBQuery('SELECT VALUE FROM program_config WHERE school_id=\'' . UserSchool() . '\' AND program=\'class_rank\' AND title=\'display\' LIMIT 0, 1'));
+$rank_RET = DBGet(DBQuery('SELECT VALUE FROM program_config WHERE institute_id=\'' . UserInstitute() . '\' AND program=\'class_rank\' AND title=\'display\' LIMIT 0, 1'));
 $rank = $rank_RET[1];
 $display_rank = $rank['VALUE'];
 ####################
 if (isset($_REQUEST['student_id']) && !empty($_REQUEST['student_id'])) {
-    $RET = DBGet(DBQuery('SELECT FIRST_NAME,LAST_NAME,MIDDLE_NAME,NAME_SUFFIX,SCHOOL_ID FROM students,student_enrollment WHERE students.STUDENT_ID=\'' . $_REQUEST['student_id'] . '\' AND student_enrollment.STUDENT_ID = students.STUDENT_ID '));
+    $RET = DBGet(DBQuery('SELECT FIRST_NAME,LAST_NAME,MIDDLE_NAME,NAME_SUFFIX,INSTITUTE_ID FROM students,student_enrollment WHERE students.STUDENT_ID=\'' . $_REQUEST['student_id'] . '\' AND student_enrollment.STUDENT_ID = students.STUDENT_ID '));
     DrawHeaderhome('<div class="panel"><div class="panel-heading"><h6 class="panel-title">' . _selectedStudent . ' : ' . $RET[1]['FIRST_NAME'] . '&nbsp;' . ($RET[1]['MIDDLE_NAME'] ? $RET[1]['MIDDLE_NAME'] . ' ' : '') . $RET[1]['LAST_NAME'] . '&nbsp;' . $RET[1]['NAME_SUFFIX'] . '</h6> <div class="heading-elements"><span class="heading-text"><A HREF=Modules.php?modname=' . $_REQUEST['modname'] . '&search_modfunc=list&next_modname=Grades/StudentGrades.php&ajax=true&bottom_back=true&return_session=true target=body><i class="icon-square-left"></i> ' . _backToStudentList . '</A></span><div class="btn-group heading-btn"><A HREF=Side.php?student_id=new&modcat=' . $_REQUEST['modcat'] . ' class="btn btn-danger btn-xs">' . _deselect . '</A></div></div></div></div>');
 }
 ####################
@@ -106,7 +81,7 @@ if (UserStudentID() && !$_REQUEST['modfunc']) {
 
 
                 if (!$programconfig[$staff_id]) {
-                    $config_RET = DBGet(DBQuery('SELECT TITLE,VALUE FROM program_user_config WHERE USER_ID=\'' . User('STAFF_ID') . '\' AND SCHOOL_ID=\'' . UserSchool() . '\' AND PROGRAM=\'Gradebook\' AND VALUE LIKE \'%_' . $course_period_id . '\''), array(), array('TITLE'));
+                    $config_RET = DBGet(DBQuery('SELECT TITLE,VALUE FROM program_user_config WHERE USER_ID=\'' . User('STAFF_ID') . '\' AND INSTITUTE_ID=\'' . UserInstitute() . '\' AND PROGRAM=\'Gradebook\' AND VALUE LIKE \'%_' . $course_period_id . '\''), array(), array('TITLE'));
 
 
                     if (count($config_RET))
@@ -151,14 +126,14 @@ if (UserStudentID() && !$_REQUEST['modfunc']) {
 
                     if (!isset($mp))
                         $mp = GetAllMP('SEM', UserMP());
-                    //'gg.POINTS','\'-1\' OR gg.POINTS IS NULL OR (ga.due_date < (select DISTINCT ssm.start_date  from student_enrollment ssm where ssm.STUDENT_ID=s.STUDENT_ID AND ssm.SYEAR=\''.UserSyear().'\' AND ssm.SCHOOL_ID='.UserSchool().' AND (ssm.START_DATE IS NOT NULL AND (CURRENT_DATE<=ssm.END_DATE OR CURRENT_DATE>=ssm.END_DATE OR  ssm.END_DATE IS NULL)) order by ssm.start_date desc limit 1) ) ',"'0'",'ga.POINTS'
+                    //'gg.POINTS','\'-1\' OR gg.POINTS IS NULL OR (ga.due_date < (select DISTINCT ssm.start_date  from student_enrollment ssm where ssm.STUDENT_ID=s.STUDENT_ID AND ssm.SYEAR=\''.UserSyear().'\' AND ssm.INSTITUTE_ID='.UserInstitute().' AND (ssm.START_DATE IS NOT NULL AND (CURRENT_DATE<=ssm.END_DATE OR CURRENT_DATE>=ssm.END_DATE OR  ssm.END_DATE IS NULL)) order by ssm.start_date desc limit 1) ) ',"'0'",'ga.POINTS'
                     if (!isset($mp))
                         $mp = GetAllMP('FY', UserMP());
-                    $points_RET = DBGet(DBQuery('SELECT \'-1\' AS ASSIGNMENT_TYPE_ID,sum(' . db_case(array('gg.POINTS', "'-1'", "'0'", 'gg.POINTS')) . ') AS PARTIAL_POINTS,sum(' . db_case(array('gg.POINTS', '\'-1\' OR gg.POINTS IS NULL OR (ga.due_date < (select DISTINCT ssm.start_date  from student_enrollment ssm,students s where ssm.STUDENT_ID=s.STUDENT_ID AND s.STUDENT_ID=\'' . UserStudentID() . '\' AND ssm.SYEAR=\'' . UserSyear() . '\' AND ssm.SCHOOL_ID=' . UserSchool() . ' AND (ssm.START_DATE IS NOT NULL AND (CURRENT_DATE<=ssm.END_DATE OR CURRENT_DATE>=ssm.END_DATE OR  ssm.END_DATE IS NULL)) order by ssm.start_date desc limit 1) ) ', "'0'", 'ga.POINTS')) . ') AS PARTIAL_TOTAL,\'1\' AS FINAL_GRADE_PERCENT,sum(' . db_case(array('gg.POINTS', "''", "1", "0")) . ') AS UNGRADED FROM gradebook_assignments ga LEFT OUTER JOIN gradebook_grades gg ON (gg.COURSE_PERIOD_ID=\'' . $course_period_id . '\' AND gg.STUDENT_ID=\'' . UserStudentID() . '\' AND gg.ASSIGNMENT_ID=ga.ASSIGNMENT_ID) WHERE (ga.COURSE_PERIOD_ID=\'' . $course_period_id . '\' OR ga.COURSE_ID=\'' . $course_id . '\' AND ga.STAFF_ID=\'' . $staff_id . '\') AND ga.MARKING_PERIOD_ID IN (' . $mp . ') AND (ga.ASSIGNED_DATE IS NOT NULL ) GROUP BY  FINAL_GRADE_PERCENT'));
+                    $points_RET = DBGet(DBQuery('SELECT \'-1\' AS ASSIGNMENT_TYPE_ID,sum(' . db_case(array('gg.POINTS', "'-1'", "'0'", 'gg.POINTS')) . ') AS PARTIAL_POINTS,sum(' . db_case(array('gg.POINTS', '\'-1\' OR gg.POINTS IS NULL OR (ga.due_date < (select DISTINCT ssm.start_date  from student_enrollment ssm,students s where ssm.STUDENT_ID=s.STUDENT_ID AND s.STUDENT_ID=\'' . UserStudentID() . '\' AND ssm.SYEAR=\'' . UserSyear() . '\' AND ssm.INSTITUTE_ID=' . UserInstitute() . ' AND (ssm.START_DATE IS NOT NULL AND (CURRENT_DATE<=ssm.END_DATE OR CURRENT_DATE>=ssm.END_DATE OR  ssm.END_DATE IS NULL)) order by ssm.start_date desc limit 1) ) ', "'0'", 'ga.POINTS')) . ') AS PARTIAL_TOTAL,\'1\' AS FINAL_GRADE_PERCENT,sum(' . db_case(array('gg.POINTS', "''", "1", "0")) . ') AS UNGRADED FROM gradebook_assignments ga LEFT OUTER JOIN gradebook_grades gg ON (gg.COURSE_PERIOD_ID=\'' . $course_period_id . '\' AND gg.STUDENT_ID=\'' . UserStudentID() . '\' AND gg.ASSIGNMENT_ID=ga.ASSIGNMENT_ID) WHERE (ga.COURSE_PERIOD_ID=\'' . $course_period_id . '\' OR ga.COURSE_ID=\'' . $course_id . '\' AND ga.STAFF_ID=\'' . $staff_id . '\') AND ga.MARKING_PERIOD_ID IN (' . $mp . ') AND (ga.ASSIGNED_DATE IS NOT NULL ) GROUP BY  FINAL_GRADE_PERCENT'));
 
-                    $points_RET_all1 = DBGet(DBQuery('SELECT gt.ASSIGNMENT_TYPE_ID,sum(' . db_case(array('gg.POINTS', "'-1'", "'0'", 'gg.POINTS')) . ') AS PARTIAL_POINTS,sum(' . db_case(array('gg.POINTS', '\'-1\' OR gg.POINTS IS NULL OR (ga.due_date < (select DISTINCT ssm.start_date  from student_enrollment ssm,students s where ssm.STUDENT_ID=s.STUDENT_ID AND s.STUDENT_ID=\'' . UserStudentID() . '\' AND ssm.SYEAR=\'' . UserSyear() . '\' AND ssm.SCHOOL_ID=' . UserSchool() . ' AND (ssm.START_DATE IS NOT NULL AND (CURRENT_DATE<=ssm.END_DATE OR CURRENT_DATE>=ssm.END_DATE OR  ssm.END_DATE IS NULL)) order by ssm.start_date desc limit 1) ) ', "'0'", 'ga.POINTS')) . ') AS PARTIAL_TOTAL,    gt.FINAL_GRADE_PERCENT,sum(' . db_case(array('gg.POINTS', "''", "1", "0")) . ') AS UNGRADED FROM gradebook_assignments ga LEFT OUTER JOIN gradebook_grades gg ON (gg.COURSE_PERIOD_ID=\'' . $course_period_id . '\' AND gg.STUDENT_ID=\'' . UserStudentID() . '\' AND gg.ASSIGNMENT_ID=ga.ASSIGNMENT_ID),gradebook_assignment_types gt WHERE (ga.COURSE_PERIOD_ID=\'' . $course_period_id . '\' OR ga.COURSE_ID=\'' . $course_id . '\' AND ga.STAFF_ID=\'' . $staff_id . '\') AND ga.MARKING_PERIOD_ID IN (' . $mp . ') AND gt.ASSIGNMENT_TYPE_ID=ga.ASSIGNMENT_TYPE_ID AND gt.COURSE_ID=\'' . $course_id . '\' AND ((ga.ASSIGNED_DATE IS NOT NULL )  or gg.POINTS IS NOT NULL) GROUP BY gt.ASSIGNMENT_TYPE_ID,gt.FINAL_GRADE_PERCENT'));
+                    $points_RET_all1 = DBGet(DBQuery('SELECT gt.ASSIGNMENT_TYPE_ID,sum(' . db_case(array('gg.POINTS', "'-1'", "'0'", 'gg.POINTS')) . ') AS PARTIAL_POINTS,sum(' . db_case(array('gg.POINTS', '\'-1\' OR gg.POINTS IS NULL OR (ga.due_date < (select DISTINCT ssm.start_date  from student_enrollment ssm,students s where ssm.STUDENT_ID=s.STUDENT_ID AND s.STUDENT_ID=\'' . UserStudentID() . '\' AND ssm.SYEAR=\'' . UserSyear() . '\' AND ssm.INSTITUTE_ID=' . UserInstitute() . ' AND (ssm.START_DATE IS NOT NULL AND (CURRENT_DATE<=ssm.END_DATE OR CURRENT_DATE>=ssm.END_DATE OR  ssm.END_DATE IS NULL)) order by ssm.start_date desc limit 1) ) ', "'0'", 'ga.POINTS')) . ') AS PARTIAL_TOTAL,    gt.FINAL_GRADE_PERCENT,sum(' . db_case(array('gg.POINTS', "''", "1", "0")) . ') AS UNGRADED FROM gradebook_assignments ga LEFT OUTER JOIN gradebook_grades gg ON (gg.COURSE_PERIOD_ID=\'' . $course_period_id . '\' AND gg.STUDENT_ID=\'' . UserStudentID() . '\' AND gg.ASSIGNMENT_ID=ga.ASSIGNMENT_ID),gradebook_assignment_types gt WHERE (ga.COURSE_PERIOD_ID=\'' . $course_period_id . '\' OR ga.COURSE_ID=\'' . $course_id . '\' AND ga.STAFF_ID=\'' . $staff_id . '\') AND ga.MARKING_PERIOD_ID IN (' . $mp . ') AND gt.ASSIGNMENT_TYPE_ID=ga.ASSIGNMENT_TYPE_ID AND gt.COURSE_ID=\'' . $course_id . '\' AND ((ga.ASSIGNED_DATE IS NOT NULL )  or gg.POINTS IS NOT NULL) GROUP BY gt.ASSIGNMENT_TYPE_ID,gt.FINAL_GRADE_PERCENT'));
                     if ($do_stats)
-                        $all_RET = DBGet(DBQuery('SELECT gg.STUDENT_ID,\'-1\' AS ASSIGNMENT_TYPE_ID,sum(' . db_case(array('gg.POINTS', "'-1'", "'0'", 'gg.POINTS')) . ') AS PARTIAL_POINTS,sum(' . db_case(array('gg.POINTS', '\'-1\' OR gg.POINTS IS NULL OR (ga.due_date < (select DISTINCT ssm.start_date  from student_enrollment ssm,students s where ssm.STUDENT_ID=s.STUDENT_ID AND s.STUDENT_ID=\'' . UserStudentID() . '\' AND ssm.SYEAR=\'' . UserSyear() . '\' AND ssm.SCHOOL_ID=' . UserSchool() . ' AND (ssm.START_DATE IS NOT NULL AND (CURRENT_DATE<=ssm.END_DATE OR CURRENT_DATE>=ssm.END_DATE OR  ssm.END_DATE IS NULL)) order by ssm.start_date desc limit 1) ) ', "'0'", 'ga.POINTS')) . ') AS PARTIAL_TOTAL,\'1\' AS FINAL_GRADE_PERCENT FROM gradebook_grades gg,gradebook_assignments ga LEFT OUTER JOIN gradebook_grades g ON (g.COURSE_PERIOD_ID=\'' . $course_period_id . '\' AND g.STUDENT_ID=\'' . UserStudentID() . '\' AND g.ASSIGNMENT_ID=ga.ASSIGNMENT_ID)
+                        $all_RET = DBGet(DBQuery('SELECT gg.STUDENT_ID,\'-1\' AS ASSIGNMENT_TYPE_ID,sum(' . db_case(array('gg.POINTS', "'-1'", "'0'", 'gg.POINTS')) . ') AS PARTIAL_POINTS,sum(' . db_case(array('gg.POINTS', '\'-1\' OR gg.POINTS IS NULL OR (ga.due_date < (select DISTINCT ssm.start_date  from student_enrollment ssm,students s where ssm.STUDENT_ID=s.STUDENT_ID AND s.STUDENT_ID=\'' . UserStudentID() . '\' AND ssm.SYEAR=\'' . UserSyear() . '\' AND ssm.INSTITUTE_ID=' . UserInstitute() . ' AND (ssm.START_DATE IS NOT NULL AND (CURRENT_DATE<=ssm.END_DATE OR CURRENT_DATE>=ssm.END_DATE OR  ssm.END_DATE IS NULL)) order by ssm.start_date desc limit 1) ) ', "'0'", 'ga.POINTS')) . ') AS PARTIAL_TOTAL,\'1\' AS FINAL_GRADE_PERCENT FROM gradebook_grades gg,gradebook_assignments ga LEFT OUTER JOIN gradebook_grades g ON (g.COURSE_PERIOD_ID=\'' . $course_period_id . '\' AND g.STUDENT_ID=\'' . UserStudentID() . '\' AND g.ASSIGNMENT_ID=ga.ASSIGNMENT_ID)
                                                         WHERE  ga.ASSIGNMENT_ID=gg.ASSIGNMENT_ID AND ga.MARKING_PERIOD_ID IN (' . $mp . ') AND gg.COURSE_PERIOD_ID=\'' . $course_period_id . '\' AND (ga.COURSE_PERIOD_ID=\'' . $course_period_id . '\' OR ga.COURSE_ID=\'' . $course_id . '\' AND ga.STAFF_ID=\'' . $staff_id . '\') AND (ga.ASSIGNED_DATE IS NOT NULL OR gg.POINTS IS NOT NULL) GROUP BY gg.STUDENT_ID, FINAL_GRADE_PERCENT'), array(), array('STUDENT_ID'));
                 }
                 $cls_tot = 0;
@@ -503,7 +478,7 @@ function _makeTipTitle($value, $column)
 {
     global $THIS_RET;
 
-    if (($THIS_RET['DESCRIPTION'] || $THIS_RET['ASSIGNED_DATE'] || $THIS_RET['DUE_DATE']) && !$_REQUEST['_openSIS_PDF']) {
+    if (($THIS_RET['DESCRIPTION'] || $THIS_RET['ASSIGNED_DATE'] || $THIS_RET['DUE_DATE']) && !$_REQUEST['HaniIMS_PDF']) {
         $tip_title = '<A HREF=Modules.php?modname=grades/StudentGrades.php&id=' . $_REQUEST['id'] . '&modfun=assgn_detail&assignment_id=' . $THIS_RET['ASSIGNMENT_ID'] . '>' . $value . '</A>';
     } else
         $tip_title = $value;

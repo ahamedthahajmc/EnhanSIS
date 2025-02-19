@@ -1,31 +1,6 @@
 <?php
 
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that
-#  include student demographic info, scheduling, grade book, attendance,
-#  report cards, eligibility, transcripts, parent portal,
-#  student portal and more.
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as
-#  published by the Free Software Foundation, version 2 of the License.
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+ 
 include 'modules/grades/DeletePromptX.fnc.php';
 DrawBC(""._gradebook." > " . ProgramTitle());
 if (clean_param($_REQUEST['modfunc'], PARAM_ALPHAMOD) == 'update') {
@@ -46,8 +21,8 @@ if (clean_param($_REQUEST['modfunc'], PARAM_ALPHAMOD) == 'update') {
             }
             else {
                 $sql = 'INSERT INTO honor_roll ';
-                $fields = 'SCHOOL_ID,SYEAR,';
-                $values = '\'' . UserSchool() . '\',\'' . UserSyear() . '\',';
+                $fields = 'INSTITUTE_ID,SYEAR,';
+                $values = '\'' . UserInstitute() . '\',\'' . UserSyear() . '\',';
 
                 $go = false;
                 foreach ($columns as $column => $value) {
@@ -75,7 +50,7 @@ if (clean_param($_REQUEST['modfunc'], PARAM_ALPHAMOD) == 'remove') {
 }
 
 if (!$_REQUEST['modfunc']) {
-    $sql = 'SELECT TITLE,VALUE, id as ID FROM honor_roll WHERE SCHOOL_ID=\'' . UserSchool() . '\' AND SYEAR=\'' . UserSyear() . '\' ORDER BY VALUE';
+    $sql = 'SELECT TITLE,VALUE, id as ID FROM honor_roll WHERE INSTITUTE_ID=\'' . UserInstitute() . '\' AND SYEAR=\'' . UserSyear() . '\' ORDER BY VALUE';
     $functions = array('TITLE' => '_makeTextInput', 'VALUE' => 'makeTextInputt');
     $LO_columns = array('TITLE' =>_honorRoll,
         'VALUE' =>_breakoff,

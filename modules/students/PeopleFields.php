@@ -1,33 +1,8 @@
 <?php
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+
 include('../../RedirectModulesInc.php');
 DrawBC("" . _students . " > " . ProgramTitle());
-$_openSIS['allow_edit'] = true;
+$_hani['allow_edit'] = true;
 
 if ($_REQUEST['tables'] && ($_POST['tables'] || $_REQUEST['ajax'])) {
 	$table = $_REQUEST['table'];
@@ -226,10 +201,10 @@ if (!$_REQUEST['modfunc']) {
 		// mab - allow changing between select and autos and edits and text
 		if ($_REQUEST['id'] != 'new') {
 			if ($RET['TYPE'] != 'select' && $RET['TYPE'] != 'autos' && $RET['TYPE'] != 'edits' && $RET['TYPE'] != 'text') {
-				$allow_edit = $_openSIS['allow_edit'];
-				$AllowEdit = $_openSIS['AllowEdit'][$modname];
-				$_openSIS['allow_edit'] = false;
-				$_openSIS['AllowEdit'][$modname] = array();
+				$allow_edit = $_hani['allow_edit'];
+				$AllowEdit = $_hani['AllowEdit'][$modname];
+				$_hani['allow_edit'] = false;
+				$_hani['AllowEdit'][$modname] = array();
 				$type_options = array(
 					'select' => _pullDown,
 					'autos' => _autoPullDown,
@@ -265,8 +240,8 @@ if (!$_REQUEST['modfunc']) {
 
 		$header .= '<TD>' . SelectInput($RET['TYPE'], 'tables[' . $_REQUEST['id'] . '][TYPE]', _dataType, $type_options, false) . '</TD>';
 		if ($_REQUEST['id'] != 'new' && $RET['TYPE'] != 'select' && $RET['TYPE'] != 'autos' && $RET['TYPE'] != 'edits' && $RET['TYPE'] != 'text') {
-			$_openSIS['allow_edit'] = $allow_edit;
-			$_openSIS['AllowEdit'][$modname] = $AllowEdit;
+			$_hani['allow_edit'] = $allow_edit;
+			$_hani['AllowEdit'][$modname] = $AllowEdit;
 		}
 		foreach ($categories_RET as $type)
 			$categories_options[$type['ID']] = $type['TITLE'];

@@ -1,31 +1,5 @@
 <?php
-
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+ 
 include('../../RedirectModulesInc.php');
 include('lang/language.php');
 //echo "<pre>"; print_r($_REQUEST); echo "</pre>";
@@ -160,9 +134,9 @@ if (!$_REQUEST['modfunc']) {
 
     if ($_SESSION['MassDrops.php']['course_period_id']) {
         $extra['FROM'] .= ',schedule w_ss';
-        $extra['WHERE'] .= ' AND w_ss.STUDENT_ID=s.STUDENT_ID AND w_ss.SYEAR=ssm.SYEAR AND w_ss.SCHOOL_ID=ssm.SCHOOL_ID AND w_ss.COURSE_PERIOD_ID=\'' . $_SESSION['MassDrops.php']['course_period_id'] . '\' AND (' . (($_REQUEST['include_inactive']) ? '' : 'w_ss.START_DATE <=\'' . DBDate() . '\' AND') . ' (w_ss.END_DATE>=\'' . DBDate() . '\' OR w_ss.END_DATE IS NULL))';
+        $extra['WHERE'] .= ' AND w_ss.STUDENT_ID=s.STUDENT_ID AND w_ss.SYEAR=ssm.SYEAR AND w_ss.INSTITUTE_ID=ssm.INSTITUTE_ID AND w_ss.COURSE_PERIOD_ID=\'' . $_SESSION['MassDrops.php']['course_period_id'] . '\' AND (' . (($_REQUEST['include_inactive']) ? '' : 'w_ss.START_DATE <=\'' . DBDate() . '\' AND') . ' (w_ss.END_DATE>=\'' . DBDate() . '\' OR w_ss.END_DATE IS NULL))';
         $course = DBGet(DBQuery('SELECT c.TITLE AS COURSE_TITLE,cp.TITLE,cp.COURSE_ID FROM course_periods cp,courses c WHERE c.COURSE_ID=cp.COURSE_ID AND cp.COURSE_PERIOD_ID=\'' . $_SESSION['MassDrops.php']['course_period_id'] . '\''));
-        $_openSIS['SearchTerms'] .= '<b>'._coursePeriod.' : </b>' . $course[1]['COURSE_TITLE'] . ' : ' . $course[1]['TITLE'];
+        $_HaniIMS['SearchTerms'] .= '<b>'._coursePeriod.' : </b>' . $course[1]['COURSE_TITLE'] . ' : ' . $course[1]['TITLE'];
     }
 //    $extra['search'] .= "<label class=\"control-label\">Course Period</label><DIV id=course_div></DIV><A HREF=# onclick='window.open(\"ForWindow.php?modname=$_REQUEST[modname]&modfunc=choose_course\",\"\",\"scrollbars=yes,resizable=yes,width=800,height=400\");'>Choose Course Period</A>";
     $extra['search'] .= "<label class=\"control-label\">"._coursePeriod."</label><div><A HREF=javascript:void(0) data-toggle='modal' data-target='#modal_default'  onClick='cleanModal(\"course_modal\");cleanModal(\"cp_modal\");' class=\"text-primary\"><i class=\"icon-menu6 m-t-10 pull-right\"></i><DIV id=course_div class=form-control readonly=readonly><span class=text-grey>"._clickToSelect."</span></DIV></A></div>";
@@ -229,9 +203,9 @@ if (!$_REQUEST['modfunc']) {
             $tmp_REQUEST = $_REQUEST;
             unset($tmp_REQUEST['expanded_view']);
             if ($_REQUEST['expanded_view'] != 'true' && !UserStudentID() && count($students_RET) != 0) {
-                DrawHeader("<A HREF=" . PreparePHP_SELF($tmp_REQUEST) . "&expanded_view=true class=big_font ><i class=\"icon-square-down-right\"></i> "._expandedView."</A>", '<span class="heading-text">' . str_replace('<BR>', '<BR> &nbsp;', substr($_openSIS['SearchTerms'], 0, -4)) . '</span>', $extra['header_right']);
+                DrawHeader("<A HREF=" . PreparePHP_SELF($tmp_REQUEST) . "&expanded_view=true class=big_font ><i class=\"icon-square-down-right\"></i> "._expandedView."</A>", '<span class="heading-text">' . str_replace('<BR>', '<BR> &nbsp;', substr($_HaniIMS['SearchTerms'], 0, -4)) . '</span>', $extra['header_right']);
             } elseif (!UserStudentID() && count($students_RET) != 0) {
-                DrawHeader("<A HREF=" . PreparePHP_SELF($tmp_REQUEST) . "&expanded_view=false class=big_font><i class=\"icon-square-up-left\"></i> "._originalView."</A>", '<span class="heading-text">' . str_replace('<BR>', '<BR> &nbsp;', substr($_openSIS['Search'], 0, -4)) . '</span>', $extra['header_right']);
+                DrawHeader("<A HREF=" . PreparePHP_SELF($tmp_REQUEST) . "&expanded_view=false class=big_font><i class=\"icon-square-up-left\"></i> "._originalView."</A>", '<span class="heading-text">' . str_replace('<BR>', '<BR> &nbsp;', substr($_HaniIMS['Search'], 0, -4)) . '</span>', $extra['header_right']);
             }
             DrawHeader($extra['extra_header_left'], $extra['extra_header_right']);
             if ($_REQUEST['LO_save'] != '1' && !$extra['suppress_save']) {
@@ -283,7 +257,7 @@ echo '<div class="modal-body">';
 echo '<div id="conf_div" class="text-center"></div>';
 echo '<div class="row" id="resp_table">';
 echo '<div class="col-md-4">';
-$sql = "SELECT SUBJECT_ID,TITLE FROM course_subjects WHERE SCHOOL_ID='" . UserSchool() . "' AND SYEAR='" . UserSyear() . "' ORDER BY TITLE";
+$sql = "SELECT SUBJECT_ID,TITLE FROM course_subjects WHERE INSTITUTE_ID='" . UserInstitute() . "' AND SYEAR='" . UserSyear() . "' ORDER BY TITLE";
 $QI = DBQuery($sql);
 $subjects_RET = DBGet($QI);
 
@@ -320,7 +294,7 @@ if (clean_param($_REQUEST['modfunc'], PARAM_ALPHAEXT) == 'choose_course') {
         $course_title = $course_title[1]['TITLE'];
 
 
-        $cp_RET = DBGet(DBQuery('SELECT cp.TITLE,(SELECT TITLE FROM school_periods sp WHERE sp.PERIOD_ID=cpv.PERIOD_ID) AS PERIOD_TITLE,cp.MARKING_PERIOD_ID,(SELECT CONCAT(FIRST_NAME,\'' . ' ' . '\',LAST_NAME) FROM staff st WHERE st.STAFF_ID=cp.TEACHER_ID) AS TEACHER,r.TITLE AS ROOM,cp.TOTAL_SEATS-cp.FILLED_SEATS AS AVAILABLE_SEATS FROM course_periods cp,course_period_var cpv,rooms r WHERE cp.COURSE_PERIOD_ID=\'' . $_SESSION['MassDrops.php']['course_period_id'] . '\' AND cp.COURSE_PERIOD_ID=cpv.COURSE_PERIOD_ID AND cpv.ROOM_ID=r.ROOM_ID'));
+        $cp_RET = DBGet(DBQuery('SELECT cp.TITLE,(SELECT TITLE FROM institute_periods sp WHERE sp.PERIOD_ID=cpv.PERIOD_ID) AS PERIOD_TITLE,cp.MARKING_PERIOD_ID,(SELECT CONCAT(FIRST_NAME,\'' . ' ' . '\',LAST_NAME) FROM staff st WHERE st.STAFF_ID=cp.TEACHER_ID) AS TEACHER,r.TITLE AS ROOM,cp.TOTAL_SEATS-cp.FILLED_SEATS AS AVAILABLE_SEATS FROM course_periods cp,course_period_var cpv,rooms r WHERE cp.COURSE_PERIOD_ID=\'' . $_SESSION['MassDrops.php']['course_period_id'] . '\' AND cp.COURSE_PERIOD_ID=cpv.COURSE_PERIOD_ID AND cpv.ROOM_ID=r.ROOM_ID'));
 
         $get_type = DBGEt(DBQuery('SELECT * FROM course_periods WHERE course_period_id=' . $_SESSION['MassDrops.php']['course_period_id']));
         if ($get_type[1]['SCHEDULE_TYPE'] == 'BLOCKED') {

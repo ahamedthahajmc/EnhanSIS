@@ -1,30 +1,5 @@
 <?php
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+ 
 error_reporting(0); 
 include("functions/ParamLibFnc.php");
 require_once("Data.php");
@@ -41,8 +16,8 @@ if(clean_param($_REQUEST['modfunc'],PARAM_ALPHA)=='print')
 {
     // $connection = new mysqli($DatabaseServer, $DatabaseUsername, $DatabasePassword, $DatabaseName);
 	$_REQUEST = $_SESSION['_REQUEST_vars'];
-	$_REQUEST['_openSIS_PDF'] = true;
-        $_REQUEST['_openSIS_PDF'] = mysqli_real_escape_string($connection,optional_param('_openSIS_PDF', '', PARAM_RAW));
+	$_REQUEST['HaniIMS_PDF'] = true;
+        $_REQUEST['HaniIMS_PDF'] = mysqli_real_escape_string($connection,optional_param('HaniIMS_PDF', '', PARAM_RAW));
         $_REQUEST['modname'] = mysqli_real_escape_string($connection,optional_param('modname', '', PARAM_RAW));
         $_REQUEST['failed_login'] = mysqli_real_escape_string($connection,optional_param('failed_login', '', PARAM_RAW));
 	if(strpos($_REQUEST['modname'],'?')!==false)
@@ -95,7 +70,7 @@ else
 {
 echo "
 	<HTML>
-		<HEAD><TITLE>"._openSisSchoolSoftware."</TITLE>
+		<HEAD><TITLE>"._HaniIMSInstituteSoftware."</TITLE>
 		<SCRIPT>
 		size = 30;
 		function expandFrame()
@@ -123,7 +98,7 @@ echo "
                   if($_REQUEST['modcat'] && $_REQUEST['modname'])
 	{
 		echo '<b>'.str_replace('_',' ',$_REQUEST['modcat']);
-		echo ' : '.$_openSIS['Menu'][$_REQUEST['modcat']][$_REQUEST['modname']];
+		echo ' : '.$_HaniIMS['Menu'][$_REQUEST['modcat']][$_REQUEST['modname']];
 		echo '</b>';
 	}
                   if($help[$_REQUEST['modcat']] && !$_REQUEST['modname'])

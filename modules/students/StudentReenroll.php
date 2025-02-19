@@ -1,31 +1,6 @@
 <?php
 
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+
 include('../../RedirectModulesInc.php');
 unset($_SESSION['student_id']);
 if (clean_param($_REQUEST['modfunc'], PARAM_ALPHA) == 'save') {
@@ -53,7 +28,7 @@ if (clean_param($_REQUEST['modfunc'], PARAM_ALPHA) == 'save') {
 
         // foreach ($_REQUEST['student'] as $student_id => $yes) {
         foreach ($req_stu as $student_id => $yes) {
-            $next_grade = DBGet(DBQuery('SELECT NEXT_GRADE_ID FROM school_gradelevels WHERE ID=\'' . $_REQUEST['grade_id'] . '\' AND SCHOOL_ID=\'' . UserSchool() . '\''));
+            $next_grade = DBGet(DBQuery('SELECT NEXT_GRADE_ID FROM institute_gradelevels WHERE ID=\'' . $_REQUEST['grade_id'] . '\' AND INSTITUTE_ID=\'' . UserInstitute() . '\''));
             if ($next_grade[1]['NEXT_GRADE_ID'] != '')
                 $rolling_ret = 1;
             else
@@ -62,7 +37,7 @@ if (clean_param($_REQUEST['modfunc'], PARAM_ALPHA) == 'save') {
             $end_date = $qr[1]['END_DATE'];
             //echo $start_date; exit;
             if (strtotime($start_date) > strtotime($end_date)) {
-                DBQuery('INSERT INTO student_enrollment (SYEAR,SCHOOL_ID,STUDENT_ID,GRADE_ID,START_DATE,ENROLLMENT_CODE,NEXT_SCHOOL,CALENDAR_ID) VALUES (\'' . UserSyear() . '\',\'' . UserSchool() . '\',' . $student_id . ',\'' . $_REQUEST['grade_id'] . '\',\'' . $start_date . '\',\'' . $_REQUEST['en_code'] . '\',\'' . $rolling_ret . '\',\'' . $_REQUEST['cal_id'] . '\')');
+                DBQuery('INSERT INTO student_enrollment (SYEAR,INSTITUTE_ID,STUDENT_ID,GRADE_ID,START_DATE,ENROLLMENT_CODE,NEXT_INSTITUTE,CALENDAR_ID) VALUES (\'' . UserSyear() . '\',\'' . UserInstitute() . '\',' . $student_id . ',\'' . $_REQUEST['grade_id'] . '\',\'' . $start_date . '\',\'' . $_REQUEST['en_code'] . '\',\'' . $rolling_ret . '\',\'' . $_REQUEST['cal_id'] . '\')');
 
                 $enroll_msg = "" . _selectedStudentsAreSuccessfullyReEnrolled . ".";
                 $count = 1;
@@ -93,7 +68,7 @@ DrawBC("" . _students . " > " . ProgramTitle());
 if ($_REQUEST['search_modfunc'] == 'list') {
     echo "<FORM name=sav class=\"form-horizontal\" id=sav action=Modules.php?modname=$_REQUEST[modname]&modfunc=save method=POST>";
     PopTable_wo_header('header');
-    $calendar = DBGet(DBQuery('SELECT CALENDAR_ID FROM school_calendars WHERE SCHOOL_ID=\'' . UserSchool() . "' AND SYEAR='" . UserSyear() . "' ORDER BY DEFAULT_CALENDAR DESC LIMIT 0,1"));
+    $calendar = DBGet(DBQuery('SELECT CALENDAR_ID FROM institute_calendars WHERE INSTITUTE_ID=\'' . UserInstitute() . "' AND SYEAR='" . UserSyear() . "' ORDER BY DEFAULT_CALENDAR DESC LIMIT 0,1"));
 
     echo '<INPUT TYPE=hidden name=cal_id value=' . $calendar[1]["CALENDAR_ID"] . '>';
 
@@ -105,7 +80,7 @@ if ($_REQUEST['search_modfunc'] == 'list') {
     echo '</div><div class="col-lg-6">';
     echo '<div class="form-group"><label class="control-label col-lg-4 text-right">' . _grade . ' <span class="text-danger">*</span></label><div class="col-lg-8">';
 
-    $sel_grade = DBGet(DBQuery('SELECT TITLE,ID FROM school_gradelevels WHERE SCHOOL_ID=\'' . UserSchool() . '\''));
+    $sel_grade = DBGet(DBQuery('SELECT TITLE,ID FROM institute_gradelevels WHERE INSTITUTE_ID=\'' . UserInstitute() . '\''));
     echo '<SELECT class="form-control" name=grade_id id=grade_id><OPTION value="">' . _selectGrade . '</OPTION>';
     foreach ($sel_grade as $g_id)
         echo "<OPTION value=$g_id[ID]>" . $g_id['TITLE'] . '</OPTION>';

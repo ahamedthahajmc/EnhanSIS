@@ -1,31 +1,6 @@
 <?php
 
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+
 // OTHER INFO
 include('../../../RedirectIncludes.php');
 
@@ -129,7 +104,7 @@ function _makeAutoSelectInput($column, $name = '', $request = 'staff') {
 
     if ($field['TYPE'] == 'autos') {
         // add values found in current and previous year
-        $options_RET = DBGet(DBQuery('SELECT DISTINCT s.CUSTOM_' . $field[ID] . ',upper(s.CUSTOM_' . $field[ID] . ') AS KEEY FROM staff s,staff_school_relationship ssr WHERE s.STAFF_ID=ssr.STAFF_ID AND (ssr.SYEAR=\'' . UserSyear() . '\' OR ssr.SYEAR=\'' . (UserSyear() - 1) . '\') AND s.CUSTOM_' . $field[ID] . ' IS NOT NULL ORDER BY KEEY'));
+        $options_RET = DBGet(DBQuery('SELECT DISTINCT s.CUSTOM_' . $field[ID] . ',upper(s.CUSTOM_' . $field[ID] . ') AS KEEY FROM staff s,staff_institute_relationship ssr WHERE s.STAFF_ID=ssr.STAFF_ID AND (ssr.SYEAR=\'' . UserSyear() . '\' OR ssr.SYEAR=\'' . (UserSyear() - 1) . '\') AND s.CUSTOM_' . $field[ID] . ' IS NOT NULL ORDER BY KEEY'));
         if (count($options_RET)) {
             foreach ($options_RET as $option)
                 if ($option['CUSTOM_' . $field['ID']] != '' && !$options[$option['CUSTOM_' . $field['ID']]])
@@ -182,7 +157,7 @@ function _makeAutoSelectInputParent($column, $name, $request = 'staff') {
 
     if ($field['TYPE'] == 'autos') {
         // add values found in current and previous year
-        $options_RET = DBGet(DBQuery('SELECT DISTINCT s.CUSTOM_' . $field[ID] . ',upper(s.CUSTOM_' . $field[ID] . ') AS KEEY FROM people s,staff_school_relationship ssr WHERE s.STAFF_ID=ssr.STAFF_ID AND (ssr.SYEAR=\'' . UserSyear() . '\' OR ssr.SYEAR=\'' . (UserSyear() - 1) . '\') AND s.CUSTOM_' . $field[ID] . ' IS NOT NULL ORDER BY KEEY'));
+        $options_RET = DBGet(DBQuery('SELECT DISTINCT s.CUSTOM_' . $field[ID] . ',upper(s.CUSTOM_' . $field[ID] . ') AS KEEY FROM people s,staff_institute_relationship ssr WHERE s.STAFF_ID=ssr.STAFF_ID AND (ssr.SYEAR=\'' . UserSyear() . '\' OR ssr.SYEAR=\'' . (UserSyear() - 1) . '\') AND s.CUSTOM_' . $field[ID] . ' IS NOT NULL ORDER BY KEEY'));
         if (count($options_RET)) {
             foreach ($options_RET as $option)
                 if ($option['CUSTOM_' . $field['ID']] != '' && !$options[$option['CUSTOM_' . $field['ID']]])
@@ -232,9 +207,9 @@ function _makeTextareaInput($column, $name, $request = 'staff') {
 }
 
 // function _makeMultipleInput($column, $name, $request = 'staff') {
-//     global $value, $field, $_openSIS;
+//     global $value, $field, $_hani;
 
-//     if ((AllowEdit() || $_openSIS['allow_edit']) && !$_REQUEST['_openSIS_PDF']) {
+//     if ((AllowEdit() || $_hani['allow_edit']) && !$_REQUEST['HaniIMS_PDF']) {
 //         $field['SELECT_OPTIONS'] = str_replace("\n", "\r", str_replace("\r\n", "\r", $field['SELECT_OPTIONS']));
 //         $select_options = explode("\r", $field['SELECT_OPTIONS']);
 //         if (count($select_options)) {
@@ -294,9 +269,9 @@ function _makeTextareaInput($column, $name, $request = 'staff') {
 // }
 
 function _makeMultipleInput($column, $name, $request = 'staff') {
-    global $value, $field, $_openSIS;
+    global $value, $field, $_hani;
 
-    if ((AllowEdit() || $_openSIS['allow_edit']) && !$_REQUEST['_openSIS_PDF']) {
+    if ((AllowEdit() || $_hani['allow_edit']) && !$_REQUEST['HaniIMS_PDF']) {
         $field['SELECT_OPTIONS'] = str_replace("\n", "\r", str_replace("\r\n", "\r", $field['SELECT_OPTIONS']));
         $select_options = explode("\r", $field['SELECT_OPTIONS']);
         if (count($select_options)) {

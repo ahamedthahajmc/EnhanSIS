@@ -1,34 +1,9 @@
 <?php
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+ 
 include('../../RedirectModulesInc.php');
 $extra['search'] .= '<TR><TD align=center colspan=2><TABLE><TR><TD><DIV id=fields_div></DIV></TD></TR></TABLE></TD></TR>';
 $extra['new'] = true;
-$_openSIS['CustomFields'] = true;
+$_hani['CustomFields'] = true;
 if($_REQUEST['fields']['TITLE'] || $_REQUEST['fields']['FIRST_NAME'] || $_REQUEST['fields']['LAST_NAME'] || $_REQUEST['fields']['MIDDLE_NAME'] || $_REQUEST['fields']['GENDER'] || $_REQUEST['fields']['BIRTHDATE'] || $_REQUEST['fields']['CELL_PHONE'] || $_REQUEST['fields']['WORK_PHONE'] || $_REQUEST['fields']['HOME_PHONE'] || $_REQUEST['fields']['PRIMARY_LANGUAGE_ID'] || $_REQUEST['fields']['SECOND_LANGUAGE_ID'] || $_REQUEST['fields']['THIRD_LANGUAGE_ID'] || $_REQUEST['fields']['LAST_YEAR_ID'] || $_REQUEST['fields']['PHONE'] || $_REQUEST['fields']['USERNAME'] || $_REQUEST['fields']['IS_DISABLE'] || $_REQUEST['fields']['EMAIL'] || $_REQUEST['fields']['LAST_LOGIN'] || $_REQUEST['fields']['PROFILE'])
 {
     
@@ -36,20 +11,20 @@ if($_REQUEST['fields']['TITLE'] || $_REQUEST['fields']['FIRST_NAME'] || $_REQUES
     {
     if(isset($extra['user_profile']) &&  ($extra['user_profile']=='parent'))
     {
-        $extra['SELECT'] .= ',s.TITLE,s.FIRST_NAME,s.LAST_NAME,s.MIDDLE_NAME,s.birthdate,s.primary_language_id,s.second_language_id,s.third_language_id,la.USERNAME,la.LAST_LOGIN,s.EMAIL,s.IS_DISABLE,s.CURRENT_SCHOOL_ID,ssr.SCHOOL_ID as SCHOOLS ';
+        $extra['SELECT'] .= ',s.TITLE,s.FIRST_NAME,s.LAST_NAME,s.MIDDLE_NAME,s.birthdate,s.primary_language_id,s.second_language_id,s.third_language_id,la.USERNAME,la.LAST_LOGIN,s.EMAIL,s.IS_DISABLE,s.CURRENT_INSTITUTE_ID,ssr.INSTITUTE_ID as INSTITUTES ';
     }
     else {
-         $extra['SELECT'] .= ',s.TITLE,s.FIRST_NAME,s.LAST_NAME,s.MIDDLE_NAME,s.GENDER,s.birthdate,s.primary_language_id,s.second_language_id,s.third_language_id,la.USERNAME,la.LAST_LOGIN,s.EMAIL,s.PHONE,s.IS_DISABLE,s.CURRENT_SCHOOL_ID,ssr.SCHOOL_ID as SCHOOLS ';
+         $extra['SELECT'] .= ',s.TITLE,s.FIRST_NAME,s.LAST_NAME,s.MIDDLE_NAME,s.GENDER,s.birthdate,s.primary_language_id,s.second_language_id,s.third_language_id,la.USERNAME,la.LAST_LOGIN,s.EMAIL,s.PHONE,s.IS_DISABLE,s.CURRENT_INSTITUTE_ID,ssr.INSTITUTE_ID as INSTITUTES ';
     }
     }
     else
     {
         if(isset($extra['user_profile']) &&  ($extra['user_profile']=='parent'))
         {
-        $extra['SELECT'] .= ',s.TITLE,s.FIRST_NAME,s.LAST_NAME,s.MIDDLE_NAME,la.USERNAME,la.LAST_LOGIN,s.EMAIL,s.IS_DISABLE,s.HOME_PHONE,s.WORK_PHONE,s.CELL_PHONE,s.PROFILE,s.CURRENT_SCHOOL_ID,ssm.SCHOOL_ID as SCHOOLS ';
+        $extra['SELECT'] .= ',s.TITLE,s.FIRST_NAME,s.LAST_NAME,s.MIDDLE_NAME,la.USERNAME,la.LAST_LOGIN,s.EMAIL,s.IS_DISABLE,s.HOME_PHONE,s.WORK_PHONE,s.CELL_PHONE,s.PROFILE,s.CURRENT_INSTITUTE_ID,ssm.INSTITUTE_ID as INSTITUTES ';
         }
         else {
-         $extra['SELECT'] .= ',s.TITLE,s.FIRST_NAME,s.LAST_NAME,s.MIDDLE_NAME,s.GENDER,la.USERNAME,la.LAST_LOGIN,s.EMAIL,s.PHONE,s.IS_DISABLE,s.CURRENT_SCHOOL_ID,ssm.SCHOOL_ID as SCHOOLS ';
+         $extra['SELECT'] .= ',s.TITLE,s.FIRST_NAME,s.LAST_NAME,s.MIDDLE_NAME,s.GENDER,la.USERNAME,la.LAST_LOGIN,s.EMAIL,s.PHONE,s.IS_DISABLE,s.CURRENT_INSTITUTE_ID,ssm.INSTITUTE_ID as INSTITUTES ';
         }
     }
          
@@ -167,13 +142,13 @@ if($_REQUEST['fields']['CATEGORY'] || $_REQUEST['fields']['JOB_TITLE'] || $_REQU
     {
         $extra['SELECT'] .= ',ssi.category,ssi.job_title,ssi.joining_date,ssi.end_date';  
     }
-    $extra['FROM'] .= ' ,staff_school_info ssi';
+    $extra['FROM'] .= ' ,staff_institute_info ssi';
     $extra['WHERE'] .= ' AND ssi.STAFF_ID=s.STAFF_ID';
 }
 
 
 if(!$extra['functions'])
-	$extra['functions'] = array('LAST_LOGIN'=>'ProperDate','SCHOOLS'=>'Tot_School');
+	$extra['functions'] = array('LAST_LOGIN'=>'ProperDate','INSTITUTES'=>'Tot_Institute');
 
 if($_REQUEST['search_modfunc']=='list')
 {
@@ -220,7 +195,7 @@ if($_REQUEST['search_modfunc']=='list')
         'END_DATE'=>_endDate,
         'STAFF_ID'=>_staffId,
         'ROLLOVER_ID'=>_lastYearId,
-        'SCHOOLS'=>_schools,
+        'INSTITUTES'=>_institutes,
         'USERNAME'=>_username,
         'IS_DISABLE'=>_disable,
         'EMAIL'=>_emailId,
@@ -248,7 +223,7 @@ if($_REQUEST['search_modfunc']=='list')
                     'HOME_PHONE'=>_homePhone,
                     'CELL_PHONE'=>_mobilePhone,
                     'WORK_PHONE'=>_workPhone,
-                    'SCHOOLS'=>_schools,
+                    'INSTITUTES'=>_institutes,
                     'USERNAME'=>_username,
                     'IS_DISABLE'=>_disable,
                     'EMAIL'=>_emailId,
@@ -315,10 +290,10 @@ if($_REQUEST['search_modfunc']=='list')
                             $field='HOME_PHONE';
                             $columns[$field]='Phone';
                         }
-                        elseif(strtoupper($field)=='SCHOOLS')
+                        elseif(strtoupper($field)=='INSTITUTES')
                         {
-                            $field='SCHOOLS';
-                            $columns[$field]='Schools';
+                            $field='INSTITUTES';
+                            $columns[$field]='Institutes';
                         }
                         else
                         {
@@ -481,7 +456,7 @@ else
             'END_DATE'=>_endDate,
             'STAFF_ID'=>_staffId,
             'ROLLOVER_ID'=>_lastYearId,
-            'SCHOOLS'=>_schools,
+            'INSTITUTES'=>_institutes,
             'USERNAME'=>_username,
             'IS_DISABLE'=>_disable,
             'EMAIL'=>_emailId,
@@ -507,7 +482,7 @@ else
                     'HOME_PHONE'=>_homePhone,
                     'CELL_PHONE'=>_mobilePhone,
                     'WORK_PHONE'=>_workPhone,
-                    'SCHOOLS'=>_schools,
+                    'INSTITUTES'=>_institutes,
                     'USERNAME'=>_username,
                     'IS_DISABLE'=>_disable,
                     'EMAIL'=>_emailId,
@@ -607,17 +582,17 @@ else
 	echo '</div>';
 }
 
-function Tot_School($value,$column)
+function Tot_Institute($value,$column)
 {	
 
-        $school=$value;
-        $sql = "SELECT ID,TITLE FROM schools WHERE ID IN($school)";
+        $institute=$value;
+        $sql = "SELECT ID,TITLE FROM institutes WHERE ID IN($institute)";
 	$QI = DBQuery($sql);
-	$schools_RET = DBGet($QI);
-        foreach($schools_RET as $key=>$s_name)
-        $Schools[]=$s_name['TITLE'];
-        $Schools=implode(",",$Schools);
-        return $Schools;
+	$institutes_RET = DBGet($QI);
+        foreach($institutes_RET as $key=>$s_name)
+        $Institutes[]=$s_name['TITLE'];
+        $Institutes=implode(",",$Institutes);
+        return $Institutes;
         
 }
 

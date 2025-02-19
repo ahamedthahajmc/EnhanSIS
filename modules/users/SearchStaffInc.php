@@ -1,31 +1,5 @@
 <?php
 
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that
-#  include student demographic info, scheduling, grade book, attendance,
-#  report cards, eligibility, transcripts, parent portal,
-#  student portal and more.
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as
-#  published by the Free Software Foundation, version 2 of the License.
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
 include('../../RedirectModulesInc.php');
 
 if (strpos($_REQUEST['modname'], 'users/TeacherPrograms.php') !== false) {
@@ -113,7 +87,7 @@ if (User('PROFILE') == 'admin') {
         echo '<div class="row">';
         echo '<div class="col-md-6">';
         if (User('PROFILE') == 'admin')
-            echo '<label class="checkbox-inline"><INPUT class="styled" type=checkbox name=_search_all_schools value=Y' . (Preferences('DEFAULT_ALL_SCHOOLS') == 'Y' ? ' CHECKED' : '') . '> ' . _searchAllSchools . '</label>';
+            echo '<label class="checkbox-inline"><INPUT class="styled" type=checkbox name=_search_all_institutes value=Y' . (Preferences('DEFAULT_ALL_INSTITUTES') == 'Y' ? ' CHECKED' : '') . '> ' . _searchAllInstitutes . '</label>';
         echo '<label class="checkbox-inline"><INPUT class="styled" type=checkbox name=_dis_user value=Y>' . _includeDisabledStaff . '</label>';
         echo '</div>'; //.col-md-12
         echo '</div>'; //.row
@@ -142,14 +116,14 @@ if (User('PROFILE') == 'admin') {
         if (!$_REQUEST['next_modname'])
             $_REQUEST['next_modname'] = 'users/Staff.php';
 
-        if (!isset($_openSIS['DrawHeader']))
+        if (!isset($_hani['DrawHeader']))
             DrawHeader(_pleaseSelectAStaff);
-        if ($_REQUEST['_search_all_schools'] == 'Y')
+        if ($_REQUEST['_search_all_institutes'] == 'Y')
             $extra['GROUP'] = ' s.STAFF_ID ';
 
-        if ($_REQUEST['_search_all_schools'] == 'Y') {
+        if ($_REQUEST['_search_all_institutes'] == 'Y') {
             $extra['SELECT'] .= ',s.STAFF_ID as STF_ID';
-            $extra['functions'] = array('STF_ID' => 'Make Staff All School');
+            $extra['functions'] = array('STF_ID' => 'Make Staff All Institute');
         }
         $extra['SELECT'] .= ',s.STAFF_ID as CATEGORY,la.LAST_LOGIN';
         $extra['functions'] = array('CATEGORY' => 'staffCategory');
@@ -162,7 +136,7 @@ if (User('PROFILE') == 'admin') {
         $staff_RET = GetUserStaffList($extra);
         if ($_REQUEST['_dis_user'] == 'Y') {
             $last_log_sql = 'SELECT DISTINCT CONCAT(s.LAST_NAME,  \' \' ,s.FIRST_NAME) AS FULL_NAME,
-					s.PROFILE,s.PROFILE_ID,ssr.END_DATE,s.STAFF_ID,\' \' as LAST_LOGIN FROM staff s INNER JOIN staff_school_relationship ssr USING(staff_id) WHERE
+					s.PROFILE,s.PROFILE_ID,ssr.END_DATE,s.STAFF_ID,\' \' as LAST_LOGIN FROM staff s INNER JOIN staff_institute_relationship ssr USING(staff_id) WHERE
 					((s.PROFILE_ID!=4 AND s.PROFILE_ID!=3) OR s.PROFILE_ID IS NULL) AND ' . ($_REQUEST['first'] ? ' UPPER(s.FIRST_NAME) LIKE \'' . singleQuoteReplace("'", "\'", strtoupper($_REQUEST['first'])) . '%\' AND ' : '') . ($_REQUEST['last'] ? ' UPPER(s.LAST_NAME) LIKE \'' . singleQuoteReplace("'", "\'", strtoupper($_REQUEST['last'])) . '%\' AND ' : '') . ' ssr.SYEAR=\'' . UserSyear() . '\'  AND s.STAFF_ID NOT IN (SELECT USER_ID FROM login_authentication WHERE PROFILE_ID NOT IN (3,4)) ' . ($_REQUEST['username'] ? ' AND s.STAFF_ID IN (SELECT USER_ID FROM login_authentication WHERE UPPER(USERNAME) LIKE \'' . singleQuoteReplace("'", "\'", strtoupper($_REQUEST['username'])) . '%\' AND PROFILE_ID NOT IN (3,4)) ' : '');
             $last_log = DBGet(DBQuery($last_log_sql));
 
@@ -212,8 +186,8 @@ if (User('PROFILE') == 'admin') {
                 );
             //                $columns = array('FULL_NAME' => 'Staff Member',  'CATEGORY' => 'Category','PROFILE' => 'Profile', 'STAFF_ID' =>_staffId);
 
-            if ($_REQUEST['_search_all_schools'] == 'Y') {
-                $columns += array('STF_ID' => 'School Name');
+            if ($_REQUEST['_search_all_institutes'] == 'Y') {
+                $columns += array('STF_ID' => 'Institute Name');
             }
         }
         if (is_array($extra['columns_before']))
@@ -255,12 +229,12 @@ function makeLogin($value)
 {
     return ProperDate(substr($value, 0, 10)) . substr($value, 10);
 }
-function makeStaffAllSchool($value)
+function makeStaffAllInstitute($value)
 {
-    $schools = DBGet(DBQuery('SELECT * FROM staff_school_relationship WHERE (END_DATE=\'0000-00-00\' OR END_DATE IS NULL OR END_DATE>=\'' . date('y-m-d') . '\') AND SYEAR=' . UserSyear() . ' AND STAFF_ID=' . $value));
+    $institutes = DBGet(DBQuery('SELECT * FROM staff_institute_relationship WHERE (END_DATE=\'0000-00-00\' OR END_DATE IS NULL OR END_DATE>=\'' . date('y-m-d') . '\') AND SYEAR=' . UserSyear() . ' AND STAFF_ID=' . $value));
     $return_name = array();
-    foreach ($schools as $s) {
-        $name = DBGet(DBQuery('SELECT TITLE FROM schools WHERE ID=' . $s['SCHOOL_ID']));
+    foreach ($institutes as $s) {
+        $name = DBGet(DBQuery('SELECT TITLE FROM institutes WHERE ID=' . $s['INSTITUTE_ID']));
         $return_name[] = $name[1]['TITLE'];
     }
     return implode(',', $return_name);

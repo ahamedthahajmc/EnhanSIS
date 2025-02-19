@@ -1,30 +1,5 @@
 <?php
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+
 
 include('../../RedirectModulesInc.php');
 require_once("Data.php");
@@ -76,7 +51,7 @@ if (('Backup' == $_REQUEST['action']) || ($_REQUEST['action'] == _backup)) {
 
     if($same_dt_chck[1]['TODAY_BACKUP'] == 0)
     {
-        $program_entry = "INSERT INTO `program_config` (`syear`, `school_id`, `program`, `title`, `value`) VALUES('".UserSyear()."', '".UserSchool()."', 'DB_BACKUP', '".str_replace(".sql", "", $Export_FileName)."', '".$fair_date."')";
+        $program_entry = "INSERT INTO `program_config` (`syear`, `institute_id`, `program`, `title`, `value`) VALUES('".UserSyear()."', '".UserInstitute()."', 'DB_BACKUP', '".str_replace(".sql", "", $Export_FileName)."', '".$fair_date."')";
 
         if($program_entry)
         {
@@ -98,7 +73,7 @@ if ($print_form > 0 && !$_REQUEST['modfunc'] == 'cancel') {
     ?>
     <div class="row">
         <div class="col-md-6 col-md-offset-3">
-            <form id="dataForm" name="dataForm" method="post" action="ForExport.php?modname=tools/Backup.php&action=backup&_openSIS_PDF=true" target=_blank>
+            <form id="dataForm" name="dataForm" method="post" action="ForExport.php?modname=tools/Backup.php&action=backup&HaniIMS_PDF=true" target=_blank>
                 <?php
                 PopTable('header',  _backup);
                 echo '<h4 class="text-danger">'._note.':</h4><p>'._thisBackupUtilityWillCreateABackupOfTheDatabaseAlongWithTheDatabaseStructureYouWillBeAbleToUseThisBackupFileToRestoreTheDatabaseHoweverInOrderToRestoreYouWillNeedToHaveAccessToMySqlAdministrationApplicationLikePhpMyAdminAndTheRootUserIdAndPasswordToMySql.'</p>';
@@ -119,10 +94,10 @@ function EXPORT_TABLES($host, $user, $pass, $name, $tables = false, $backup_name
 
     // $backup_name=$name;
 //    $backup_name=$name."(".date("H:i:s d-m-Y").").sql";
-    if (strpos($name, 'opensis') >= 0)
+    if (strpos($name, 'hani') >= 0)
         $backup_name = $name . "_" . str_replace("-", '_', date("m-d-Y")) . ".sql";
     else
-        $backup_name = 'opensis1' . $name . "_" . str_replace("-", '_', date("m-d-Y")) . ".sql";
+        $backup_name = 'hani1' . $name . "_" . str_replace("-", '_', date("m-d-Y")) . ".sql";
     set_time_limit(3000);
     // $mysqli = new mysqli($host, $user, $pass, $name, $port);
     $mysqli = $connection;
@@ -181,36 +156,36 @@ function EXPORT_TABLES($host, $user, $pass, $name, $tables = false, $backup_name
               --
 
                     CREATE VIEW marking_periods AS
-    SELECT q.marking_period_id, 'openSIS' AS mp_source, q.syear,
-	q.school_id, 'quarter' AS mp_type, q.title, q.short_name,
+    SELECT q.marking_period_id, 'hani' AS mp_source, q.syear,
+	q.institute_id, 'quarter' AS mp_type, q.title, q.short_name,
 	q.sort_order, q.semester_id AS parent_id,
 	s.year_id AS grandparent_id, q.start_date,
 	q.end_date, q.post_start_date,
 	q.post_end_date, q.does_grades,
 	q.does_exam, q.does_comments
-    FROM school_quarters q
-    JOIN school_semesters s ON q.semester_id = s.marking_period_id
+    FROM institute_quarters q
+    JOIN institute_semesters s ON q.semester_id = s.marking_period_id
 UNION
-    SELECT marking_period_id, 'openSIS' AS mp_source, syear,
-	school_id, 'semester' AS mp_type, title, short_name,
+    SELECT marking_period_id, 'hani' AS mp_source, syear,
+	institute_id, 'semester' AS mp_type, title, short_name,
 	sort_order, year_id AS parent_id,
 	-1 AS grandparent_id, start_date,
 	end_date, post_start_date,
 	post_end_date, does_grades,
 	does_exam, does_comments
-    FROM school_semesters
+    FROM institute_semesters
 UNION
-    SELECT marking_period_id, 'openSIS' AS mp_source, syear,
-	school_id, 'year' AS mp_type, title, short_name,
+    SELECT marking_period_id, 'hani' AS mp_source, syear,
+	institute_id, 'year' AS mp_type, title, short_name,
 	sort_order, -1 AS parent_id,
 	-1 AS grandparent_id, start_date,
 	end_date, post_start_date,
 	post_end_date, does_grades,
 	does_exam, does_comments
-    FROM school_years
+    FROM institute_years
 UNION
     SELECT marking_period_id, 'History' AS mp_source, syear,
-	school_id, mp_type, name AS title, NULL AS short_name,
+	institute_id, mp_type, name AS title, NULL AS short_name,
 	NULL AS sort_order, parent_id,
 	-1 AS grandparent_id, NULL AS start_date,
 	post_end_date AS end_date, NULL AS post_start_date,
@@ -221,17 +196,17 @@ UNION
           
 
              CREATE VIEW course_details AS
-  SELECT cp.school_id, cp.syear, cp.marking_period_id, c.subject_id,
+  SELECT cp.institute_id, cp.syear, cp.marking_period_id, c.subject_id,
 	  cp.course_id, cp.course_period_id, cp.teacher_id,cp. secondary_teacher_id, c.title AS course_title,
 	  cp.title AS cp_title, cp.grade_scale_id, cp.mp, cp.credits,cp.begin_date,cp.end_date
   FROM course_periods cp, courses c WHERE (cp.course_id = c.course_id);\n
 
 CREATE VIEW enroll_grade AS
-  SELECT e.id, e.syear, e.school_id, e.student_id, e.start_date, e.end_date, sg.short_name, sg.title
-  FROM student_enrollment e, school_gradelevels sg WHERE (e.grade_id = sg.id);\n
+  SELECT e.id, e.syear, e.institute_id, e.student_id, e.start_date, e.end_date, sg.short_name, sg.title
+  FROM student_enrollment e, institute_gradelevels sg WHERE (e.grade_id = sg.id);\n
 
 CREATE VIEW transcript_grades AS
-    SELECT s.id AS school_id, IF(mp.mp_source='history',(SELECT school_name FROM history_school WHERE student_id=rcg.student_id and marking_period_id=mp.marking_period_id),s.title) AS school_name,mp_source, mp.marking_period_id AS mp_id,
+    SELECT s.id AS institute_id, IF(mp.mp_source='history',(SELECT institute_name FROM history_institute WHERE student_id=rcg.student_id and marking_period_id=mp.marking_period_id),s.title) AS institute_name,mp_source, mp.marking_period_id AS mp_id,
  mp.title AS mp_name, mp.syear, mp.end_date AS posted, rcg.student_id,
  sgc.grade_level_short AS gradelevel, rcg.grade_letter, rcg.unweighted_gp AS gp_value,
  rcg.weighted_gp AS weighting, rcg.gp_scale, rcg.credit_attempted, rcg.credit_earned,
@@ -244,7 +219,7 @@ CREATE VIEW transcript_grades AS
     FROM student_report_card_grades rcg
     INNER JOIN marking_periods mp ON mp.marking_period_id = rcg.marking_period_id AND mp.mp_type IN ('year','semester','quarter')
     INNER JOIN student_gpa_calculated sgc ON sgc.student_id = rcg.student_id AND sgc.marking_period_id = rcg.marking_period_id
-    INNER JOIN schools s ON s.id = mp.school_id;\n
+    INNER JOIN institutes s ON s.id = mp.institute_id;\n
             ";
     $content.="DELIMITER $$
 --
@@ -321,23 +296,23 @@ DELIMITER ;
 CREATE PROCEDURE `ATTENDANCE_CALC`(IN cp_id INT)
 BEGIN
 DELETE FROM missing_attendance WHERE COURSE_PERIOD_ID=cp_id;
-INSERT INTO missing_attendance(SCHOOL_ID,SYEAR,SCHOOL_DATE,COURSE_PERIOD_ID,PERIOD_ID,TEACHER_ID,SECONDARY_TEACHER_ID) 
-        SELECT s.ID AS SCHOOL_ID,acc.SYEAR,acc.SCHOOL_DATE,cp.COURSE_PERIOD_ID,cpv.PERIOD_ID, IF(tra.course_period_id=cp.course_period_id AND acc.school_date<tra.assign_date =true,tra.pre_teacher_id,cp.teacher_id) AS TEACHER_ID,
+INSERT INTO missing_attendance(INSTITUTE_ID,SYEAR,INSTITUTE_DATE,COURSE_PERIOD_ID,PERIOD_ID,TEACHER_ID,SECONDARY_TEACHER_ID) 
+        SELECT s.ID AS INSTITUTE_ID,acc.SYEAR,acc.INSTITUTE_DATE,cp.COURSE_PERIOD_ID,cpv.PERIOD_ID, IF(tra.course_period_id=cp.course_period_id AND acc.institute_date<tra.assign_date =true,tra.pre_teacher_id,cp.teacher_id) AS TEACHER_ID,
         cp.SECONDARY_TEACHER_ID FROM attendance_calendar acc INNER JOIN course_periods cp ON cp.CALENDAR_ID=acc.CALENDAR_ID INNER JOIN course_period_var cpv ON cp.COURSE_PERIOD_ID=cpv.COURSE_PERIOD_ID 
-        AND (cpv.COURSE_PERIOD_DATE IS NULL AND position(substring('UMTWHFS' FROM DAYOFWEEK(acc.SCHOOL_DATE) FOR 1) IN cpv.DAYS)>0 OR cpv.COURSE_PERIOD_DATE IS NOT NULL AND cpv.COURSE_PERIOD_DATE=acc.SCHOOL_DATE) 
-        INNER JOIN schools s ON s.ID=acc.SCHOOL_ID LEFT JOIN teacher_reassignment tra ON (cp.course_period_id=tra.course_period_id) INNER JOIN schedule sch ON sch.COURSE_PERIOD_ID=cp.COURSE_PERIOD_ID 
-        AND sch.student_id IN(SELECT student_id FROM student_enrollment se WHERE sch.school_id=se.school_id AND sch.syear=se.syear AND start_date<=acc.school_date AND (end_date IS NULL OR end_date>=acc.school_date))
-        AND (cp.MARKING_PERIOD_ID IS NOT NULL AND cp.MARKING_PERIOD_ID IN (SELECT MARKING_PERIOD_ID FROM school_years WHERE SCHOOL_ID=acc.SCHOOL_ID AND acc.SCHOOL_DATE BETWEEN START_DATE AND END_DATE UNION SELECT MARKING_PERIOD_ID FROM school_semesters WHERE SCHOOL_ID=acc.SCHOOL_ID AND acc.SCHOOL_DATE BETWEEN START_DATE AND END_DATE UNION SELECT MARKING_PERIOD_ID FROM school_quarters WHERE SCHOOL_ID=acc.SCHOOL_ID AND acc.SCHOOL_DATE BETWEEN START_DATE AND END_DATE) OR (cp.MARKING_PERIOD_ID IS NULL AND acc.school_date BETWEEN cp.begin_date AND cp.end_date))
-        AND sch.START_DATE<=acc.SCHOOL_DATE AND (sch.END_DATE IS NULL OR sch.END_DATE>=acc.SCHOOL_DATE ) AND cpv.DOES_ATTENDANCE='Y' AND acc.SCHOOL_DATE<CURDATE() AND cp.course_period_id=cp_id 
-        AND NOT EXISTS (SELECT '' FROM  attendance_completed ac WHERE ac.SCHOOL_DATE=acc.SCHOOL_DATE AND ac.COURSE_PERIOD_ID=cp.COURSE_PERIOD_ID AND ac.PERIOD_ID=cpv.PERIOD_ID 
-        AND IF(tra.course_period_id=cp.course_period_id AND acc.school_date<=tra.assign_date =true,ac.staff_id=tra.pre_teacher_id,ac.staff_id=cp.teacher_id))  AND isDateInMarkingPeriodWorkingDates(cp.marking_period_id, acc.SCHOOL_DATE) 
-        GROUP BY acc.SCHOOL_DATE,cp.COURSE_PERIOD_ID,cp.TEACHER_ID,cpv.PERIOD_ID;
+        AND (cpv.COURSE_PERIOD_DATE IS NULL AND position(substring('UMTWHFS' FROM DAYOFWEEK(acc.INSTITUTE_DATE) FOR 1) IN cpv.DAYS)>0 OR cpv.COURSE_PERIOD_DATE IS NOT NULL AND cpv.COURSE_PERIOD_DATE=acc.INSTITUTE_DATE) 
+        INNER JOIN institutes s ON s.ID=acc.INSTITUTE_ID LEFT JOIN teacher_reassignment tra ON (cp.course_period_id=tra.course_period_id) INNER JOIN schedule sch ON sch.COURSE_PERIOD_ID=cp.COURSE_PERIOD_ID 
+        AND sch.student_id IN(SELECT student_id FROM student_enrollment se WHERE sch.institute_id=se.institute_id AND sch.syear=se.syear AND start_date<=acc.institute_date AND (end_date IS NULL OR end_date>=acc.institute_date))
+        AND (cp.MARKING_PERIOD_ID IS NOT NULL AND cp.MARKING_PERIOD_ID IN (SELECT MARKING_PERIOD_ID FROM institute_years WHERE INSTITUTE_ID=acc.INSTITUTE_ID AND acc.INSTITUTE_DATE BETWEEN START_DATE AND END_DATE UNION SELECT MARKING_PERIOD_ID FROM institute_semesters WHERE INSTITUTE_ID=acc.INSTITUTE_ID AND acc.INSTITUTE_DATE BETWEEN START_DATE AND END_DATE UNION SELECT MARKING_PERIOD_ID FROM institute_quarters WHERE INSTITUTE_ID=acc.INSTITUTE_ID AND acc.INSTITUTE_DATE BETWEEN START_DATE AND END_DATE) OR (cp.MARKING_PERIOD_ID IS NULL AND acc.institute_date BETWEEN cp.begin_date AND cp.end_date))
+        AND sch.START_DATE<=acc.INSTITUTE_DATE AND (sch.END_DATE IS NULL OR sch.END_DATE>=acc.INSTITUTE_DATE ) AND cpv.DOES_ATTENDANCE='Y' AND acc.INSTITUTE_DATE<CURDATE() AND cp.course_period_id=cp_id 
+        AND NOT EXISTS (SELECT '' FROM  attendance_completed ac WHERE ac.INSTITUTE_DATE=acc.INSTITUTE_DATE AND ac.COURSE_PERIOD_ID=cp.COURSE_PERIOD_ID AND ac.PERIOD_ID=cpv.PERIOD_ID 
+        AND IF(tra.course_period_id=cp.course_period_id AND acc.institute_date<=tra.assign_date =true,ac.staff_id=tra.pre_teacher_id,ac.staff_id=cp.teacher_id))  AND isDateInMarkingPeriodWorkingDates(cp.marking_period_id, acc.INSTITUTE_DATE) 
+        GROUP BY acc.INSTITUTE_DATE,cp.COURSE_PERIOD_ID,cp.TEACHER_ID,cpv.PERIOD_ID;
 END$$
 
-CREATE PROCEDURE `ATTENDANCE_CALC_BY_DATE`(IN sch_dt DATE,IN year INT,IN school INT)
+CREATE PROCEDURE `ATTENDANCE_CALC_BY_DATE`(IN sch_dt DATE,IN year INT,IN institute INT)
 BEGIN
- DELETE FROM missing_attendance WHERE SCHOOL_DATE=sch_dt AND SYEAR=year AND SCHOOL_ID=school;
- INSERT INTO missing_attendance(SCHOOL_ID,SYEAR,SCHOOL_DATE,COURSE_PERIOD_ID,PERIOD_ID,TEACHER_ID,SECONDARY_TEACHER_ID) SELECT s.ID AS SCHOOL_ID,acc.SYEAR,acc.SCHOOL_DATE,cp.COURSE_PERIOD_ID,cpv.PERIOD_ID, IF(tra.course_period_id=cp.course_period_id AND acc.school_date<tra.assign_date =true,tra.pre_teacher_id,cp.teacher_id) AS TEACHER_ID,cp.SECONDARY_TEACHER_ID FROM attendance_calendar acc INNER JOIN marking_periods mp ON mp.SYEAR=acc.SYEAR AND mp.SCHOOL_ID=acc.SCHOOL_ID AND acc.SCHOOL_DATE BETWEEN mp.START_DATE AND mp.END_DATE INNER JOIN course_periods cp ON cp.MARKING_PERIOD_ID=mp.MARKING_PERIOD_ID  AND cp.CALENDAR_ID=acc.CALENDAR_ID INNER JOIN course_period_var cpv ON cp.COURSE_PERIOD_ID=cpv.COURSE_PERIOD_ID AND cpv.DOES_ATTENDANCE='Y' LEFT JOIN teacher_reassignment tra ON (cp.course_period_id=tra.course_period_id) INNER JOIN school_periods sp ON sp.SYEAR=acc.SYEAR AND sp.SCHOOL_ID=acc.SCHOOL_ID AND sp.PERIOD_ID=cpv.PERIOD_ID AND (sp.BLOCK IS NULL AND position(substring('UMTWHFS' FROM DAYOFWEEK(acc.SCHOOL_DATE) FOR 1) IN cpv.DAYS)>0 OR sp.BLOCK IS NOT NULL AND acc.BLOCK IS NOT NULL AND sp.BLOCK=acc.BLOCK) INNER JOIN schools s ON s.ID=acc.SCHOOL_ID INNER JOIN schedule sch ON sch.COURSE_PERIOD_ID=cp.COURSE_PERIOD_ID AND sch.START_DATE<=acc.SCHOOL_DATE AND (sch.END_DATE IS NULL OR sch.END_DATE>=acc.SCHOOL_DATE )  LEFT JOIN attendance_completed ac ON ac.SCHOOL_DATE=acc.SCHOOL_DATE AND IF(tra.course_period_id=cp.course_period_id AND acc.school_date<tra.assign_date =true,ac.staff_id=tra.pre_teacher_id,ac.staff_id=cp.teacher_id) AND ac.PERIOD_ID=sp.PERIOD_ID WHERE acc.SYEAR=year AND acc.SCHOOL_ID=school AND (acc.MINUTES IS NOT NULL AND acc.MINUTES>0) AND acc.SCHOOL_DATE=sch_dt AND ac.STAFF_ID IS NULL AND isDateInMarkingPeriodWorkingDates(cp.marking_period_id, acc.SCHOOL_DATE) GROUP BY s.TITLE,acc.SCHOOL_DATE,cp.TITLE,cp.COURSE_PERIOD_ID,cp.TEACHER_ID;
+ DELETE FROM missing_attendance WHERE INSTITUTE_DATE=sch_dt AND SYEAR=year AND INSTITUTE_ID=institute;
+ INSERT INTO missing_attendance(INSTITUTE_ID,SYEAR,INSTITUTE_DATE,COURSE_PERIOD_ID,PERIOD_ID,TEACHER_ID,SECONDARY_TEACHER_ID) SELECT s.ID AS INSTITUTE_ID,acc.SYEAR,acc.INSTITUTE_DATE,cp.COURSE_PERIOD_ID,cpv.PERIOD_ID, IF(tra.course_period_id=cp.course_period_id AND acc.institute_date<tra.assign_date =true,tra.pre_teacher_id,cp.teacher_id) AS TEACHER_ID,cp.SECONDARY_TEACHER_ID FROM attendance_calendar acc INNER JOIN marking_periods mp ON mp.SYEAR=acc.SYEAR AND mp.INSTITUTE_ID=acc.INSTITUTE_ID AND acc.INSTITUTE_DATE BETWEEN mp.START_DATE AND mp.END_DATE INNER JOIN course_periods cp ON cp.MARKING_PERIOD_ID=mp.MARKING_PERIOD_ID  AND cp.CALENDAR_ID=acc.CALENDAR_ID INNER JOIN course_period_var cpv ON cp.COURSE_PERIOD_ID=cpv.COURSE_PERIOD_ID AND cpv.DOES_ATTENDANCE='Y' LEFT JOIN teacher_reassignment tra ON (cp.course_period_id=tra.course_period_id) INNER JOIN institute_periods sp ON sp.SYEAR=acc.SYEAR AND sp.INSTITUTE_ID=acc.INSTITUTE_ID AND sp.PERIOD_ID=cpv.PERIOD_ID AND (sp.BLOCK IS NULL AND position(substring('UMTWHFS' FROM DAYOFWEEK(acc.INSTITUTE_DATE) FOR 1) IN cpv.DAYS)>0 OR sp.BLOCK IS NOT NULL AND acc.BLOCK IS NOT NULL AND sp.BLOCK=acc.BLOCK) INNER JOIN institutes s ON s.ID=acc.INSTITUTE_ID INNER JOIN schedule sch ON sch.COURSE_PERIOD_ID=cp.COURSE_PERIOD_ID AND sch.START_DATE<=acc.INSTITUTE_DATE AND (sch.END_DATE IS NULL OR sch.END_DATE>=acc.INSTITUTE_DATE )  LEFT JOIN attendance_completed ac ON ac.INSTITUTE_DATE=acc.INSTITUTE_DATE AND IF(tra.course_period_id=cp.course_period_id AND acc.institute_date<tra.assign_date =true,ac.staff_id=tra.pre_teacher_id,ac.staff_id=cp.teacher_id) AND ac.PERIOD_ID=sp.PERIOD_ID WHERE acc.SYEAR=year AND acc.INSTITUTE_ID=institute AND (acc.MINUTES IS NOT NULL AND acc.MINUTES>0) AND acc.INSTITUTE_DATE=sch_dt AND ac.STAFF_ID IS NULL AND isDateInMarkingPeriodWorkingDates(cp.marking_period_id, acc.INSTITUTE_DATE) GROUP BY s.TITLE,acc.INSTITUTE_DATE,cp.TITLE,cp.COURSE_PERIOD_ID,cp.TEACHER_ID;
 END$$
 
 CREATE PROCEDURE `SEAT_COUNT`() 
@@ -354,7 +329,7 @@ END$$
 
 CREATE PROCEDURE `TEACHER_REASSIGNMENT`()
 BEGIN
-UPDATE course_periods cp,course_period_var cpv,teacher_reassignment tr,school_periods sp,marking_periods mp,staff st SET cp.title=CONCAT(sp.title,IF(cp.mp<>'FY',CONCAT(' - ',mp.short_name),''),IF(CHAR_LENGTH(cpv.days)<5,CONCAT(' - ',cpv.days),''),' - ',cp.short_name,' - ',CONCAT_WS(' ',st.first_name,st.middle_name,st.last_name)), cp.teacher_id=tr.teacher_id WHERE cpv.period_id=sp.period_id and cp.marking_period_id=mp.marking_period_id and st.staff_id=tr.teacher_id and cp.course_period_id=tr.course_period_id AND assign_date <= CURDATE() AND updated='N' AND cp.COURSE_PERIOD_ID=cpv.COURSE_PERIOD_ID; 
+UPDATE course_periods cp,course_period_var cpv,teacher_reassignment tr,institute_periods sp,marking_periods mp,staff st SET cp.title=CONCAT(sp.title,IF(cp.mp<>'FY',CONCAT(' - ',mp.short_name),''),IF(CHAR_LENGTH(cpv.days)<5,CONCAT(' - ',cpv.days),''),' - ',cp.short_name,' - ',CONCAT_WS(' ',st.first_name,st.middle_name,st.last_name)), cp.teacher_id=tr.teacher_id WHERE cpv.period_id=sp.period_id and cp.marking_period_id=mp.marking_period_id and st.staff_id=tr.teacher_id and cp.course_period_id=tr.course_period_id AND assign_date <= CURDATE() AND updated='N' AND cp.COURSE_PERIOD_ID=cpv.COURSE_PERIOD_ID; 
  UPDATE teacher_reassignment SET updated='Y' WHERE assign_date <=CURDATE() AND updated='N';
  END$$
 
@@ -392,7 +367,7 @@ DECLARE cur1 CURSOR FOR
                          ) as cgpa
 
             FROM marking_periods mp,temp_cum_gpa srcg
-            INNER JOIN schools sc ON sc.id=srcg.school_id
+            INNER JOIN institutes sc ON sc.id=srcg.institute_id
             WHERE srcg.marking_period_id= mp.marking_period_id AND srcg.gp_scale<>0 AND srcg.marking_period_id NOT LIKE 'E%'
             AND mp.marking_period_id IN (SELECT marking_period_id  FROM marking_periods WHERE mp_type=req_mp )
             GROUP BY srcg.student_id;
@@ -418,8 +393,8 @@ DECLARE cur1 CURSOR FOR
     COUNT(*) AS count_unweighted_factors,
     eg.short_name
   FROM student_report_card_grades srcg
-  INNER JOIN schools s ON s.id=srcg.school_id
-  LEFT JOIN enroll_grade eg on eg.student_id=srcg.student_id AND eg.syear=srcg.syear AND eg.school_id=srcg.school_id
+  INNER JOIN institutes s ON s.id=srcg.institute_id
+  LEFT JOIN enroll_grade eg on eg.student_id=srcg.student_id AND eg.syear=srcg.syear AND eg.institute_id=srcg.institute_id
   WHERE srcg.marking_period_id=mp_id AND srcg.gp_scale<>0 AND srcg.marking_period_id NOT LIKE 'E%'
   GROUP BY srcg.student_id,eg.short_name;
 
@@ -437,7 +412,7 @@ DECLARE cur1 CURSOR FOR
 		SUM(s.weighted_gp/sc.reporting_gp_scale)/COUNT(*) AS cum_weighted_factor,
 		SUM(s.unweighted_gp/s.gp_scale)/COUNT(*) AS cum_unweighted_factor
 	FROM student_report_card_grades s
-	INNER JOIN schools sc ON sc.id=s.school_id
+	INNER JOIN institutes sc ON sc.id=s.institute_id
 	LEFT JOIN course_periods p ON p.course_period_id=s.course_period_id
 	WHERE p.marking_period_id IS NULL OR p.marking_period_id=s.marking_period_id
 	GROUP BY student_id) gg ON gg.student_id=g.student_id
@@ -519,10 +494,10 @@ BEGIN
     @unweighted_gpa,
     @grade_level_short
   FROM student_report_card_grades srcg
-  INNER JOIN schools s ON s.id=srcg.school_id
+  INNER JOIN institutes s ON s.id=srcg.institute_id
 INNER JOIN course_periods cp ON cp.course_period_id=srcg.course_period_id
 INNER JOIN report_card_grade_scales rcgs ON rcgs.id=cp.grade_scale_id
-  LEFT JOIN enroll_grade eg on eg.student_id=srcg.student_id AND eg.syear=srcg.syear AND eg.school_id=srcg.school_id
+  LEFT JOIN enroll_grade eg on eg.student_id=srcg.student_id AND eg.syear=srcg.syear AND eg.institute_id=srcg.institute_id
   WHERE srcg.marking_period_id=mp_id AND srcg.student_id=s_id AND srcg.gp_scale<>0 AND srcg.course_period_id IS NOT NULL AND (rcgs.gpa_cal='Y' OR cp.grade_scale_id IS NULL) AND srcg.marking_period_id NOT LIKE 'E%'
   AND (eg.START_DATE IS NULL OR eg.START_DATE='0000-00-00'  OR eg.START_DATE<=CURDATE()) AND (eg.END_DATE IS NULL OR eg.END_DATE='0000-00-00'  OR eg.END_DATE>=CURDATE())  
   GROUP BY srcg.student_id,eg.short_name;
@@ -537,7 +512,7 @@ IF NOT EXISTS(SELECT NULL FROM student_gpa_calculated WHERE marking_period_id=mp
 	SELECT s.student_id,
 		SUM(s.unweighted_gp/s.gp_scale)/COUNT(*) AS cum_unweighted_factor
 	FROM student_report_card_grades s
-	INNER JOIN schools sc ON sc.id=s.school_id
+	INNER JOIN institutes sc ON sc.id=s.institute_id
 	LEFT JOIN course_periods p ON p.course_period_id=s.course_period_id
 	WHERE s.course_period_id IS NOT NULL AND p.marking_period_id IS NULL OR p.marking_period_id=s.marking_period_id
 	GROUP BY student_id) gg ON gg.student_id=g.student_id
@@ -690,9 +665,9 @@ BEGIN
     @unweighted_gpa,
     @grade_level_short
   FROM student_report_card_grades srcg
-  INNER JOIN schools s ON s.id=srcg.school_id
-  LEFT JOIN enroll_grade eg on eg.student_id=srcg.student_id AND eg.syear=srcg.syear AND eg.school_id=srcg.school_id
-  WHERE srcg.marking_period_id=mp_id AND srcg.student_id=s_id AND srcg.gp_scale<>0 AND srcg.school_id=sch_id AND srcg.syear=sy AND srcg.marking_period_id NOT LIKE 'E%'
+  INNER JOIN institutes s ON s.id=srcg.institute_id
+  LEFT JOIN enroll_grade eg on eg.student_id=srcg.student_id AND eg.syear=srcg.syear AND eg.institute_id=srcg.institute_id
+  WHERE srcg.marking_period_id=mp_id AND srcg.student_id=s_id AND srcg.gp_scale<>0 AND srcg.institute_id=sch_id AND srcg.syear=sy AND srcg.marking_period_id NOT LIKE 'E%'
 AND (eg.START_DATE IS NULL OR eg.START_DATE='0000-00-00'  OR eg.START_DATE<=CURDATE()) AND (eg.END_DATE IS NULL OR eg.END_DATE='0000-00-00'  OR eg.END_DATE>=CURDATE())
   GROUP BY srcg.student_id,eg.short_name;
   
@@ -706,7 +681,7 @@ IF NOT EXISTS(SELECT NULL FROM student_gpa_calculated WHERE marking_period_id=mp
 	SELECT s.student_id,
 		SUM(s.unweighted_gp/s.gp_scale)/COUNT(*) AS cum_unweighted_factor
 	FROM student_report_card_grades s
-	INNER JOIN schools sc ON sc.id=s.school_id
+	INNER JOIN institutes sc ON sc.id=s.institute_id
 	LEFT JOIN course_periods p ON p.course_period_id=s.course_period_id
 	WHERE p.marking_period_id IS NULL OR p.marking_period_id=s.marking_period_id
 	GROUP BY student_id) gg ON gg.student_id=g.student_id
@@ -764,25 +739,25 @@ DELIMITER ;
 
 DROP TRIGGER IF EXISTS tu_periods;
 CREATE TRIGGER tu_periods
-    AFTER UPDATE ON school_periods
+    AFTER UPDATE ON institute_periods
     FOR EACH ROW
         UPDATE course_period_var SET start_time=NEW.start_time,end_time=NEW.end_time WHERE period_id=NEW.period_id;
 
-DROP TRIGGER IF EXISTS tu_school_years;
-CREATE TRIGGER tu_school_years
-    AFTER UPDATE ON school_years
+DROP TRIGGER IF EXISTS tu_institute_years;
+CREATE TRIGGER tu_institute_years
+    AFTER UPDATE ON institute_years
     FOR EACH ROW
         UPDATE course_periods SET begin_date=NEW.start_date,end_date=NEW.end_date WHERE marking_period_id=NEW.marking_period_id;
 
-DROP TRIGGER IF EXISTS tu_school_semesters;
-CREATE TRIGGER tu_school_semesters
-    AFTER UPDATE ON school_semesters
+DROP TRIGGER IF EXISTS tu_institute_semesters;
+CREATE TRIGGER tu_institute_semesters
+    AFTER UPDATE ON institute_semesters
     FOR EACH ROW
         UPDATE course_periods SET begin_date=NEW.start_date,end_date=NEW.end_date WHERE marking_period_id=NEW.marking_period_id;
 
-DROP TRIGGER IF EXISTS tu_school_quarters;
-CREATE TRIGGER tu_school_quarters
-    AFTER UPDATE ON school_quarters
+DROP TRIGGER IF EXISTS tu_institute_quarters;
+CREATE TRIGGER tu_institute_quarters
+    AFTER UPDATE ON institute_quarters
     FOR EACH ROW
         UPDATE course_periods SET begin_date=NEW.start_date,end_date=NEW.end_date WHERE marking_period_id=NEW.marking_period_id;
 
@@ -861,7 +836,7 @@ CREATE TRIGGER `ti_cal_missing_attendance`
     DECLARE associations INT;
     SET associations = (SELECT COUNT(course_period_id) FROM `course_periods` WHERE calendar_id=NEW.calendar_id);
     IF associations>0 THEN
-	CALL ATTENDANCE_CALC_BY_DATE(NEW.school_date, NEW.syear,NEW.school_id);
+	CALL ATTENDANCE_CALC_BY_DATE(NEW.institute_date, NEW.syear,NEW.institute_id);
     END IF;
     END$$
 DELIMITER ;
@@ -870,7 +845,7 @@ DROP TRIGGER IF EXISTS `td_cal_missing_attendance`;
 CREATE TRIGGER `td_cal_missing_attendance`
     AFTER DELETE ON attendance_calendar
     FOR EACH ROW
-	DELETE mi.* FROM missing_attendance mi,course_periods cp WHERE mi.course_period_id=cp.course_period_id and cp.calendar_id=OLD.calendar_id AND mi.SCHOOL_DATE=OLD.school_date;";
+	DELETE mi.* FROM missing_attendance mi,course_periods cp WHERE mi.course_period_id=cp.course_period_id and cp.calendar_id=OLD.calendar_id AND mi.INSTITUTE_DATE=OLD.institute_date;";
     $content .= "\r\n\r\n/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;\r\n/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;\r\n/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;";
 
 //    $backup_name = $backup_name ? $backup_name."_(".date('H:i:s')."_".date('d-m-Y').")__rand".rand(1,11111111).".sql" : $name."___(".date('H-i-s')."_".date('d-m-Y').")__rand".rand(1,11111111).".sql";

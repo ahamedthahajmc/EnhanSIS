@@ -1,31 +1,6 @@
 <?php
 
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that
-#  include student demographic info, scheduling, grade book, attendance,
-#  report cards, eligibility, transcripts, parent portal,
-#  student portal and more.
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as
-#  published by the Free Software Foundation, version 2 of the License.
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+ 
 include('../../RedirectModulesInc.php');
 include('lang/language.php');
 
@@ -41,7 +16,7 @@ if ($_REQUEST['modfunc'] == 'save') {
         }
         $columns = array('DAYS' => 'Days', 'DURATION' => 'Time', 'PERIOD_TITLE' => 'Period - Teacher', 'ROOM' => 'Room/Location', 'MARKING_PERIOD_ID' => 'Term', 'DAYS' => 'Days', 'COURSE_TITLE' => 'Course');
         $extra['SELECT'] .= ',c.TITLE AS COURSE_TITLE,p_cp.TITLE AS PERIOD_TITLE,sg.TITLE AS GRD_LVL,sr.MARKING_PERIOD_ID,cpv.DAYS, CONCAT(sp.START_TIME, " to ", sp.END_TIME) AS DURATION,r.TITLE AS ROOM';
-        $extra['FROM'] .= ' LEFT OUTER JOIN schedule sr ON (sr.STUDENT_ID=ssm.STUDENT_ID),courses c, school_gradelevels sg, course_periods p_cp,course_period_var cpv,school_periods sp,rooms r ';
+        $extra['FROM'] .= ' LEFT OUTER JOIN schedule sr ON (sr.STUDENT_ID=ssm.STUDENT_ID),courses c, institute_gradelevels sg, course_periods p_cp,course_period_var cpv,institute_periods sp,rooms r ';
         $extra['WHERE'] .= ' AND cpv.PERIOD_ID=sp.PERIOD_ID AND p_cp.COURSE_PERIOD_ID=cpv.COURSE_PERIOD_ID AND cpv.ROOM_ID=r.ROOM_ID AND ssm.SYEAR=sr.SYEAR AND sr.COURSE_ID=c.COURSE_ID AND sr.COURSE_PERIOD_ID=p_cp.COURSE_PERIOD_ID AND cpv.PERIOD_ID=sp.PERIOD_ID AND ssm.GRADE_ID=sg.ID AND (\'' . $date . '\' BETWEEN sr.START_DATE AND sr.END_DATE ' . $date_extra . ')';
         if ($_REQUEST['mp_id'])
             $extra['WHERE'] .= ' AND sr.MARKING_PERIOD_ID IN (' . GetAllMP(GetMPTable(GetMP($_REQUEST['mp_id'], 'TABLE')), $_REQUEST['mp_id']) . ' OR sr.MARKING_PERIOD_ID is null )';
@@ -83,7 +58,7 @@ if ($_REQUEST['modfunc'] == 'save') {
 
             foreach ($RET_stu as $student_id => $courses) {
                 echo "<table width=100%  style=\" font-family:Arial; font-size:12px;\" >";
-                echo "<tr><td width=105>" . DrawLogo() . "</td><td  style=\"font-size:15px; font-weight:bold; padding-top:20px;\">" . GetSchool(UserSchool()) . "<div style=\"font-size:12px;\">Student Daily Schedule</div></td><td style=\"font-size:15px; font-weight:bold; padding-top:20px;\"> Schedule for: " . $row_mp_detail[1]['TITLE'] . " : " . cov_date($row_mp_detail[1]['START_DATE']) . " - " . cov_date($row_mp_detail[1]['END_DATE']) . "</td><td align=right style=\"padding-top:20px;\">" . ProperDate(DBDate()) . "<br />Powered by openSIS</td></tr><tr><td colspan=4 style=\"border-top:1px solid #333;\">&nbsp;</td></tr></table>";
+                echo "<tr><td width=105>" . DrawLogo() . "</td><td  style=\"font-size:15px; font-weight:bold; padding-top:20px;\">" . GetInstitute(UserInstitute()) . "<div style=\"font-size:12px;\">Student Daily Schedule</div></td><td style=\"font-size:15px; font-weight:bold; padding-top:20px;\"> Schedule for: " . $row_mp_detail[1]['TITLE'] . " : " . cov_date($row_mp_detail[1]['START_DATE']) . " - " . cov_date($row_mp_detail[1]['END_DATE']) . "</td><td align=right style=\"padding-top:20px;\">" . ProperDate(DBDate()) . "<br />Powered by hani</td></tr><tr><td colspan=4 style=\"border-top:1px solid #333;\">&nbsp;</td></tr></table>";
 
 
                 # --------------------------------------- Start Change ------------------------------------------- #
@@ -91,7 +66,7 @@ if ($_REQUEST['modfunc'] == 'save') {
 
                 $st_data = DBGet(DBQuery("SELECT * FROM students WHERE student_id = " . $courses[1]['STUDENT_ID']));
 
-                unset($_openSIS['DrawHeader']);
+                unset($_HaniIMS['DrawHeader']);
                 echo '<br>';
                 echo '<table  border=0>';
 
@@ -105,7 +80,7 @@ if ($_REQUEST['modfunc'] == 'save') {
 
                 $sch_exist = DBGet(DBQuery("SELECT COUNT(s.id) AS SCH_COUNT FROM schedule s WHERE s.syear=" . UserSyear() . "
 					AND s.student_id='" . $courses[1]['STUDENT_ID'] . "'
-					AND s.school_id=" . UserSchool() . "
+					AND s.institute_id=" . UserInstitute() . "
 					AND $mp_string )"));
 
 
@@ -127,7 +102,7 @@ if ($_REQUEST['modfunc'] == 'save') {
                         ////////////new////////////
 
                         $r_ch = DBGet(DBQuery('SELECT cp.title AS cp_title, cp.short_name, r.title as room, sp.start_time, sp.end_time,cp.marking_period_id as title ,sp.sort_order
-			FROM school_periods sp, course_periods cp, schedule s, marking_periods mp,course_period_var cpv,rooms r
+			FROM institute_periods sp, course_periods cp, schedule s, marking_periods mp,course_period_var cpv,rooms r
 			WHERE cp.syear=\'' . UserSyear() . '\'
 			AND s.syear=\'' . UserSyear() . '\'
 			AND s.student_id=\'' . $courses[1]['STUDENT_ID'] . '\'
@@ -138,7 +113,7 @@ if ($_REQUEST['modfunc'] == 'save') {
                         AND s.start_date<=\'' . date('Y-m-d') . '\'
                         AND (s.end_date IS NULL OR s.end_date>=\'' . date('Y-m-d') . '\')
 			AND cpv.days like \'' . '%' . $value . '%' . '\'
-			AND s.school_id=\'' . UserSchool() . '\'
+			AND s.institute_id=\'' . UserInstitute() . '\'
 			
 			AND ' . $mp_string . ' ) GROUP BY cpv.course_period_id  order by sp.sort_order'));
 
@@ -158,7 +133,7 @@ if ($_REQUEST['modfunc'] == 'save') {
                         ////////////   end  new  //////////// 
 
                         $rs = DBQuery('SELECT cp.title AS cp_title, cp.short_name, r.title as room, sp.start_time, sp.end_time, mp.title,sp.sort_order
-			FROM school_periods sp, course_periods cp, schedule s, marking_periods mp,course_period_var cpv,rooms r
+			FROM institute_periods sp, course_periods cp, schedule s, marking_periods mp,course_period_var cpv,rooms r
 			WHERE cp.syear=\'' . UserSyear() . '\'
 			AND s.syear=\'' . UserSyear() . '\'
 			AND s.student_id=\'' . $courses[1]['STUDENT_ID'] . '\'
@@ -169,7 +144,7 @@ if ($_REQUEST['modfunc'] == 'save') {
                         AND s.start_date<=\'' . date('Y-m-d') . '\'
                         AND (s.end_date IS NULL OR s.end_date>=\'' . date('Y-m-d') . '\')
 			AND cpv.days like \'' . '%' . $value . '%' . '\'
-			AND s.school_id=\'' . UserSchool() . '\'
+			AND s.institute_id=\'' . UserInstitute() . '\'
 			AND s.marking_period_id=mp.marking_period_id
 			AND ' . $mp_string . ') order by sp.sort_order');
                         $no_record = count($r_ch);
@@ -227,7 +202,7 @@ if (!$_REQUEST['modfunc']) {
     echo '<div class="panel">';
     
     # ---------------------------------------- Marking period selection Start ------------------------------------------ #
-    $RET1 = DBGet(DBQuery("SELECT MARKING_PERIOD_ID,TITLE FROM marking_periods WHERE SCHOOL_ID='" . UserSchool() . "' AND SYEAR='" . UserSyear() . "' ORDER BY MARKING_PERIOD_ID"));
+    $RET1 = DBGet(DBQuery("SELECT MARKING_PERIOD_ID,TITLE FROM marking_periods WHERE INSTITUTE_ID='" . UserInstitute() . "' AND SYEAR='" . UserSyear() . "' ORDER BY MARKING_PERIOD_ID"));
     $link = 'Modules.php?modname=' . strip_tags(trim($_REQUEST[modname])) . '&sel_mp=';
     
     echo '<div class="panel-heading">';
@@ -253,7 +228,7 @@ if (!$_REQUEST['modfunc']) {
 
     ###################################################################################################################
 
-    $sql = "SELECT CONCAT(s.LAST_NAME,', ',coalesce(s.COMMON_NAME,s.FIRST_NAME)) AS FULL_NAME,s.LAST_NAME,s.FIRST_NAME,s.MIDDLE_NAME,s.STUDENT_ID,s.ALT_ID,ssm.SCHOOL_ID,ssm.GRADE_ID ,c.TITLE AS COURSE_TITLE,p_cp.TITLE AS PERIOD_TITLE,sr.MARKING_PERIOD_ID,cpv.DAYS, CONCAT(sp.START_TIME, ' to ', sp.END_TIME) AS DURATION,r.TITLE AS ROOM FROM students s,student_enrollment ssm LEFT OUTER JOIN schedule sr ON (sr.STUDENT_ID=ssm.STUDENT_ID),courses c,course_periods p_cp,course_period_var cpv,rooms r,school_periods sp WHERE ssm.STUDENT_ID=s.STUDENT_ID AND p_cp.COURSE_PERIOD_ID=cpv.COURSE_PERIOD_ID AND r.ROOM_ID=cpv.ROOM_ID AND ssm.SYEAR='" . UserSyear() . "' AND ssm.SCHOOL_ID='" . UserSchool() . "' AND ('" . DBDate() . "' BETWEEN ssm.START_DATE AND ssm.END_DATE OR (ssm.END_DATE IS NULL AND '" . DBDate() . "'>ssm.START_DATE)) AND ssm.STUDENT_ID='" . UserStudentID() . "' AND s.STUDENT_ID = '" . UserStudentID() . "' AND cpv.PERIOD_ID=sp.PERIOD_ID AND ssm.SYEAR=sr.SYEAR AND sr.COURSE_ID=c.COURSE_ID AND sr.COURSE_PERIOD_ID=p_cp.COURSE_PERIOD_ID AND cpv.PERIOD_ID=sp.PERIOD_ID AND ('" . DBDate() . "' BETWEEN sr.START_DATE AND sr.END_DATE OR sr.END_DATE IS NULL) ORDER BY FULL_NAME,sp.SORT_ORDER";
+    $sql = "SELECT CONCAT(s.LAST_NAME,', ',coalesce(s.COMMON_NAME,s.FIRST_NAME)) AS FULL_NAME,s.LAST_NAME,s.FIRST_NAME,s.MIDDLE_NAME,s.STUDENT_ID,s.ALT_ID,ssm.INSTITUTE_ID,ssm.GRADE_ID ,c.TITLE AS COURSE_TITLE,p_cp.TITLE AS PERIOD_TITLE,sr.MARKING_PERIOD_ID,cpv.DAYS, CONCAT(sp.START_TIME, ' to ', sp.END_TIME) AS DURATION,r.TITLE AS ROOM FROM students s,student_enrollment ssm LEFT OUTER JOIN schedule sr ON (sr.STUDENT_ID=ssm.STUDENT_ID),courses c,course_periods p_cp,course_period_var cpv,rooms r,institute_periods sp WHERE ssm.STUDENT_ID=s.STUDENT_ID AND p_cp.COURSE_PERIOD_ID=cpv.COURSE_PERIOD_ID AND r.ROOM_ID=cpv.ROOM_ID AND ssm.SYEAR='" . UserSyear() . "' AND ssm.INSTITUTE_ID='" . UserInstitute() . "' AND ('" . DBDate() . "' BETWEEN ssm.START_DATE AND ssm.END_DATE OR (ssm.END_DATE IS NULL AND '" . DBDate() . "'>ssm.START_DATE)) AND ssm.STUDENT_ID='" . UserStudentID() . "' AND s.STUDENT_ID = '" . UserStudentID() . "' AND cpv.PERIOD_ID=sp.PERIOD_ID AND ssm.SYEAR=sr.SYEAR AND sr.COURSE_ID=c.COURSE_ID AND sr.COURSE_PERIOD_ID=p_cp.COURSE_PERIOD_ID AND cpv.PERIOD_ID=sp.PERIOD_ID AND ('" . DBDate() . "' BETWEEN sr.START_DATE AND sr.END_DATE OR sr.END_DATE IS NULL) ORDER BY FULL_NAME,sp.SORT_ORDER";
 
     $stu_id = UserStudentID();
     $RET_show[$stu_id] = DBGet(DBQuery($sql));
@@ -290,7 +265,7 @@ if (!$_REQUEST['modfunc']) {
             if (count($RET_show[$stu_id]) > 0)
                 $sch_exist = DBGet(DBQuery('SELECT COUNT(s.id) AS SCH_COUNT FROM schedule s WHERE s.syear=\'' . UserSyear() . '\'
 					AND s.student_id=\'' . $courses[1]['STUDENT_ID'] . '\'
-					AND s.school_id=\'' . UserSchool() . '\'
+					AND s.institute_id=\'' . UserInstitute() . '\'
 					AND ' . $mp_string . ' )'));
             $sch_exist_yn = $sch_exist[1]['SCH_COUNT'];
             if ($sch_exist_yn != 0) {
@@ -312,7 +287,7 @@ if (!$_REQUEST['modfunc']) {
                     $counter = 0;
 
                     $r_ch = DBGet(DBQuery('SELECT cp.title AS cp_title, cp.short_name, r.title as room, sp.start_time, sp.end_time,cp.marking_period_id as title ,sp.sort_order
-			FROM school_periods sp, course_periods cp, schedule s, marking_periods mp,course_period_var cpv,rooms r
+			FROM institute_periods sp, course_periods cp, schedule s, marking_periods mp,course_period_var cpv,rooms r
 			WHERE cp.syear=\'' . UserSyear() . '\'
 			AND s.syear=\'' . UserSyear() . '\'
 			AND s.student_id=\'' . $courses[1]['STUDENT_ID'] . '\'
@@ -323,7 +298,7 @@ if (!$_REQUEST['modfunc']) {
                         AND s.start_date<=\'' . date('Y-m-d') . '\'
                         AND (s.end_date IS NULL OR s.end_date>=\'' . date('Y-m-d') . '\')
 			AND cpv.days like \'' . '%' . $value . '%' . '\'
-			AND s.school_id=\'' . UserSchool() . '\'
+			AND s.institute_id=\'' . UserInstitute() . '\'
 			
 			AND ' . $mp_string . ' ) GROUP BY cpv.course_period_id  order by sp.sort_order'));
 
@@ -339,7 +314,7 @@ if (!$_REQUEST['modfunc']) {
                     }
 
                     $rs = DBQuery('SELECT cp.title AS cp_title, cp.short_name, r.title as room, sp.start_time, sp.end_time, mp.title,sp.sort_order
-			FROM school_periods sp, course_periods cp, schedule s, marking_periods mp,course_period_var cpv,rooms r
+			FROM institute_periods sp, course_periods cp, schedule s, marking_periods mp,course_period_var cpv,rooms r
 			WHERE cp.syear=\'' . UserSyear() . '\'
 			AND s.syear=\'' . UserSyear() . '\'
 			AND s.student_id=\'' . $courses[1]['STUDENT_ID'] . '\'
@@ -350,7 +325,7 @@ if (!$_REQUEST['modfunc']) {
                         AND s.start_date<=\'' . date('Y-m-d') . '\'
                         AND (s.end_date IS NULL OR s.end_date>=\'' . date('Y-m-d') . '\')
 			AND cpv.days like \'' . '%' . $value . '%' . '\'
-			AND s.school_id=\'' . UserSchool() . '\'
+			AND s.institute_id=\'' . UserInstitute() . '\'
 			AND s.marking_period_id=mp.marking_period_id
 			AND ' . $mp_string . ') order by sp.sort_order');
 
@@ -404,7 +379,7 @@ if (!$_REQUEST['modfunc']) {
     }
 #############################################################################################
     echo "</FORM>";
-    $footer_options  = "<FORM name=sch class=\"no-padding no-margin\" id=sch action=ForExport.php?modname=" . strip_tags(trim($_REQUEST[modname]). "&modfunc=save&include_inactive=$_REQUEST[include_inactive]&_openSIS_PDF=true") . " method=POST target=_blank>";
+    $footer_options  = "<FORM name=sch class=\"no-padding no-margin\" id=sch action=ForExport.php?modname=" . strip_tags(trim($_REQUEST[modname]). "&modfunc=save&include_inactive=$_REQUEST[include_inactive]&HaniIMS_PDF=true") . " method=POST target=_blank>";
     $footer_options .= "<input type=hidden name=sel_mp value=$sel_mp>";
     $footer_options .= '<button type=submit class="btn btn-success btn-labeled pull-right" value="Print"><b><i class="icon-printer4"></i></b>'._print.'</button>';
     $footer_options .= "</FORM>";

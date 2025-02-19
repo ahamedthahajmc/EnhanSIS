@@ -1,31 +1,6 @@
 <?php
 
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+
 
 include('../../RedirectModulesInc.php');
 
@@ -58,9 +33,9 @@ if (clean_param($_REQUEST['modfunc'], PARAM_ALPHAMOD) == 'save') {
             $_REQUEST['values']['estimated_grad_date'] = '';
         }
 
-        if ($_REQUEST['values']['NEXT_SCHOOL'] != '') {
-            $next_school = $_REQUEST['values']['NEXT_SCHOOL'];
-            unset($_REQUEST['values']['NEXT_SCHOOL']);
+        if ($_REQUEST['values']['NEXT_INSTITUTE'] != '') {
+            $next_institute = $_REQUEST['values']['NEXT_INSTITUTE'];
+            unset($_REQUEST['values']['NEXT_INSTITUTE']);
         }
         if ($_REQUEST['values']['SECTION_ID'] != '') {
             $sec_id = $_REQUEST['values']['SECTION_ID'];
@@ -134,7 +109,7 @@ if (clean_param($_REQUEST['modfunc'], PARAM_ALPHAMOD) == 'save') {
         $fields = explode(',', $fields);
         $values = explode(',', $values);
         $medical_student_id = explode(',', $students);
-        $check_student_avail = DBGet(DBQuery('SELECT student_id from medical_info where SYEAR=' . UserSyear() . ' AND SCHOOL_ID=' . UserSchool()));
+        $check_student_avail = DBGet(DBQuery('SELECT student_id from medical_info where SYEAR=' . UserSyear() . ' AND INSTITUTE_ID=' . UserInstitute()));
 
 
         foreach ($check_student_avail as $stu_key => $stu_id) {
@@ -177,7 +152,7 @@ if (clean_param($_REQUEST['modfunc'], PARAM_ALPHAMOD) == 'save') {
                         if ($values[3] != '')
                             DBQuery('UPDATE medical_info SET ' . $fields[3] . '=\'' . $values[3] . '\' WHERE STUDENT_ID =' . $stu_id);
                     } else {
-                        DBQuery('INSERT INTO medical_info (STUDENT_ID,SYEAR,SCHOOL_ID) VALUES (' . $stu_id . ',' . UserSyear() . ',' . UserSchool() . ')');
+                        DBQuery('INSERT INTO medical_info (STUDENT_ID,SYEAR,INSTITUTE_ID) VALUES (' . $stu_id . ',' . UserSyear() . ',' . UserInstitute() . ')');
 
                         if ($values[1] != '')
                             DBQuery('UPDATE medical_info SET ' . $fields[1] . '=\'' . $values[1] . '\' WHERE STUDENT_ID =' . $stu_id);
@@ -190,12 +165,12 @@ if (clean_param($_REQUEST['modfunc'], PARAM_ALPHAMOD) == 'save') {
             }
         elseif ($note)
             $note = substr($note, 0, strpos($note, '. '));
-        elseif ($_REQUEST['category_id'] == 6 && ($next_school == '' && !$calendar && $str_date == '' && $end_date == ''))
+        elseif ($_REQUEST['category_id'] == 6 && ($next_institute == '' && !$calendar && $str_date == '' && $end_date == ''))
             $note = '<div class="alert bg-danger alert-styled-left">' . _noDataWasEntered . '.</div>';
         if ($sec_id != '')
             DBQuery('UPDATE student_enrollment SET SECTION_ID=' . $sec_id . ' WHERE SYEAR=' . UserSyear() . ' AND STUDENT_ID IN (' . substr($students, 1) . ') ');
-        if ($next_school != '')
-            DBQuery('UPDATE student_enrollment SET NEXT_SCHOOL=' . $next_school . ' WHERE SYEAR=' . UserSyear() . ' AND STUDENT_ID IN (' . substr($students, 1) . ') ');
+        if ($next_institute != '')
+            DBQuery('UPDATE student_enrollment SET NEXT_INSTITUTE=' . $next_institute . ' WHERE SYEAR=' . UserSyear() . ' AND STUDENT_ID IN (' . substr($students, 1) . ') ');
         if ($calendar)
             DBQuery('UPDATE student_enrollment SET CALENDAR_ID=' . $calendar . ' WHERE SYEAR=' . UserSyear() . ' AND STUDENT_ID IN (' . substr($students, 1) . ') ');
         if ($grade)
@@ -353,8 +328,8 @@ if (!$_REQUEST['modfunc']) {
                 } else
                     array_push($fields, '<div class="form-group">' . _makeTextInput($v_g) . '</div>');
             }
-            $school_id = UserSchool();
-            $sql = 'SELECT * FROM school_gradelevel_sections WHERE SCHOOL_ID=\'' . $school_id . '\' ORDER BY SORT_ORDER';
+            $institute_id = UserInstitute();
+            $sql = 'SELECT * FROM institute_gradelevel_sections WHERE INSTITUTE_ID=\'' . $institute_id . '\' ORDER BY SORT_ORDER';
             $QI = DBQuery($sql);
             $sec_RET = DBGet($QI);
             unset($options);
@@ -368,13 +343,13 @@ if (!$_REQUEST['modfunc']) {
             // echo'</div>'; 
 
 
-            $grade_level_RET = DBGet(DBQuery('SELECT * FROM school_gradelevels WHERE SCHOOL_ID=\'' . UserSchool() . '\' ORDER BY SORT_ORDER ASC'));
+            $grade_level_RET = DBGet(DBQuery('SELECT * FROM institute_gradelevels WHERE INSTITUTE_ID=\'' . UserInstitute() . '\' ORDER BY SORT_ORDER ASC'));
             $options = array();
             if (count($grade_level_RET)) {
                 foreach ($grade_level_RET as $grade)
                     $options[$grade['ID']] = $grade['TITLE'];
             }
-            array_push($fields, '<div class="form-group"><label class="control-label text-right col-lg-4">' . _schoolGradelevel . '</label><div class="col-lg-8">' . _makeSelectInput('GRADE_ID', $options) . '</div></div>');
+            array_push($fields, '<div class="form-group"><label class="control-label text-right col-lg-4">' . _instituteGradelevel . '</label><div class="col-lg-8">' . _makeSelectInput('GRADE_ID', $options) . '</div></div>');
             $fields_RET = DBGet(DBQuery('SELECT ID,TITLE,TYPE,SELECT_OPTIONS FROM custom_fields WHERE CATEGORY_ID=1'), array(), array('TYPE'));
         }
 
@@ -396,15 +371,15 @@ if (!$_REQUEST['modfunc']) {
                 } else
                     array_push($fields, '<div class="form-group">' . _makeTextInput($v_g) . '</div>');
             }
-            $schools_RET = DBGet(DBQuery('SELECT ID,TITLE FROM schools WHERE ID!=\'' . UserSchool() . '\''));
-            $options = array(UserSchool() => _nextGradeAtCurrentSchool, '0' => _retain, '-1' => _doNotEnrollAfterThisSchoolYear);
-            if (count($schools_RET)) {
-                foreach ($schools_RET as $school)
-                    $options[$school['ID']] = $school['TITLE'];
+            $institutes_RET = DBGet(DBQuery('SELECT ID,TITLE FROM institutes WHERE ID!=\'' . UserInstitute() . '\''));
+            $options = array(UserInstitute() => _nextGradeAtCurrentInstitute, '0' => _retain, '-1' => _doNotEnrollAfterThisInstituteYear);
+            if (count($institutes_RET)) {
+                foreach ($institutes_RET as $institute)
+                    $options[$institute['ID']] = $institute['TITLE'];
             }
-            array_push($fields, '<div class="form-group"><label class="control-label text-right col-lg-4" for="CUSTOM_' . $field['ID'] . '">' . _rollingRetentionOptions . '</label><div class="col-lg-8">' . _makeSelectInput('NEXT_SCHOOL', $options) . '</div></div>');
+            array_push($fields, '<div class="form-group"><label class="control-label text-right col-lg-4" for="CUSTOM_' . $field['ID'] . '">' . _rollingRetentionOptions . '</label><div class="col-lg-8">' . _makeSelectInput('NEXT_INSTITUTE', $options) . '</div></div>');
 
-            $calendars_RET = DBGet(DBQuery('SELECT CALENDAR_ID,DEFAULT_CALENDAR,TITLE FROM school_calendars WHERE SYEAR=\'' . UserSyear() . '\' AND SCHOOL_ID=\'' . UserSchool() . '\' ORDER BY DEFAULT_CALENDAR ASC'));
+            $calendars_RET = DBGet(DBQuery('SELECT CALENDAR_ID,DEFAULT_CALENDAR,TITLE FROM institute_calendars WHERE SYEAR=\'' . UserSyear() . '\' AND INSTITUTE_ID=\'' . UserInstitute() . '\' ORDER BY DEFAULT_CALENDAR ASC'));
             $options = array();
             if (count($calendars_RET)) {
                 foreach ($calendars_RET as $calendar)
@@ -600,7 +575,7 @@ if (!$_REQUEST['modfunc']) {
 
     echo '<div class="row" id="resp_table">';
     echo '<div class="col-md-4">';
-    $sql = "SELECT SUBJECT_ID,TITLE FROM course_subjects WHERE SCHOOL_ID='" . UserSchool() . "' AND SYEAR='" . UserSyear() . "' ORDER BY TITLE";
+    $sql = "SELECT SUBJECT_ID,TITLE FROM course_subjects WHERE INSTITUTE_ID='" . UserInstitute() . "' AND SYEAR='" . UserSyear() . "' ORDER BY TITLE";
     $QI = DBQuery($sql);
     $subjects_RET = DBGet($QI);
 
@@ -748,9 +723,9 @@ function _makeAutoSelectInput($column, $name, $request = 'students')
 
 function _makeMultipleInput($column, $name, $request = 'students')
 {
-    global $value, $field, $_openSIS;
+    global $value, $field, $_hani;
 
-    if ((AllowEdit() || $_openSIS['allow_edit']) && !$_REQUEST['_openSIS_PDF']) {
+    if ((AllowEdit() || $_hani['allow_edit']) && !$_REQUEST['HaniIMS_PDF']) {
         $field['SELECT_OPTIONS'] = str_replace("\n", "\r", str_replace("\r\n", "\r", $field['SELECT_OPTIONS']));
         $select_options = explode("\r", $field['SELECT_OPTIONS']);
         if (count($select_options)) {

@@ -1,30 +1,5 @@
 <?php
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+ 
 error_reporting(0);
 
 include 'lang/supportedLanguages.php';
@@ -94,20 +69,20 @@ require_once('functions/langFnc.php');
 
                 <div class="panel-heading">
                     <div class="logo">
-                        <img src="assets/images/opensis_logo.png" alt="openSIS" />
+                        <img src="assets/images/Plugin_icon-21.svg" width="100px" alt="HaniIMS" />
                     </div>                    
                     <h3><?= _studentInformationSystem ?></h3>
                 </div>
                 <div class="panel-body">
 
                     <div class="row">
-                        <!-- <div class="col-md-5 text-center school-logo">
+                        <!-- <div class="col-md-5 text-center institute-logo">
                             <img src="assets/images/peach_county_logo.png" width="180" />
                         </div> -->
                         <div class="col-md-12">
                             <?php
                             if ($_REQUEST['reason'])
-                                $note[] = 'You must have javascript enabled to use openSIS.';
+                                $note[] = 'You must have javascript enabled to use HaniIMS.';
 
                             if ($error[0] != '') {
                                 ?>
@@ -125,7 +100,7 @@ require_once('functions/langFnc.php');
                                 if ($maintain_qr[1]['SYSTEM_MAINTENANCE_SWITCH'] == 'Y') {
                                     ?>
                                     <div class="form-group">
-                                        <h4 class="text-center text-danger"><i class="icon-warning22" style="font-size: 50px;"></i><br/><br/>openSIS is under maintenance and login privileges have been turned off. Please log in when it is available again.</h4>
+                                        <h4 class="text-center text-danger"><i class="icon-warning22" style="font-size: 50px;"></i><br/><br/>HaniIMS is under maintenance and login privileges have been turned off. Please log in when it is available again.</h4>
                                     </div> 
                                     <?php
                                 }
@@ -172,7 +147,7 @@ require_once('functions/langFnc.php');
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group text-center">
-                                        <div class="checkbox checkbox-switch switch-success switch-sm">
+                                        <div class="checkbox checkbox-switch switch-primary switch-sm">
                                             <label>
                                                 <input type="checkbox" name="remember" id="remember" <?php echo (isset($_COOKIE['remember_me_name'])) ? 'checked="checked"' : ''; ?> /><span></span> <?=_rememberMe?>
                                             </label>
@@ -190,7 +165,7 @@ require_once('functions/langFnc.php');
                                 ?>
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <button name='log' type="submit" class="btn btn-success btn-lg btn-block" onMouseDown="set_ck();
+                                        <button name='log' type="submit" class="btn btn-primary btn-lg btn-block" onMouseDown="set_ck();
                                             Set_Cookie('dhtmlgoodies_tab_menu_tabIndex', '', -1)"><?=_login?></button>
                                 
                                     </div>
@@ -219,10 +194,7 @@ require_once('functions/langFnc.php');
                 <?php //echo $log_msg[1]['MESSAGE'];  ?>
                 </div>-->
             </div>
-            <footer>
-                <!-- openSisIsAProductOfOpenSolutionsForEducationInc. (<a href="http://www.os4ed.com">OS4ED</a>) and is licensed under the <a href="http://www.gnu.org/licenses/gpl.html" target="_blank">GPL license</a>. -->
-                <?= _footerText ?>
-            </footer>
+           
 
         </div>
     </section>

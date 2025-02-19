@@ -1,31 +1,6 @@
 <?php
 
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that
-#  include student demographic info, scheduling, grade book, attendance,
-#  report cards, eligibility, transcripts, parent portal,
-#  student portal and more.
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as
-#  published by the Free Software Foundation, version 2 of the License.
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+ 
 include('RedirectRootInc.php');
 include('Warehouse.php');
 $sql = 'SELECT
@@ -35,14 +10,14 @@ $sql = 'SELECT
                                 cpv.PERIOD_ID,s.MARKING_PERIOD_ID as COURSE_MARKING_PERIOD_ID,cp.MARKING_PERIOD_ID as mpa_id,cp.MP,sp.SORT_ORDER,
                                 c.TITLE,cp.COURSE_PERIOD_ID AS PERIOD_PULLDOWN,
                                 s.STUDENT_ID,r.TITLE AS ROOM,(SELECT GROUP_CONCAT(cpv.DAYS) FROM course_period_var cpv WHERE cpv.COURSE_PERIOD_ID=cp.COURSE_PERIOD_ID) as DAYS,SCHEDULER_LOCK,CONCAT(st.LAST_NAME, \'' . ' ' . '\' ,st.FIRST_NAME) AS MODIFIED_NAME
-                                FROM courses c,course_periods cp,course_period_var cpv,rooms r,school_periods sp,schedule s
+                                FROM courses c,course_periods cp,course_period_var cpv,rooms r,institute_periods sp,schedule s
                                 LEFT JOIN staff st ON s.MODIFIED_BY = st.STAFF_ID
                                 WHERE
                                 s.COURSE_ID = c.COURSE_ID AND s.COURSE_ID = cp.COURSE_ID
                                 AND cp.COURSE_PERIOD_ID=cpv.COURSE_PERIOD_ID
                                  AND r.ROOM_ID=cpv.ROOM_ID
                                 AND s.COURSE_PERIOD_ID = cp.COURSE_PERIOD_ID
-                                AND s.SCHOOL_ID = sp.SCHOOL_ID AND s.SYEAR = c.SYEAR AND sp.PERIOD_ID = cpv.PERIOD_ID
+                                AND s.INSTITUTE_ID = sp.INSTITUTE_ID AND s.SYEAR = c.SYEAR AND sp.PERIOD_ID = cpv.PERIOD_ID
                                 AND s.ID=' . $_REQUEST[id] . '  GROUP BY cp.COURSE_PERIOD_ID';
 
         $QI = DBQuery($sql);
@@ -64,7 +39,7 @@ $sql = 'SELECT
         
         
  function _makeTitle($value, $column = '') {
-    global $_openSIS, $THIS_RET;
+    global $_HaniIMS, $THIS_RET;
     return $value;
 }
 
@@ -88,9 +63,9 @@ function _makeViewLock($value, $column) {
 }
 
 function _makePeriodSelect($course_period_id, $column = '') {
-    global $_openSIS, $THIS_RET, $fy_id;
+    global $_HaniIMS, $THIS_RET, $fy_id;
 
-    $sql = 'SELECT cp.COURSE_PERIOD_ID,cp.PARENT_ID,cp.TITLE,cp.MARKING_PERIOD_ID,COALESCE(cp.TOTAL_SEATS-cp.FILLED_SEATS,0) AS AVAILABLE_SEATS FROM course_periods cp,course_period_var cpv,school_periods sp WHERE sp.PERIOD_ID=cpv.PERIOD_ID AND cp.COURSE_PERIOD_ID=cpv.COURSE_PERIOD_ID AND cp.COURSE_ID=\'' . $THIS_RET[COURSE_ID] . '\' ORDER BY sp.SORT_ORDER';
+    $sql = 'SELECT cp.COURSE_PERIOD_ID,cp.PARENT_ID,cp.TITLE,cp.MARKING_PERIOD_ID,COALESCE(cp.TOTAL_SEATS-cp.FILLED_SEATS,0) AS AVAILABLE_SEATS FROM course_periods cp,course_period_var cpv,institute_periods sp WHERE sp.PERIOD_ID=cpv.PERIOD_ID AND cp.COURSE_PERIOD_ID=cpv.COURSE_PERIOD_ID AND cp.COURSE_ID=\'' . $THIS_RET[COURSE_ID] . '\' ORDER BY sp.SORT_ORDER';
     $QI = DBQuery($sql);
     $orders_RET = DBGet($QI);
 
@@ -107,32 +82,32 @@ function _makePeriodSelect($course_period_id, $column = '') {
 }
 
 function _makeMPSelect($mp_id, $name = '') {
-    global $_openSIS, $THIS_RET, $fy_id;
+    global $_HaniIMS, $THIS_RET, $fy_id;
     if ($mp_id != '') {
-        if (!$_openSIS['_makeMPSelect']) {
-            $semesters_RET = DBGet(DBQuery('SELECT MARKING_PERIOD_ID,TITLE,NULL AS SEMESTER_ID FROM school_semesters WHERE SYEAR=\'' . UserSyear() . '\' AND SCHOOL_ID=\'' . UserSchool() . '\' ORDER BY SORT_ORDER'));
-            $quarters_RET = DBGet(DBQuery('SELECT MARKING_PERIOD_ID,TITLE,SEMESTER_ID FROM school_quarters WHERE SYEAR=\'' . UserSyear() . '\' AND SCHOOL_ID=\'' . UserSchool() . '\' ORDER BY SORT_ORDER'));
+        if (!$_HaniIMS['_makeMPSelect']) {
+            $semesters_RET = DBGet(DBQuery('SELECT MARKING_PERIOD_ID,TITLE,NULL AS SEMESTER_ID FROM institute_semesters WHERE SYEAR=\'' . UserSyear() . '\' AND INSTITUTE_ID=\'' . UserInstitute() . '\' ORDER BY SORT_ORDER'));
+            $quarters_RET = DBGet(DBQuery('SELECT MARKING_PERIOD_ID,TITLE,SEMESTER_ID FROM institute_quarters WHERE SYEAR=\'' . UserSyear() . '\' AND INSTITUTE_ID=\'' . UserInstitute() . '\' ORDER BY SORT_ORDER'));
 
-            $_openSIS['_makeMPSelect'][$fy_id][1] = array('MARKING_PERIOD_ID' => "$fy_id", 'TITLE' => 'Full Year', 'SEMESTER_ID' => '');
+            $_HaniIMS['_makeMPSelect'][$fy_id][1] = array('MARKING_PERIOD_ID' => "$fy_id", 'TITLE' => 'Full Year', 'SEMESTER_ID' => '');
             foreach ($semesters_RET as $sem)
-                $_openSIS['_makeMPSelect'][$fy_id][] = $sem;
+                $_HaniIMS['_makeMPSelect'][$fy_id][] = $sem;
             foreach ($quarters_RET as $qtr)
-                $_openSIS['_makeMPSelect'][$fy_id][] = $qtr;
+                $_HaniIMS['_makeMPSelect'][$fy_id][] = $qtr;
 
-            $quarters_QI = DBQuery('SELECT MARKING_PERIOD_ID,TITLE,SEMESTER_ID FROM school_quarters WHERE SYEAR=\'' . UserSyear() . '\' AND SCHOOL_ID=\'' . UserSchool() . '\' ORDER BY SORT_ORDER');
+            $quarters_QI = DBQuery('SELECT MARKING_PERIOD_ID,TITLE,SEMESTER_ID FROM institute_quarters WHERE SYEAR=\'' . UserSyear() . '\' AND INSTITUTE_ID=\'' . UserInstitute() . '\' ORDER BY SORT_ORDER');
             $quarters_indexed_RET = DBGet($quarters_QI, array(), array('SEMESTER_ID'));
 
             foreach ($semesters_RET as $sem) {
-                $_openSIS['_makeMPSelect'][$sem['MARKING_PERIOD_ID']][1] = $sem;
+                $_HaniIMS['_makeMPSelect'][$sem['MARKING_PERIOD_ID']][1] = $sem;
                 foreach ($quarters_indexed_RET[$sem['MARKING_PERIOD_ID']] as $qtr)
-                    $_openSIS['_makeMPSelect'][$sem['MARKING_PERIOD_ID']][] = $qtr;
+                    $_HaniIMS['_makeMPSelect'][$sem['MARKING_PERIOD_ID']][] = $qtr;
             }
 
             foreach ($quarters_RET as $qtr)
-                $_openSIS['_makeMPSelect'][$qtr['MARKING_PERIOD_ID']][] = $qtr;
+                $_HaniIMS['_makeMPSelect'][$qtr['MARKING_PERIOD_ID']][] = $qtr;
         }
 
-        foreach ($_openSIS['_makeMPSelect'][$mp_id] as $value)
+        foreach ($_HaniIMS['_makeMPSelect'][$mp_id] as $value)
             $mps[$value['MARKING_PERIOD_ID']] = $value['TITLE'];
 
         if ($THIS_RET['MARKING_PERIOD_ID'] != $mp_id)
@@ -149,32 +124,32 @@ function _makeMPSelect($mp_id, $name = '') {
 }
 
 function _makeMPSelect_red($mp_id, $name = '') {
-    global $_openSIS, $THIS_RET, $fy_id;
+    global $_HaniIMS, $THIS_RET, $fy_id;
     if ($mp_id != '') {
-        if (!$_openSIS['_makeMPSelect']) {
-            $semesters_RET = DBGet(DBQuery('SELECT MARKING_PERIOD_ID,TITLE,NULL AS SEMESTER_ID FROM school_semesters WHERE SYEAR=\'' . UserSyear() . '\' AND SCHOOL_ID=\'' . UserSchool() . '\' ORDER BY SORT_ORDER'));
-            $quarters_RET = DBGet(DBQuery('SELECT MARKING_PERIOD_ID,TITLE,SEMESTER_ID FROM school_quarters WHERE SYEAR=\'' . UserSyear() . '\' AND SCHOOL_ID=\'' . UserSchool() . '\' ORDER BY SORT_ORDER'));
+        if (!$_HaniIMS['_makeMPSelect']) {
+            $semesters_RET = DBGet(DBQuery('SELECT MARKING_PERIOD_ID,TITLE,NULL AS SEMESTER_ID FROM institute_semesters WHERE SYEAR=\'' . UserSyear() . '\' AND INSTITUTE_ID=\'' . UserInstitute() . '\' ORDER BY SORT_ORDER'));
+            $quarters_RET = DBGet(DBQuery('SELECT MARKING_PERIOD_ID,TITLE,SEMESTER_ID FROM institute_quarters WHERE SYEAR=\'' . UserSyear() . '\' AND INSTITUTE_ID=\'' . UserInstitute() . '\' ORDER BY SORT_ORDER'));
 
-            $_openSIS['_makeMPSelect'][$fy_id][1] = array('MARKING_PERIOD_ID' => "$fy_id", 'TITLE' => 'Full Year', 'SEMESTER_ID' => '');
+            $_HaniIMS['_makeMPSelect'][$fy_id][1] = array('MARKING_PERIOD_ID' => "$fy_id", 'TITLE' => 'Full Year', 'SEMESTER_ID' => '');
             foreach ($semesters_RET as $sem)
-                $_openSIS['_makeMPSelect'][$fy_id][] = $sem;
+                $_HaniIMS['_makeMPSelect'][$fy_id][] = $sem;
             foreach ($quarters_RET as $qtr)
-                $_openSIS['_makeMPSelect'][$fy_id][] = $qtr;
+                $_HaniIMS['_makeMPSelect'][$fy_id][] = $qtr;
 
-            $quarters_QI = DBQuery('SELECT MARKING_PERIOD_ID,TITLE,SEMESTER_ID FROM school_quarters WHERE SYEAR=\'' . UserSyear() . '\' AND SCHOOL_ID=\'' . UserSchool() . '\' ORDER BY SORT_ORDER');
+            $quarters_QI = DBQuery('SELECT MARKING_PERIOD_ID,TITLE,SEMESTER_ID FROM institute_quarters WHERE SYEAR=\'' . UserSyear() . '\' AND INSTITUTE_ID=\'' . UserInstitute() . '\' ORDER BY SORT_ORDER');
             $quarters_indexed_RET = DBGet($quarters_QI, array(), array('SEMESTER_ID'));
 
             foreach ($semesters_RET as $sem) {
-                $_openSIS['_makeMPSelect'][$sem['MARKING_PERIOD_ID']][1] = $sem;
+                $_HaniIMS['_makeMPSelect'][$sem['MARKING_PERIOD_ID']][1] = $sem;
                 foreach ($quarters_indexed_RET[$sem['MARKING_PERIOD_ID']] as $qtr)
-                    $_openSIS['_makeMPSelect'][$sem['MARKING_PERIOD_ID']][] = $qtr;
+                    $_HaniIMS['_makeMPSelect'][$sem['MARKING_PERIOD_ID']][] = $qtr;
             }
 
             foreach ($quarters_RET as $qtr)
-                $_openSIS['_makeMPSelect'][$qtr['MARKING_PERIOD_ID']][] = $qtr;
+                $_HaniIMS['_makeMPSelect'][$qtr['MARKING_PERIOD_ID']][] = $qtr;
         }
 
-        foreach ($_openSIS['_makeMPSelect'][$mp_id] as $value) {
+        foreach ($_HaniIMS['_makeMPSelect'][$mp_id] as $value) {
 
             $student_id = UserStudentID();
             $qr = DBGet(DBQuery('select end_date from student_enrollment where student_id=' . $student_id . ' order by id desc limit 0,1'));

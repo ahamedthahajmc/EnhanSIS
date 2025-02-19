@@ -1,30 +1,5 @@
 <?php
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+ 
 error_reporting(0);
 
 session_start();
@@ -95,7 +70,7 @@ if (!$connection)
 // Not receiving the return == unusable search.
 //		ie, $processable_results = DBQuery("select * from students");
 function DBQuery($sql) {
-    global $DatabaseType, $_openSIS, $connection;
+    global $DatabaseType, $_HaniIMS, $connection;
 
     // $connection = db_start();
 
@@ -219,7 +194,7 @@ function db_properties($table) {
 }
 
 function db_show_error($sql, $failnote, $additional = '') {
-    global $openSISTitle, $openSISVersion, $openSISNotifyAddress, $openSISMode;
+    global $HaniIMSTitle, $HaniIMSVersion, $HaniIMSNotifyAddress, $HaniIMSMode;
 
     $tb = debug_backtrace();
     $error = $tb[1]['file'] . " at " . $tb[1]['line'];
@@ -251,7 +226,7 @@ function db_show_error($sql, $failnote, $additional = '') {
 			<TD><pre>" . date("m/d/Y h:i:s") . "</pre></TD>
 		</TR><TR>
 			<TD align=right></TD>
-			<TD>"._openSisHasEncounteredAnErrorThatCouldHaveResultedFromAnyOfTheFollowing.":
+			<TD>"._HaniIMSHasEncounteredAnErrorThatCouldHaveResultedFromAnyOfTheFollowing.":
 			<br/>
 			<ul>
 			<li>"._invalidDataInput."</li>
@@ -259,7 +234,7 @@ function db_show_error($sql, $failnote, $additional = '') {
 			<li>"._programError."</li>
 			</ul>
 			
-			"._pleaseTakeThisScreenShotAndSendItToYourOpenSisRepresentativeForDebuggingAndResolution.".
+			"._pleaseTakeThisScreenShotAndSendItToYourHaniIMSRepresentativeForDebuggingAndResolution.".
 			</TD>
 		</TR>
 		
@@ -267,8 +242,8 @@ function db_show_error($sql, $failnote, $additional = '') {
 
     echo "<!-- SQL STATEMENT: \n\n $sql \n\n -->";
 
-    if ($openSISNotifyAddress) {
-        $message = "System: $openSISTitle \n";
+    if ($HaniIMSNotifyAddress) {
+        $message = "System: $HaniIMSTitle \n";
         $message .= "Date: " . date("m/d/Y h:i:s") . "\n";
         $message .= "Page: " . $_SERVER['PHP_SELF'] . ' ' . ProgramTitle() . " \n\n";
         $message .= "Failure Notice:  $failnote \n";
@@ -276,7 +251,7 @@ function db_show_error($sql, $failnote, $additional = '') {
         $message .= "\n $sql \n";
         $message .= "Request Array: \n" . ShowVar($_REQUEST, 'Y', 'N');
         $message .= "\n\nSession Array: \n" . ShowVar($_SESSION, 'Y', 'N');
-        mail($openSISNotifyAddress, 'openSIS Database Error', $message);
+        mail($HaniIMSNotifyAddress, 'HaniIMS Database Error', $message);
     }
 
     die();
@@ -295,8 +270,8 @@ if(langDirection()=='rtl') { $dir="rtl"; }else{ $dir="ltr"; }
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>openSIS Student Information System</title>
-        <link rel="shortcut icon" href="favicon.ico">
+        <title>HaniIMS Institute Management System</title>
+        <link rel="shortcut icon" href="logo.ico.png">
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <link href="assets/css/icons/icomoon/styles.css" rel="stylesheet" type="text/css">
         <link href="assets/css/icons/fontawesome/styles.min.css" rel="stylesheet" type="text/css">
@@ -384,7 +359,7 @@ if(langDirection()=='rtl') { $dir="rtl"; }else{ $dir="ltr"; }
 
                     <div class="panel-heading">
                         <div class="logo">
-                            <img src="assets/images/opensis_logo.png" alt="openSIS" />
+                            <img src="assets/images/Plugin_icon-21.svg" width="100px" alt="HaniIMS" />
                         </div>
                     </div>
 
@@ -510,10 +485,7 @@ forgotpassusername_init(this.value);" /><span></span><?=_student?></label>
                                             <p class="info-text"><?php echo $log_msg[1]['MESSAGE']; ?></p>
                                         </div>-->
                 </div>
-                <footer>
-                    <!-- openSIS is a product of Open Solutions for Education, Inc. (<a href='http://www.os4ed.com' target='_blank'>OS4ED</a>) and is licensed under the <a href='http://www.gnu.org/licenses/gpl.html' target='_blank'>GPL license</a>. -->
-                    <?=_footerText?>
-                </footer>
+               
             </div>
         </section>
 

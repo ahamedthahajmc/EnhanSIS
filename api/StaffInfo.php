@@ -36,7 +36,7 @@ function db_start() {
 // Not receiving the return == unusable search.
 //		ie, $processable_results = DBQuery("select * from students");
 function DBQuery($sql) {
-    global $DatabaseType, $_openSIS;
+    global $DatabaseType, $_HaniIMS;
 
     $connection = db_start();
 
@@ -207,7 +207,7 @@ function DBGet($QI,$functions=array(),$index=array())
 }
 
 function db_show_error($sql, $failnote, $additional = '') {
-    global $openSISTitle, $openSISVersion, $openSISNotifyAddress, $openSISMode;
+    global $HaniIMSTitle, $HaniIMSVersion, $HaniIMSNotifyAddress, $HaniIMSMode;
 
     $tb = debug_backtrace();
     $error = $tb[1]['file'] . " at " . $tb[1]['line'];
@@ -239,7 +239,7 @@ function db_show_error($sql, $failnote, $additional = '') {
 			<TD><pre>" . date("m/d/Y h:i:s") . "</pre></TD>
 		</TR><TR>
 			<TD align=right></TD>
-			<TD>openSIS has encountered an error that could have resulted from any of the following:
+			<TD>HaniIMS has encountered an error that could have resulted from any of the following:
 			<br/>
 			<ul>
 			<li>Invalid data input</li>
@@ -247,7 +247,7 @@ function db_show_error($sql, $failnote, $additional = '') {
 			<li>Program error</li>
 			</ul>
 			
-			Please take this screen shot and send it to your openSIS representative for debugging and resolution.
+			Please take this screen shot and send it to your HaniIMS representative for debugging and resolution.
 			</TD>
 		</TR>
 		
@@ -255,8 +255,8 @@ function db_show_error($sql, $failnote, $additional = '') {
 
     echo "<!-- SQL STATEMENT: \n\n $sql \n\n -->";
 
-    if ($openSISNotifyAddress) {
-        $message = "System: $openSISTitle \n";
+    if ($HaniIMSNotifyAddress) {
+        $message = "System: $HaniIMSTitle \n";
         $message .= "Date: " . date("m/d/Y h:i:s") . "\n";
         $message .= "Page: " . $_SERVER['PHP_SELF'] . ' ' . ProgramTitle() . " \n\n";
         $message .= "Failure Notice:  $failnote \n";
@@ -264,25 +264,25 @@ function db_show_error($sql, $failnote, $additional = '') {
         $message .= "\n $sql \n";
         $message .= "Request Array: \n" . ShowVar($_REQUEST, 'Y', 'N');
         $message .= "\n\nSession Array: \n" . ShowVar($_SESSION, 'Y', 'N');
-        mail($openSISNotifyAddress, 'openSIS Database Error', $message);
+        mail($HaniIMSNotifyAddress, 'HaniIMS Database Error', $message);
     }
 
     die();
 }
-function GetMP($mp='',$column='TITLE',$syear,$school)
-{	global $_openSIS;
+function GetMP($mp='',$column='TITLE',$syear,$institute)
+{	global $_HaniIMS;
 	// mab - need to translate marking_period_id to title to be useful as a function call from dbget
 	// also, it doesn't make sense to ask for same thing you give
 	if($column=='MARKING_PERIOD_ID')
 		$column='TITLE';
 
-	if(!$_openSIS['GetMP'])
+	if(!$_HaniIMS['GetMP'])
 	{
            
-		$_openSIS['GetMP'] = DBGet(DBQuery('SELECT MARKING_PERIOD_ID,TITLE,POST_START_DATE,POST_END_DATE,\'school_quarters\' AS `TABLE`,\'SEMESTER_ID\' AS `PA_ID`,SORT_ORDER,SHORT_NAME,START_DATE,END_DATE,DOES_GRADES,DOES_EXAM,DOES_COMMENTS FROM school_quarters         WHERE SYEAR=\''.$syear.'\' AND SCHOOL_ID=\''.$school.'\'
-					UNION      SELECT MARKING_PERIOD_ID,TITLE,POST_START_DATE,POST_END_DATE,\'school_semesters\' AS `TABLE`,\'YEAR_ID\' AS `PA_ID`,SORT_ORDER,SHORT_NAME,START_DATE,END_DATE,DOES_GRADES,DOES_EXAM,DOES_COMMENTS FROM school_semesters        WHERE SYEAR=\''.$syear.'\' AND SCHOOL_ID=\''.$school.'\'
-					UNION      SELECT MARKING_PERIOD_ID,TITLE,POST_START_DATE,POST_END_DATE,\'school_years\' AS `TABLE`, \'-1\' AS `PA_ID`,SORT_ORDER,SHORT_NAME,START_DATE,END_DATE,DOES_GRADES,DOES_EXAM,DOES_COMMENTS FROM school_years            WHERE SYEAR=\''.$syear.'\' AND SCHOOL_ID=\''.$school.'\'
-					UNION      SELECT MARKING_PERIOD_ID,TITLE,POST_START_DATE,POST_END_DATE,\'school_progress_periods\' AS `TABLE`, \'-1\' AS `PA_ID`,SORT_ORDER,SHORT_NAME,START_DATE,END_DATE,DOES_GRADES,DOES_EXAM,DOES_COMMENTS FROM school_progress_periods WHERE SYEAR=\''.$syear.'\' AND SCHOOL_ID=\''.$school.'\''),array(),array('MARKING_PERIOD_ID'));
+		$_HaniIMS['GetMP'] = DBGet(DBQuery('SELECT MARKING_PERIOD_ID,TITLE,POST_START_DATE,POST_END_DATE,\'institute_quarters\' AS `TABLE`,\'SEMESTER_ID\' AS `PA_ID`,SORT_ORDER,SHORT_NAME,START_DATE,END_DATE,DOES_GRADES,DOES_EXAM,DOES_COMMENTS FROM institute_quarters         WHERE SYEAR=\''.$syear.'\' AND INSTITUTE_ID=\''.$institute.'\'
+					UNION      SELECT MARKING_PERIOD_ID,TITLE,POST_START_DATE,POST_END_DATE,\'institute_semesters\' AS `TABLE`,\'YEAR_ID\' AS `PA_ID`,SORT_ORDER,SHORT_NAME,START_DATE,END_DATE,DOES_GRADES,DOES_EXAM,DOES_COMMENTS FROM institute_semesters        WHERE SYEAR=\''.$syear.'\' AND INSTITUTE_ID=\''.$institute.'\'
+					UNION      SELECT MARKING_PERIOD_ID,TITLE,POST_START_DATE,POST_END_DATE,\'institute_years\' AS `TABLE`, \'-1\' AS `PA_ID`,SORT_ORDER,SHORT_NAME,START_DATE,END_DATE,DOES_GRADES,DOES_EXAM,DOES_COMMENTS FROM institute_years            WHERE SYEAR=\''.$syear.'\' AND INSTITUTE_ID=\''.$institute.'\'
+					UNION      SELECT MARKING_PERIOD_ID,TITLE,POST_START_DATE,POST_END_DATE,\'institute_progress_periods\' AS `TABLE`, \'-1\' AS `PA_ID`,SORT_ORDER,SHORT_NAME,START_DATE,END_DATE,DOES_GRADES,DOES_EXAM,DOES_COMMENTS FROM institute_progress_periods WHERE SYEAR=\''.$syear.'\' AND INSTITUTE_ID=\''.$institute.'\''),array(),array('MARKING_PERIOD_ID'));
 
         }
         
@@ -303,14 +303,14 @@ if($mp=='')
 		return 'Full Year'.$suffix;
 	else
         {
-		return $_openSIS['GetMP'][$mp][1][$column].$suffix;  
+		return $_HaniIMS['GetMP'][$mp][1][$column].$suffix;  
         }
 }
 	
 }
 function _makeLetterGrade($percent,$course_period_id=0,$staff_id=0,$ret='')
 {	
-    global $programconfig,$_openSIS;
+    global $programconfig,$_HaniIMS;
 	
 
 	
@@ -328,10 +328,10 @@ $cp=DBGet(DBQuery('SELECT * FROM course_periods WHERE COURSE_PERIOD_ID='.$course
 		else
 			$programconfig[$staff_id] = true;
 	}
-	if(!$_openSIS['_makeLetterGrade']['courses'][$course_period_id])
-		$_openSIS['_makeLetterGrade']['courses'][$course_period_id] = DBGet(DBQuery('SELECT DOES_BREAKOFF,GRADE_SCALE_ID FROM course_periods WHERE COURSE_PERIOD_ID=\''.$course_period_id.'\''));
-	$does_breakoff = $_openSIS['_makeLetterGrade']['courses'][$course_period_id][1]['DOES_BREAKOFF'];
-	$grade_scale_id = $_openSIS['_makeLetterGrade']['courses'][$course_period_id][1]['GRADE_SCALE_ID'];
+	if(!$_HaniIMS['_makeLetterGrade']['courses'][$course_period_id])
+		$_HaniIMS['_makeLetterGrade']['courses'][$course_period_id] = DBGet(DBQuery('SELECT DOES_BREAKOFF,GRADE_SCALE_ID FROM course_periods WHERE COURSE_PERIOD_ID=\''.$course_period_id.'\''));
+	$does_breakoff = $_HaniIMS['_makeLetterGrade']['courses'][$course_period_id][1]['DOES_BREAKOFF'];
+	$grade_scale_id = $_HaniIMS['_makeLetterGrade']['courses'][$course_period_id][1]['GRADE_SCALE_ID'];
 
 	$percent *= 100;
 
@@ -349,15 +349,15 @@ $cp=DBGet(DBQuery('SELECT * FROM course_periods WHERE COURSE_PERIOD_ID='.$course
                 }
                 else
                 {
-		$percent = round($percent,2); // school default
+		$percent = round($percent,2); // institute default
                 }
 	if($ret=='%')
 		return $percent;
 
-	if(!$_openSIS['_makeLetterGrade']['grades'][$grade_scale_id])
-		$_openSIS['_makeLetterGrade']['grades'][$grade_scale_id] = DBGet(DBQuery('SELECT TITLE,ID,BREAK_OFF FROM report_card_grades WHERE SYEAR=\''.$cp[1]['SYEAR'].'\' AND SCHOOL_ID=\''.$cp[1]['SCHOOL_ID'].'\' AND GRADE_SCALE_ID=\''.$grade_scale_id.'\' ORDER BY BREAK_OFF IS NOT NULL DESC,BREAK_OFF DESC,SORT_ORDER'));
+	if(!$_HaniIMS['_makeLetterGrade']['grades'][$grade_scale_id])
+		$_HaniIMS['_makeLetterGrade']['grades'][$grade_scale_id] = DBGet(DBQuery('SELECT TITLE,ID,BREAK_OFF FROM report_card_grades WHERE SYEAR=\''.$cp[1]['SYEAR'].'\' AND INSTITUTE_ID=\''.$cp[1]['INSTITUTE_ID'].'\' AND GRADE_SCALE_ID=\''.$grade_scale_id.'\' ORDER BY BREAK_OFF IS NOT NULL DESC,BREAK_OFF DESC,SORT_ORDER'));
 	
-	foreach($_openSIS['_makeLetterGrade']['grades'][$grade_scale_id] as $grade)
+	foreach($_HaniIMS['_makeLetterGrade']['grades'][$grade_scale_id] as $grade)
 	{
 		if($does_breakoff=='Y' ? $percent>=$programconfig[$staff_id][$course_period_id.'-'.$grade['ID']] && is_numeric($programconfig[$staff_id][$course_period_id.'-'.$grade['ID']]) : $percent>=$grade['BREAK_OFF'])
 			return $ret=='ID' ? $grade['ID'] : $grade['TITLE'];
@@ -377,14 +377,14 @@ if(count($validate) > 0)
 {
     $syear=mysqli_real_escape_string($connection,strtolower(optional_param('sch_year', '', PARAM_RAW)));
     
-    $all_stf_ids=DBGet(DBQuery('SELECT GROUP_CONCAT(DISTINCT(STAFF_ID)) as STAFF_IDS FROM staff_school_relationship WHERE STAFF_ID IS NOT NULL AND SYEAR = '.$syear));
+    $all_stf_ids=DBGet(DBQuery('SELECT GROUP_CONCAT(DISTINCT(STAFF_ID)) as STAFF_IDS FROM staff_institute_relationship WHERE STAFF_ID IS NOT NULL AND SYEAR = '.$syear));
     
     
     $sch_arr=array();
-    $sch=DBGet(DBQuery('SELECT * FROM schools'));
-    foreach($sch as $school_details)
-       $sch_arr[$school_details['ID']]=$school_details['TITLE']; 
-//    $all_sch_ids=DBGet(DBQuery('SELECT DISTINCT SCHOOL_ID AS SCHOOL_ID FROM school_years WHERE SCHOOL_ID=1 AND SYEAR = '.$syear));
+    $sch=DBGet(DBQuery('SELECT * FROM institutes'));
+    foreach($sch as $institute_details)
+       $sch_arr[$institute_details['ID']]=$institute_details['TITLE']; 
+//    $all_sch_ids=DBGet(DBQuery('SELECT DISTINCT INSTITUTE_ID AS INSTITUTE_ID FROM institute_years WHERE INSTITUTE_ID=1 AND SYEAR = '.$syear));
     $data=array();
     
     if(count($all_stf_ids)>0)
@@ -423,14 +423,14 @@ if(count($validate) > 0)
             }
             else
                 $data['data'][$syear][$sd['STAFF_ID']]['PRIMARY_LANGUAGE']='';
-            $stf_oth_info=DBGet(DBQuery('SELECT * FROM staff_school_info WHERE STAFF_ID='.$sd['STAFF_ID']));
+            $stf_oth_info=DBGet(DBQuery('SELECT * FROM staff_institute_info WHERE STAFF_ID='.$sd['STAFF_ID']));
             $data['data'][$syear][$sd['STAFF_ID']]['CATEGORY']=$stf_oth_info[1]['CATEGORY'];
             $data['data'][$syear][$sd['STAFF_ID']]['JOB_TITLE']=$stf_oth_info[1]['JOB_TITLE'];
             $data['data'][$syear][$sd['STAFF_ID']]['JOINING_DATE']=$stf_oth_info[1]['JOINING_DATE'];
             $data['data'][$syear][$sd['STAFF_ID']]['END_DATE']=$stf_oth_info[1]['END_DATE'];
             $data['data'][$syear][$sd['STAFF_ID']]['PROFILE_ID']=($sd['PROFILE_ID']==''?'':$sd['PROFILE_ID']);
             $data['data'][$syear][$sd['STAFF_ID']]['PROFILE']=$user_profile_arr[$sd['PROFILE_ID']];
-            $data['data'][$syear][$sd['STAFF_ID']]['CURRENT_SCHOOL_ID']=($sd['CURRENT_SCHOOL_ID']==''?'':$sd['CURRENT_SCHOOL_ID']);
+            $data['data'][$syear][$sd['STAFF_ID']]['CURRENT_INSTITUTE_ID']=($sd['CURRENT_INSTITUTE_ID']==''?'':$sd['CURRENT_INSTITUTE_ID']);
             $i=1;
             $certificate=DBGet(DBQuery('SELECT * FROM staff_certification WHERE STAFF_ID='.$sd['STAFF_ID']));
             foreach($certificate as $cd)
@@ -446,13 +446,13 @@ if(count($validate) > 0)
                 
             }
             
-            $enrollment=DBGet(DBQuery('SELECT * FROM staff_school_relationship WHERE STAFF_ID='.$sd['STAFF_ID'].' AND SYEAR='.$syear));
+            $enrollment=DBGet(DBQuery('SELECT * FROM staff_institute_relationship WHERE STAFF_ID='.$sd['STAFF_ID'].' AND SYEAR='.$syear));
             foreach($enrollment as $e)
             {
-                $data['data'][$syear][$sd['STAFF_ID']]['SCHOOL ACCESS'][$e['SCHOOL_ID']]['SCHOOL_ID']=$e['SCHOOL_ID'];
-                $data['data'][$syear][$sd['STAFF_ID']]['SCHOOL ACCESS'][$e['SCHOOL_ID']]['SCHOOL_NAME']=$sch_arr[$e['SCHOOL_ID']];
-                $data['data'][$syear][$sd['STAFF_ID']]['SCHOOL ACCESS'][$e['SCHOOL_ID']]['START_DATE']=$e['START_DATE'];
-                $data['data'][$syear][$sd['STAFF_ID']]['SCHOOL ACCESS'][$e['SCHOOL_ID']]['END_DATE']=$e['END_DATE'];
+                $data['data'][$syear][$sd['STAFF_ID']]['INSTITUTE ACCESS'][$e['INSTITUTE_ID']]['INSTITUTE_ID']=$e['INSTITUTE_ID'];
+                $data['data'][$syear][$sd['STAFF_ID']]['INSTITUTE ACCESS'][$e['INSTITUTE_ID']]['INSTITUTE_NAME']=$sch_arr[$e['INSTITUTE_ID']];
+                $data['data'][$syear][$sd['STAFF_ID']]['INSTITUTE ACCESS'][$e['INSTITUTE_ID']]['START_DATE']=$e['START_DATE'];
+                $data['data'][$syear][$sd['STAFF_ID']]['INSTITUTE ACCESS'][$e['INSTITUTE_ID']]['END_DATE']=$e['END_DATE'];
             }
             
             }
@@ -518,14 +518,14 @@ if(count($validate) > 0)
                     }
                     else
                          echo '<PRIMARY_LANGUAGE></PRIMARY_LANGUAGE>';
-                    $stf_oth_info=DBGet(DBQuery('SELECT * FROM staff_school_info WHERE STAFF_ID='.$value['STAFF_ID']));
+                    $stf_oth_info=DBGet(DBQuery('SELECT * FROM staff_institute_info WHERE STAFF_ID='.$value['STAFF_ID']));
                     echo '<CATEGORY>'.htmlentities($stf_oth_info[1]['CATEGORY']).'</CATEGORY>';
                     echo '<JOB_TITLE>'.htmlentities($stf_oth_info[1]['JOB_TITLE']).'</JOB_TITLE>';
                     echo '<JOINING_DATE>'.htmlentities($stf_oth_info[1]['JOINING_DATE']).'</JOINING_DATE>';
                     echo '<END_DATE>'.htmlentities($stf_oth_info[1]['END_DATE']).'</END_DATE>';
                     echo '<PROFILE_ID>'.htmlentities($value['PROFILE_ID']).'</PROFILE_ID>';
                     echo '<PROFILE>'.htmlentities($value['PROFILE']).'</PROFILE>';
-                    echo '<CURRENT_SCHOOL_ID>'.htmlentities($value['CURRENT_SCHOOL_ID']).'</CURRENT_SCHOOL_ID>';
+                    echo '<CURRENT_INSTITUTE_ID>'.htmlentities($value['CURRENT_INSTITUTE_ID']).'</CURRENT_INSTITUTE_ID>';
 //                    
 //                     
                     foreach($value['CERTIFICATE'] as $eid=>$ed)
@@ -542,18 +542,18 @@ if(count($validate) > 0)
                     }
 //                  
                     $i=1;
-                    echo '<SCHOOL_ACCESS>';
-                    foreach($value['SCHOOLS'] as $school_id=>$school_d)
+                    echo '<INSTITUTE_ACCESS>';
+                    foreach($value['INSTITUTES'] as $institute_id=>$institute_d)
                     {
-                        echo '<SCHOOL_'.htmlentities($i).'>';
-                        echo '<SCHOOL_ID>'.htmlentities($school_d['SCHOOL_ID']).'</SCHOOL_ID>';
-                        echo '<SCHOOL_NAME>'.htmlentities($school_d['SCHOOL_NAME']).'</SCHOOL_NAME>';
-                        echo '<START_DATE>'.htmlentities($school_d['START_DATE']).'</START_DATE>';
-                        echo '<END_DATE>'.htmlentities($school_d['END_DATE']).'</END_DATE>';
-                        echo '</SCHOOL_'.htmlentities($i).'>';
+                        echo '<INSTITUTE_'.htmlentities($i).'>';
+                        echo '<INSTITUTE_ID>'.htmlentities($institute_d['INSTITUTE_ID']).'</INSTITUTE_ID>';
+                        echo '<INSTITUTE_NAME>'.htmlentities($institute_d['INSTITUTE_NAME']).'</INSTITUTE_NAME>';
+                        echo '<START_DATE>'.htmlentities($institute_d['START_DATE']).'</START_DATE>';
+                        echo '<END_DATE>'.htmlentities($institute_d['END_DATE']).'</END_DATE>';
+                        echo '</INSTITUTE_'.htmlentities($i).'>';
                         $i++;
                     }
-                    echo '</SCHOOL_ACCESS>';
+                    echo '</INSTITUTE_ACCESS>';
 //                }
                  echo '</STAFF_'.htmlentities($j).'>';
                  $j++;

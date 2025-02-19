@@ -1,33 +1,8 @@
 <?php
 
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+ 
 include('../../RedirectModulesInc.php');
-if ($_openSIS['modules_search'] && $extra['force_search'])
+if ($_hani['modules_search'] && $extra['force_search'])
     $_REQUEST['search_modfunc'] = '';
 if (Preferences('SEARCH') != 'Y' && !$extra['force_search'])
     $_REQUEST['search_modfunc'] = 'list';
@@ -177,7 +152,7 @@ if ($_REQUEST['search_modfunc'] == 'search_fnc' || !$_REQUEST['search_modfunc'])
             echo '<div class="col-md-12">';
             if (User('PROFILE') == 'admin') {
                 echo '<label class="checkbox-inline"><INPUT class="styled" type=checkbox name=address_group value=Y' . (Preferences('DEFAULT_FAMILIES') == 'Y' ? ' CHECKED' : '') . '> '._groupByFamily.'</label>';
-                echo '<label class="checkbox-inline"><INPUT class="styled" type=checkbox name=_search_all_schools value=Y' . (Preferences('DEFAULT_ALL_SCHOOLS') == 'Y' ? ' CHECKED' : '') . '> '._searchAllSchools.'</label>';
+                echo '<label class="checkbox-inline"><INPUT class="styled" type=checkbox name=_search_all_institutes value=Y' . (Preferences('DEFAULT_ALL_INSTITUTES') == 'Y' ? ' CHECKED' : '') . '> '._searchAllInstitutes.'</label>';
             }
             echo '<label class="checkbox-inline"><INPUT class="styled" type=checkbox name=include_inactive value=Y>'._includeInactiveStudents.':</label>';
             echo '</div>'; //.col-md-12
@@ -266,8 +241,8 @@ else {
     );
     $name_link['FULL_NAME']['link'] = "Modules.php?modname=$_REQUEST[next_modname]";
     $name_link['FULL_NAME']['variables'] = array('student_id' => 'STUDENT_ID');
-    if ($_REQUEST['_search_all_schools'])
-        $name_link['FULL_NAME']['variables'] += array('school_id' => 'SCHOOL_ID');
+    if ($_REQUEST['_search_all_institutes'])
+        $name_link['FULL_NAME']['variables'] += array('institute_id' => 'INSTITUTE_ID');
 
     if (is_array($extra['link']))
         $link = $extra['link'] + $name_link;
@@ -289,10 +264,10 @@ else {
         unset($tmp_REQUEST['expanded_view']);
         if ($_REQUEST['expanded_view'] != 'true' && !UserStudentID() && count($students_RET) != 0) {
             DrawHeader("<A HREF=" . PreparePHP_SELF($tmp_REQUEST) . "&expanded_view=true class=big_font ><i class=\"icon-square-down-right\"></i> "._expandedView."</A>", $extra['header_right']);
-            DrawHeader(str_replace('<BR>', '<BR> &nbsp;', substr($_openSIS['SearchTerms'], 0, -4)));
+            DrawHeader(str_replace('<BR>', '<BR> &nbsp;', substr($_hani['SearchTerms'], 0, -4)));
         } elseif (!UserStudentID() && count($students_RET) != 0) {
             DrawHeader("<A HREF=" . PreparePHP_SELF($tmp_REQUEST) . "&expanded_view=false class=big_font><i class=\"icon-square-up-left\"></i> "._originalView."</A>", $extra['header_right']);
-            DrawHeader(str_replace('<BR>', '<BR> &nbsp;', substr($_openSIS['Search'], 0, -4)));
+            DrawHeader(str_replace('<BR>', '<BR> &nbsp;', substr($_hani['Search'], 0, -4)));
         }
         DrawHeader($extra['extra_header_left'], $extra['extra_header_right']);
         if ($_REQUEST['LO_save'] != '1' && !$extra['suppress_save']) {
@@ -325,9 +300,9 @@ else {
         if (!is_array($students_RET[1]['STUDENT_ID'])) {
             $_SESSION['student_id'] = $students_RET[1]['STUDENT_ID'];
             if (User('PROFILE') == 'admin')
-                $_SESSION['UserSchool'] = $students_RET[1]['LIST_SCHOOL_ID'];
+                $_SESSION['UserInstitute'] = $students_RET[1]['LIST_INSTITUTE_ID'];
             if (User('PROFILE') == 'teacher')
-                $_SESSION['UserSchool'] = $students_RET[1]['SCHOOL_ID'];
+                $_SESSION['UserInstitute'] = $students_RET[1]['INSTITUTE_ID'];
 
             //echo '<script language=JavaScript>parent.side.location="' . $_SESSION['Side_PHP_SELF'] . '?modcat="+parent.side.document.forms[0].modcat.value;</script>';
             unset($_REQUEST['search_modfunc']);

@@ -1,30 +1,5 @@
 <?php
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+
 
 session_start();
 //!empty($_SESSION['USERNAME']) or die('Access denied!');
@@ -40,7 +15,7 @@ $_REQUEST = sqlSecurityFilter($_REQUEST);
 if (isset($_REQUEST['include']))
 	$_REQUEST['include'] = sqlSecurityFilter($_REQUEST['include']);
 
-if(!isset($_REQUEST['_openSIS_PDF']))
+if(!isset($_REQUEST['HaniIMS_PDF']))
 {
 	Warehouse('header');
         
@@ -54,7 +29,7 @@ if(!isset($_REQUEST['_openSIS_PDF']))
 if(optional_param('modname','',PARAM_NOTAGS))
 {
 	//Warehouse('header');
-	if($_REQUEST['_openSIS_PDF']=='true')
+	if($_REQUEST['HaniIMS_PDF']=='true')
 		ob_start();
 	
 	if(strpos(optional_param('modname','',PARAM_NOTAGS),'?')!==false)
@@ -75,13 +50,13 @@ if(optional_param('modname','',PARAM_NOTAGS))
 		$modname = optional_param('modname','',PARAM_NOTAGS);
 
 	
-		if(optional_param('LO_save','',PARAM_INT)!='1' && !isset($_REQUEST['_openSIS_PDF']) && (strpos(optional_param($modname,'',PARAM_NOTAGS),'miscellaneous/')===false || $modname=='miscellaneous/Registration.php' || $modname=='miscellaneous/Export.php' || $modname=='miscellaneous/Portal.php'))
+		if(optional_param('LO_save','',PARAM_INT)!='1' && !isset($_REQUEST['HaniIMS_PDF']) && (strpos(optional_param($modname,'',PARAM_NOTAGS),'miscellaneous/')===false || $modname=='miscellaneous/Registration.php' || $modname=='miscellaneous/Export.php' || $modname=='miscellaneous/Portal.php'))
 			$_SESSION['_REQUEST_vars'] = sqlSecurityFilter($_REQUEST);
 		$_SESSION['_REQUEST_vars'][] = str_replace('+'," ",$_REQUEST['head_html']);
 
 	$allowed = false;
 	include 'Menu.php';
-	foreach($_openSIS['Menu'] as $modcat=>$programs)
+	foreach($_HaniIMS['Menu'] as $modcat=>$programs)
 	{
 		if($_REQUEST['modname']==$modcat.'/Search.php')
 		{
@@ -140,10 +115,10 @@ if(optional_param('modname','',PARAM_NOTAGS))
 			
 			
 			echo ""._youReNotAllowedToUseThisProgram."! "._thisAttemptedViolationHasBeenLoggedAndYourIpAddressWasCaptured.".";
-			DBQuery("INSERT INTO hacking_log (HOST_NAME,IP_ADDRESS,LOGIN_DATE,VERSION,PHP_SELF,DOCUMENT_ROOT,SCRIPT_NAME,MODNAME,USERNAME) values('$_SERVER[SERVER_NAME]','$ip','".date('Y-m-d')."','$openSISVersion','$_SERVER[PHP_SELF]','$_SERVER[DOCUMENT_ROOT]','$_SERVER[SCRIPT_NAME]','$_REQUEST[modname]','".User('USERNAME')."')");
+			DBQuery("INSERT INTO hacking_log (HOST_NAME,IP_ADDRESS,LOGIN_DATE,VERSION,PHP_SELF,DOCUMENT_ROOT,SCRIPT_NAME,MODNAME,USERNAME) values('$_SERVER[SERVER_NAME]','$ip','".date('Y-m-d')."','$HaniIMSVersion','$_SERVER[PHP_SELF]','$_SERVER[DOCUMENT_ROOT]','$_SERVER[SCRIPT_NAME]','$_REQUEST[modname]','".User('USERNAME')."')");
 			Warehouse('footer');
-			if($openSISNotifyAddress)
-                            mail($openSISNotifyAddress,'HACKING ATTEMPT',"INSERT INTO hacking_log (HOST_NAME,IP_ADDRESS,LOGIN_DATE,VERSION,PHP_SELF,DOCUMENT_ROOT,SCRIPT_NAME,MODNAME,USERNAME) values('$_SERVER[SERVER_NAME]','$ip','".date('Y-m-d')."','$openSISVersion','$_SERVER[PHP_SELF]','$_SERVER[DOCUMENT_ROOT]','$_SERVER[SCRIPT_NAME]','".optional_param('modname','',PARAM_NOTAGS)."','".User('USERNAME')."')");
+			if($HaniIMSNotifyAddress)
+                            mail($HaniIMSNotifyAddress,'HACKING ATTEMPT',"INSERT INTO hacking_log (HOST_NAME,IP_ADDRESS,LOGIN_DATE,VERSION,PHP_SELF,DOCUMENT_ROOT,SCRIPT_NAME,MODNAME,USERNAME) values('$_SERVER[SERVER_NAME]','$ip','".date('Y-m-d')."','$HaniIMSVersion','$_SERVER[PHP_SELF]','$_SERVER[DOCUMENT_ROOT]','$_SERVER[SCRIPT_NAME]','".optional_param('modname','',PARAM_NOTAGS)."','".User('USERNAME')."')");
 		}
 		exit;
 	}
@@ -157,10 +132,10 @@ if(optional_param('modname','',PARAM_NOTAGS))
 }
 
 
-if(!isset($_REQUEST['_openSIS_PDF']))
+if(!isset($_REQUEST['HaniIMS_PDF']))
 {
 	echo '</TD></TR></TABLE>';
-	for($i=1;$i<=$_openSIS['PrepareDate'];$i++)
+	for($i=1;$i<=$_HaniIMS['PrepareDate'];$i++)
 	{
 		echo '<script type="text/javascript">
     Calendar.setup({

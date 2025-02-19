@@ -1,31 +1,5 @@
 <?php
 
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
 
 include('../../RedirectModulesInc.php');
 DrawBC(""._users." > " . ProgramTitle());
@@ -40,7 +14,7 @@ if (clean_param($_REQUEST['values'], PARAM_NOTAGS) && ($_POST['values'] || $_REQ
         /*$pass_new_after = md5($pass_new);*/
         $pass_new_after = $pass_new;
 
-        $profile_RET = DBGet(DBQuery('SELECT s.PROFILE FROM staff s , staff_school_relationship ssr WHERE s.STAFF_ID=ssr.STAFF_ID AND s.STAFF_ID=\'' . User('STAFF_ID') . '\' AND ssr.SYEAR=\'' . UserSyear() . '\''));
+        $profile_RET = DBGet(DBQuery('SELECT s.PROFILE FROM staff s , staff_institute_relationship ssr WHERE s.STAFF_ID=ssr.STAFF_ID AND s.STAFF_ID=\'' . User('STAFF_ID') . '\' AND ssr.SYEAR=\'' . UserSyear() . '\''));
 
         if (User('PROFILE') == 'parent')
         {
@@ -62,10 +36,10 @@ if (clean_param($_REQUEST['values'], PARAM_NOTAGS) && ($_POST['values'] || $_REQ
         }
         else
         {
-            /*$sql = DBQuery('SELECT l.PASSWORD FROM staff s , staff_school_relationship ssr,login_authentication l where l.USER_ID=\'' . User('STAFF_ID') . '\' AND l.USER_ID=s.STAFF_ID AND l.password=\'' . $pass_new_after . '\'  AND ssr.STAFF_ID=s.STAFF_ID AND ssr.SYEAR=\'' . UserSyear() . '\' AND l.PROFILE_ID=s.PROFILE_ID');*/
+            /*$sql = DBQuery('SELECT l.PASSWORD FROM staff s , staff_institute_relationship ssr,login_authentication l where l.USER_ID=\'' . User('STAFF_ID') . '\' AND l.USER_ID=s.STAFF_ID AND l.password=\'' . $pass_new_after . '\'  AND ssr.STAFF_ID=s.STAFF_ID AND ssr.SYEAR=\'' . UserSyear() . '\' AND l.PROFILE_ID=s.PROFILE_ID');*/
 
             //code for checking password in table
-            $userslist = DBGet(DBQuery('SELECT l.PASSWORD FROM staff s , staff_school_relationship ssr,login_authentication l where l.USER_ID=\'' . User('STAFF_ID') . '\' AND l.USER_ID=s.STAFF_ID AND ssr.STAFF_ID=s.STAFF_ID AND ssr.SYEAR=\'' . UserSyear() . '\' AND l.PROFILE_ID=s.PROFILE_ID'));
+            $userslist = DBGet(DBQuery('SELECT l.PASSWORD FROM staff s , staff_institute_relationship ssr,login_authentication l where l.USER_ID=\'' . User('STAFF_ID') . '\' AND l.USER_ID=s.STAFF_ID AND ssr.STAFF_ID=s.STAFF_ID AND ssr.SYEAR=\'' . UserSyear() . '\' AND l.PROFILE_ID=s.PROFILE_ID'));
             $user_password_count=0;
             foreach($userslist as $val)
             {
@@ -91,7 +65,7 @@ if (clean_param($_REQUEST['values'], PARAM_NOTAGS) && ($_POST['values'] || $_REQ
             if (User('PROFILE') == 'parent') {
                 $password_RET = DBGet(DBQuery('SELECT l.PASSWORD FROM people p,login_authentication l WHERE l.USER_ID=\'' . User('STAFF_ID') . '\' AND l.USER_ID=p.STAFF_ID AND l.PROFILE_ID=p.PROFILE_ID'));
             } else {
-                $password_RET = DBGet(DBQuery('SELECT l.PASSWORD FROM staff s , staff_school_relationship ssr,login_authentication l where l.USER_ID=\'' . User('STAFF_ID') . '\' AND l.USER_ID=s.STAFF_ID AND ssr.STAFF_ID=s.STAFF_ID AND ssr.SYEAR=\'' . UserSyear() . '\' AND l.PROFILE_ID=s.PROFILE_ID'));
+                $password_RET = DBGet(DBQuery('SELECT l.PASSWORD FROM staff s , staff_institute_relationship ssr,login_authentication l where l.USER_ID=\'' . User('STAFF_ID') . '\' AND l.USER_ID=s.STAFF_ID AND ssr.STAFF_ID=s.STAFF_ID AND ssr.SYEAR=\'' . UserSyear() . '\' AND l.PROFILE_ID=s.PROFILE_ID'));
             }
 
             $user_old_password = $password_RET[1]['PASSWORD'];
@@ -119,8 +93,8 @@ if (clean_param($_REQUEST['values'], PARAM_NOTAGS) && ($_POST['values'] || $_REQ
             $_REQUEST['values']['Preferences']['SEARCH'] = 'N';
         if ($_REQUEST['tab'] == 'student_listing' && $_REQUEST['values']['Preferences']['DEFAULT_FAMILIES'] != 'Y')
             $_REQUEST['values']['Preferences']['DEFAULT_FAMILIES'] = 'N';
-        if ($_REQUEST['tab'] == 'student_listing' && $_REQUEST['values']['Preferences']['DEFAULT_ALL_SCHOOLS'] != 'Y')
-            $_REQUEST['values']['Preferences']['DEFAULT_ALL_SCHOOLS'] = 'N';
+        if ($_REQUEST['tab'] == 'student_listing' && $_REQUEST['values']['Preferences']['DEFAULT_ALL_INSTITUTES'] != 'Y')
+            $_REQUEST['values']['Preferences']['DEFAULT_ALL_INSTITUTES'] = 'N';
         if ($_REQUEST['tab'] == 'display_options' && $_REQUEST['values']['Preferences']['HIDDEN'] != 'Y')
             $_REQUEST['values']['Preferences']['HIDDEN'] = 'N';
         if ($_REQUEST['tab'] == 'display_options' && $_REQUEST['values']['Preferences']['HIDE_ALERTS'] != 'Y')
@@ -155,7 +129,7 @@ if (clean_param($_REQUEST['values'], PARAM_NOTAGS) && ($_POST['values'] || $_REQ
             }
         }
         // So Preferences() will get the new values
-        unset($_openSIS['Preferences']);
+        unset($_HaniIMS['Preferences']);
     }
     unset($_REQUEST['values']);
     unset($_SESSION['_REQUEST_vars']['values']);
@@ -174,7 +148,7 @@ unset($_REQUEST['search_modfunc']);
 unset($_SESSION['_REQUEST_vars']['search_modfunc']);
 
 if (!$_REQUEST['modfunc']) {
-    echo '<input type=hidden id=json_encoder value=' . json_encode(array("family", "all_school")) . ' />';
+    echo '<input type=hidden id=json_encoder value=' . json_encode(array("family", "all_institute")) . ' />';
     $current_RET = DBGet(DBQuery('SELECT TITLE,VALUE,PROGRAM FROM program_user_config WHERE USER_ID=\'' . User('STAFF_ID') . '\' AND PROGRAM IN (\'' . 'Preferences' . '\',\'' . 'StudentFieldsSearchable' . '\',\'' . 'StudentFieldsSearch' . '\',\'' . 'StudentFieldsView' . '\') '), array(), array('PROGRAM', 'TITLE'));
 
     if (!$_REQUEST['tab'])
@@ -189,8 +163,9 @@ if (!$_REQUEST['modfunc']) {
         $tabs = array(array('title' => ''._displayOptions.'', 'link' => "Modules.php?modname=$_REQUEST[modname]&amp;tab=display_options"), array('title' => ''._password.'', 'link' => "Modules.php?modname=$_REQUEST[modname]&amp;tab=password"));
     else
         $tabs = array(array('title' => ''._displayOptions.'', 'link' => "Modules.php?modname=$_REQUEST[modname]&amp;tab=display_options"), array('title' => ''._password.'', 'link' => "Modules.php?modname=$_REQUEST[modname]&amp;tab=password"), array('title' => _studentFields, 'link' => "Modules.php?modname=$_REQUEST[modname]&amp;tab=student_fields"));
-
-    $_openSIS['selected_tab'] = "Modules.php?modname=$_REQUEST[modname]&amp;tab=" . $_REQUEST['tab'];
+    //Changes happen for tabs
+    $_HaniIMS['selected_tab'] = "Modules.php?modname=$_REQUEST[modname]&amp;tab=" . $_REQUEST['tab'];
+    
     PopTable('header', $tabs);
 
 
@@ -208,7 +183,7 @@ if (!$_REQUEST['modfunc']) {
         if (User('PROFILE') == 'admin') {
             echo '<div id="show_other_options" ' . ((Preferences('SEARCH') == 'Y') ? 'style="display:inline-block"' : 'style="display:none"') . '>';
             echo '<div class="checkbox checkbox-switch switch-success switch-xs p-b-10"><label><INPUT type=checkbox id="family" name=values[Preferences][DEFAULT_FAMILIES] value=Y' . ((Preferences('DEFAULT_FAMILIES') == 'Y') ? ' CHECKED' : '') . '><span></span> '._groupByFamilyByDefault.'</label></div>';
-            echo '<div class="checkbox checkbox-switch switch-success switch-xs"><label><INPUT type=checkbox id="all_school" name=values[Preferences][DEFAULT_ALL_SCHOOLS] value=Y' . ((Preferences('DEFAULT_ALL_SCHOOLS') == 'Y') ? ' CHECKED' : '') . '><span></span> '._searchAllSchoolsByDefault.'</label></div>';
+            echo '<div class="checkbox checkbox-switch switch-success switch-xs"><label><INPUT type=checkbox id="all_institute" name=values[Preferences][DEFAULT_ALL_INSTITUTES] value=Y' . ((Preferences('DEFAULT_ALL_INSTITUTES') == 'Y') ? ' CHECKED' : '') . '><span></span> '._searchAllInstitutesByDefault.'</label></div>';
             echo '</div>';
         }
         echo '</div>'; //.col-md-6
@@ -220,7 +195,7 @@ if (!$_REQUEST['modfunc']) {
 
 //        echo '<div class="col-md-4">';
 //        echo '<label>Theme</label>';
-//        if ($handle = opendir($openSISPath . 'themes/')) {
+//        if ($handle = opendir($haniPath . 'themes/')) {
 //            while (false !== ($file = readdir($handle))) {
 //                if ($file != "." && $file != ".." && !in_array($file, $IgnoreFiles)) {
 //                    echo '<label class="radio radio-inline"><INPUT type=radio name=values[Preferences][THEME] value=' . $file . ((Preferences('THEME') == $file) ? ' CHECKED' : '') . '> ' . $file . '</label>';

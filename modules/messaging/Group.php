@@ -1,31 +1,6 @@
 <?php
 
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+ 
 include('lang/language.php');
 
 DrawBC(""._messaging." > " . ProgramTitle());
@@ -43,7 +18,7 @@ if (!isset($_REQUEST['modfunc'])) {
     echo "<div id='students' class='panel panel-default'>";
     $custom_header = "<h6 class=\"panel-title text-pink\">"._groups."</h6><div class=\"heading-elements\"><a href='#' class=\"btn btn-default heading-btn\" onclick='load_link(\"Modules.php?modname=" . strip_tags(trim($_REQUEST[modname])) . "&modfunc=add_group\");'> "._addGroup."</a></div>";
 
-    $select = "SELECT *  from mail_group  WHERE USER_NAME ='$userName' AND SCHOOL_ID= '".UserSchool()."'";
+    $select = "SELECT *  from mail_group  WHERE USER_NAME ='$userName' AND INSTITUTE_ID= '".UserInstitute()."'";
     $link['GROUP_NAME']['link'] = "Modules.php?modname=$_REQUEST[modname]&modfunc=groupmember";
     $link['GROUP_NAME']['variables'] = array('group_id' => 'GROUP_ID');
     $columns = array('GROUP_NAME' => _groupName, 'DESCRIPTION' => _description, 'CREATION_DATE' => _createDate, 'MEMBERS' => _members , 'action' => _action);
@@ -249,7 +224,7 @@ if (isset($_REQUEST['modfunc']) && $_REQUEST['modfunc'] == 'exist_group') {
     echo '<div class="form-group m-b-0"><label class="col-md-4 control-label text-right">&nbsp;</label>';
     echo '<div class="col-md-8">';
     if (User('PROFILE') == 'admin' || User('PROFILE') == 'teacher' || User('PROFILE') == 'parent')
-        echo '<label class="checkbox-inline checkbox-switch switch-xs switch-success"><INPUT type=checkbox name=_search_all_schools value=Y' . (Preferences('DEFAULT_ALL_SCHOOLS') == 'Y' ? ' CHECKED' : '') . '><span></span> '._searchAllSchools.'</label>';
+        echo '<label class="checkbox-inline checkbox-switch switch-xs switch-success"><INPUT type=checkbox name=_search_all_institutes value=Y' . (Preferences('DEFAULT_ALL_INSTITUTES') == 'Y' ? ' CHECKED' : '') . '><span></span> '._searchAllInstitutes.'</label>';
     echo '<label class="checkbox-inline checkbox-switch switch-xs switch-success"><INPUT type=checkbox name=_dis_user value=Y><span></span> '._includeDisabledUser.'</label>';
     echo '</div>'; //.col-md-8
     echo '</div>'; //.form-group
@@ -309,7 +284,7 @@ if (isset($_REQUEST['modfunc']) && $_REQUEST['modfunc'] == 'add_group_member') {
     $userName = $_REQUEST['username'];
     $profile = $_REQUEST['profile'];
     $disable = $_REQUEST['_dis_user'];
-    $allschools = $_REQUEST['_search_all_schools'];
+    $allinstitutes = $_REQUEST['_search_all_institutes'];
 
     echo '<input type=hidden value=' . $profile . ' name=profile>';
     if (isset($_REQUEST['group_id'])) {
@@ -348,7 +323,7 @@ if (isset($_REQUEST['modfunc']) && $_REQUEST['modfunc'] == 'add_group_member') {
                     $student_id = $qr[1]['STUDENT_ID'];
                     $user = "SELECT * FROM students,login_authentication WHERE profile_id=3 and login_authentication.user_id=students.student_id  and students.student_id in (Select STUDENT_ID from students_join_people where person_id=" . $parent_id . ") and  TRIM( IFNULL( USERNAME, '' ) ) <> '' AND  TRIM( IFNULL( PASSWORD, '' ) ) <> ''  AND USERNAME NOT IN(SELECT USER_NAME from mail_groupmembers where group_id=" . $groupselect[1]['GROUP_ID'] . ")";
                 } elseif (UserProfileID() == 1 || UserProfileID() == 5) {
-                    $user = "select * from students,login_authentication,student_enrollment WHERE profile_id=3 and login_authentication.user_id=students.student_id and students.student_id=student_enrollment.student_id and student_enrollment.school_id in(select school_id from staff_school_relationship where staff_id=" . UserID() . ") and  TRIM( IFNULL( USERNAME, '' ) ) <> '' AND  TRIM( IFNULL( PASSWORD, '' ) ) <> '' AND USERNAME NOT IN(SELECT USER_NAME from mail_groupmembers where group_id=" . $groupselect[1]['GROUP_ID'] . ")";
+                    $user = "select * from students,login_authentication,student_enrollment WHERE profile_id=3 and login_authentication.user_id=students.student_id and students.student_id=student_enrollment.student_id and student_enrollment.institute_id in(select institute_id from staff_institute_relationship where staff_id=" . UserID() . ") and  TRIM( IFNULL( USERNAME, '' ) ) <> '' AND  TRIM( IFNULL( PASSWORD, '' ) ) <> '' AND USERNAME NOT IN(SELECT USER_NAME from mail_groupmembers where group_id=" . $groupselect[1]['GROUP_ID'] . ")";
                 } else {
 
                     $user = "select * from students,login_authentication WHERE profile_id=3 and login_authentication.user_id=students.student_id and  TRIM( IFNULL( USERNAME, '' ) ) <> '' AND  TRIM( IFNULL( PASSWORD, '' ) ) <> '' AND USERNAME NOT IN(SELECT USER_NAME from mail_groupmembers where group_id=" . $groupselect[1]['GROUP_ID'] . ")";
@@ -367,7 +342,7 @@ if (isset($_REQUEST['modfunc']) && $_REQUEST['modfunc'] == 'add_group_member') {
                     $studentId = UserStudentID();
                     $user = "SELECT * FROM login_authentication,staff WHERE login_authentication.user_id=staff.staff_id and login_authentication.profile_id=2 and staff.PROFILE_ID=$profile AND  TRIM( IFNULL( USERNAME, '' ) ) <> '' AND  TRIM( IFNULL( PASSWORD, '' ) ) <> '' AND USERNAME NOT IN(SELECT USER_NAME from mail_groupmembers where group_id=" . $groupselect[1]['GROUP_ID'] . ") AND staff_id IN(Select distinct teacher_id from course_periods INNER JOIN schedule using(course_period_id) where schedule.student_id=" . $studentId . ")";
                 } else if (UserProfileID() == 1 || UserProfileID() == 5) {
-                    $user = "SELECT * FROM login_authentication,staff,staff_school_relationship WHERE login_authentication.user_id=staff.staff_id  and staff_school_relationship.staff_id=staff.staff_id  and staff_school_relationship.school_id in (select school_id from staff_school_relationship where staff_id=" . UserID() . ")  and login_authentication.profile_id=2 and staff.PROFILE_ID=$profile AND  TRIM( IFNULL( USERNAME, '' ) ) <> '' AND  TRIM( IFNULL( PASSWORD, '' ) ) <> '' AND USERNAME NOT IN(SELECT USER_NAME from mail_groupmembers where group_id=" . $groupselect[1]['GROUP_ID'] . " )";
+                    $user = "SELECT * FROM login_authentication,staff,staff_institute_relationship WHERE login_authentication.user_id=staff.staff_id  and staff_institute_relationship.staff_id=staff.staff_id  and staff_institute_relationship.institute_id in (select institute_id from staff_institute_relationship where staff_id=" . UserID() . ")  and login_authentication.profile_id=2 and staff.PROFILE_ID=$profile AND  TRIM( IFNULL( USERNAME, '' ) ) <> '' AND  TRIM( IFNULL( PASSWORD, '' ) ) <> '' AND USERNAME NOT IN(SELECT USER_NAME from mail_groupmembers where group_id=" . $groupselect[1]['GROUP_ID'] . " )";
                 } else {
                     $user = "SELECT * FROM login_authentication,staff WHERE login_authentication.user_id=staff.staff_id and login_authentication.profile_id=2 and staff.PROFILE_ID=$profile AND  TRIM( IFNULL( USERNAME, '' ) ) <> '' AND  TRIM( IFNULL( PASSWORD, '' ) ) <> '' AND USERNAME NOT IN(SELECT USER_NAME from mail_groupmembers where group_id=" . $groupselect[1]['GROUP_ID'] . " )";
                 }
@@ -414,12 +389,12 @@ if (isset($_REQUEST['modfunc']) && $_REQUEST['modfunc'] == 'add_group_member') {
                 $user3 = "SELECT DISTINCT username,LAST_NAME,first_name,login_authentication.profile_id,is_disable,login_authentication.user_id FROM login_authentication,people WHERE login_authentication.user_id=people.staff_id AND TRIM( IFNULL( USERNAME, '' ) ) <> '' AND TRIM( IFNULL( PASSWORD, '' ) ) <> '' AND USERNAME NOT IN(SELECT USER_NAME from mail_groupmembers where group_id=" . $groupselect[1]['GROUP_ID'] . ") and login_authentication.profile_id=4";
             }
             if (UserProfileID() == 1 || UserProfileID() == 5) {//all types of admin
-                $user1 = "SELECT DISTINCT username,LAST_NAME,first_name,login_authentication.profile_id,is_disable,login_authentication.user_id FROM login_authentication,staff,staff_school_relationship WHERE login_authentication.user_id=staff.staff_id and staff_school_relationship.staff_id=staff.staff_id  and staff_school_relationship.school_id in (select school_id from staff_school_relationship where staff_id=" . UserID() . ") AND TRIM( IFNULL( USERNAME, '' ) ) <> '' AND TRIM( IFNULL( PASSWORD, '' ) ) <> '' AND USERNAME NOT IN(SELECT USER_NAME from mail_groupmembers where group_id=" . $groupselect[1]['GROUP_ID'] . ") and login_authentication.profile_id not in(3,4)";
-                $user2 = "SELECT DISTINCT username,LAST_NAME,first_name,login_authentication.profile_id,is_disable,login_authentication.user_id FROM login_authentication,students,student_enrollment WHERE login_authentication.user_id=students.student_id and students.student_id=student_enrollment.student_id and student_enrollment.school_id in(select school_id from staff_school_relationship where staff_id=" . UserID() . ")AND login_authentication.profile_id=3 AND TRIM( IFNULL( USERNAME, '' ) ) <> '' AND TRIM( IFNULL( PASSWORD, '' ) ) <> '' AND USERNAME NOT IN(SELECT USER_NAME from mail_groupmembers where group_id=" . $groupselect[1]['GROUP_ID'] . ") and login_authentication.profile_id=3";
-                $user3 = "SELECT DISTINCT username,LAST_NAME,first_name,login_authentication.profile_id,is_disable,login_authentication.user_id FROM login_authentication,students_join_people,people  WHERE login_authentication.user_id=people.staff_id AND students_join_people.person_id in(select school_id from students,student_enrollment,students_join_people  where students.student_id=student_enrollment.student_id and students_join_people.student_id=students.student_id and student_enrollment.school_id in(select school_id from staff_school_relationship where  staff_id=" . UserID() . ")) and TRIM( IFNULL( USERNAME, '' ) ) <> '' AND TRIM( IFNULL( PASSWORD, '' ) ) <> '' AND USERNAME NOT IN(SELECT USER_NAME from mail_groupmembers where group_id=" . $groupselect[1]['GROUP_ID'] . ") and login_authentication.profile_id=4";
+                $user1 = "SELECT DISTINCT username,LAST_NAME,first_name,login_authentication.profile_id,is_disable,login_authentication.user_id FROM login_authentication,staff,staff_institute_relationship WHERE login_authentication.user_id=staff.staff_id and staff_institute_relationship.staff_id=staff.staff_id  and staff_institute_relationship.institute_id in (select institute_id from staff_institute_relationship where staff_id=" . UserID() . ") AND TRIM( IFNULL( USERNAME, '' ) ) <> '' AND TRIM( IFNULL( PASSWORD, '' ) ) <> '' AND USERNAME NOT IN(SELECT USER_NAME from mail_groupmembers where group_id=" . $groupselect[1]['GROUP_ID'] . ") and login_authentication.profile_id not in(3,4)";
+                $user2 = "SELECT DISTINCT username,LAST_NAME,first_name,login_authentication.profile_id,is_disable,login_authentication.user_id FROM login_authentication,students,student_enrollment WHERE login_authentication.user_id=students.student_id and students.student_id=student_enrollment.student_id and student_enrollment.institute_id in(select institute_id from staff_institute_relationship where staff_id=" . UserID() . ")AND login_authentication.profile_id=3 AND TRIM( IFNULL( USERNAME, '' ) ) <> '' AND TRIM( IFNULL( PASSWORD, '' ) ) <> '' AND USERNAME NOT IN(SELECT USER_NAME from mail_groupmembers where group_id=" . $groupselect[1]['GROUP_ID'] . ") and login_authentication.profile_id=3";
+                $user3 = "SELECT DISTINCT username,LAST_NAME,first_name,login_authentication.profile_id,is_disable,login_authentication.user_id FROM login_authentication,students_join_people,people  WHERE login_authentication.user_id=people.staff_id AND students_join_people.person_id in(select institute_id from students,student_enrollment,students_join_people  where students.student_id=student_enrollment.student_id and students_join_people.student_id=students.student_id and student_enrollment.institute_id in(select institute_id from staff_institute_relationship where  staff_id=" . UserID() . ")) and TRIM( IFNULL( USERNAME, '' ) ) <> '' AND TRIM( IFNULL( PASSWORD, '' ) ) <> '' AND USERNAME NOT IN(SELECT USER_NAME from mail_groupmembers where group_id=" . $groupselect[1]['GROUP_ID'] . ") and login_authentication.profile_id=4";
             }
             if (User('PROFILE') == 'teacher') {//teachers
-                $user1 = "SELECT DISTINCT username,LAST_NAME,first_name,login_authentication.profile_id,is_disable,login_authentication.user_id FROM login_authentication,staff,staff_school_relationship WHERE login_authentication.user_id=staff.staff_id and staff_school_relationship.staff_id=staff.staff_id AND TRIM( IFNULL( USERNAME, '' ) ) <> '' AND TRIM( IFNULL( PASSWORD, '' ) ) <> '' AND USERNAME NOT IN(SELECT USER_NAME from mail_groupmembers where group_id=" . $groupselect[1]['GROUP_ID'] . ") and login_authentication.profile_id in(0,1,5) and school_id in(select school_id from staff_school_relationship where staff_id=" . UserID() . ")"; //all types of admin
+                $user1 = "SELECT DISTINCT username,LAST_NAME,first_name,login_authentication.profile_id,is_disable,login_authentication.user_id FROM login_authentication,staff,staff_institute_relationship WHERE login_authentication.user_id=staff.staff_id and staff_institute_relationship.staff_id=staff.staff_id AND TRIM( IFNULL( USERNAME, '' ) ) <> '' AND TRIM( IFNULL( PASSWORD, '' ) ) <> '' AND USERNAME NOT IN(SELECT USER_NAME from mail_groupmembers where group_id=" . $groupselect[1]['GROUP_ID'] . ") and login_authentication.profile_id in(0,1,5) and institute_id in(select institute_id from staff_institute_relationship where staff_id=" . UserID() . ")"; //all types of admin
                 $user2 = "SELECT DISTINCT username,LAST_NAME,first_name,login_authentication.profile_id,is_disable,login_authentication.user_id FROM students,login_authentication WHERE profile_id=3 and login_authentication.user_id=students.student_id and  TRIM( IFNULL( USERNAME, '' ) ) <> '' AND  TRIM( IFNULL( PASSWORD, '' ) ) <> ''  AND USERNAME NOT IN(SELECT USER_NAME from mail_groupmembers where group_id=" . $groupselect[1]['GROUP_ID'] . ") AND student_id IN (SELECT DISTINCT student_id FROM course_periods INNER JOIN schedule USING ( course_period_id ) WHERE course_periods.teacher_id = " . UserID() . ")"; //scheduled students
                 $user3 = 'SELECT DISTINCT username,LAST_NAME,first_name,login_authentication.profile_id,is_disable,login_authentication.user_id FROM login_authentication,people WHERE login_authentication.user_id=people.staff_id and login_authentication.profile_id=4  AND USERNAME NOT IN(SELECT USER_NAME from mail_groupmembers where group_id=' . $groupselect[1]['GROUP_ID'] . ' ) and  TRIM( IFNULL( USERNAME, \'\' ) ) <> \'\' AND user_id IN (SELECT DISTINCT person_id FROM students_join_people WHERE student_id IN (SELECT student_id FROM students WHERE student_id IN (SELECT DISTINCT student_id FROM course_periods INNER JOIN schedule USING (course_period_id ) WHERE course_periods.teacher_id = \'' . UserID() . '\')))'; //parents                  
             }
@@ -480,13 +455,13 @@ if (isset($_REQUEST['modfunc']) && $_REQUEST['modfunc'] == 'add_group_member') {
         }
         $userlist = DBGet(DBQueryMod($user));
 
-        if ($_REQUEST['_search_all_schools'] != 'Y') {
+        if ($_REQUEST['_search_all_institutes'] != 'Y') {
             $final_arr = $_arr = $exist_username_arr = array();
 
             foreach ($userlist as $key => $value) {
 
                 if ($userlist[$key]['PROFILE_ID'] == 3) {
-                    $select = "SELECT  se.*,up.* FROM student_enrollment se,user_profiles up WHERE up.ID=" . $userlist[$key]['PROFILE_ID'] . " and se.school_id=" . UserSchool() . " AND se.student_id='" . $userlist[$key]['USER_ID'] . "' group by student_id";
+                    $select = "SELECT  se.*,up.* FROM student_enrollment se,user_profiles up WHERE up.ID=" . $userlist[$key]['PROFILE_ID'] . " and se.institute_id=" . UserInstitute() . " AND se.student_id='" . $userlist[$key]['USER_ID'] . "' group by student_id";
                     $profile = DBGet(DBQuery($select));
                     foreach ($profile as $k => $v) {
                         // print_r($final_arr);
@@ -504,11 +479,11 @@ if (isset($_REQUEST['modfunc']) && $_REQUEST['modfunc'] == 'add_group_member') {
                     }
                 } else if ($userlist[$key]['PROFILE_ID'] == 4) {
                     if (User('PROFILE') == 'student')
-                        $select = "SELECT se.*,up.* FROM student_enrollment se,user_profiles up WHERE up.ID=" . $userlist[$key]['PROFILE_ID'] . " and se.school_id=" . UserSchool() . " AND se.student_id=" . UserStudentID() . "";
+                        $select = "SELECT se.*,up.* FROM student_enrollment se,user_profiles up WHERE up.ID=" . $userlist[$key]['PROFILE_ID'] . " and se.institute_id=" . UserInstitute() . " AND se.student_id=" . UserStudentID() . "";
                     if (User('PROFILE') == 'teacher')
-                        $select = "SELECT se.*,up.* FROM student_enrollment se,user_profiles up WHERE up.ID=" . $userlist[$key]['PROFILE_ID'] . " and se.school_id=" . UserSchool() . " AND se.student_id in (select schedule.student_id from  schedule,course_periods,students_join_people where course_periods.course_period_id=schedule.course_period_id  and  schedule.student_id=students_join_people.student_id and students_join_people.person_id=" . $userlist[$key]['USER_ID'] . " and teacher_id=" . UserID() . ")";
+                        $select = "SELECT se.*,up.* FROM student_enrollment se,user_profiles up WHERE up.ID=" . $userlist[$key]['PROFILE_ID'] . " and se.institute_id=" . UserInstitute() . " AND se.student_id in (select schedule.student_id from  schedule,course_periods,students_join_people where course_periods.course_period_id=schedule.course_period_id  and  schedule.student_id=students_join_people.student_id and students_join_people.person_id=" . $userlist[$key]['USER_ID'] . " and teacher_id=" . UserID() . ")";
                     else
-                        $select = "SELECT se.*,up.* FROM student_enrollment se,user_profiles up WHERE up.ID=" . $userlist[$key]['PROFILE_ID'] . " and se.school_id=" . UserSchool() . " AND se.student_id in (select student_id from  students_join_people where person_id=" . $userlist[$key]['USER_ID'] . ") ";
+                        $select = "SELECT se.*,up.* FROM student_enrollment se,user_profiles up WHERE up.ID=" . $userlist[$key]['PROFILE_ID'] . " and se.institute_id=" . UserInstitute() . " AND se.student_id in (select student_id from  students_join_people where person_id=" . $userlist[$key]['USER_ID'] . ") ";
                     $profile = DBGet(DBQuery($select));
 
 
@@ -526,7 +501,7 @@ if (isset($_REQUEST['modfunc']) && $_REQUEST['modfunc'] == 'add_group_member') {
                         }
                     }
                 } else {
-                    $select = "SELECT se.*,up.* FROM staff_school_relationship se,user_profiles up WHERE up.ID=" . $userlist[$key]['PROFILE_ID'] . " and se.school_id=" . UserSchool() . " AND se.staff_id='" . $userlist[$key]['USER_ID'] . "' group  by staff_id";
+                    $select = "SELECT se.*,up.* FROM staff_institute_relationship se,user_profiles up WHERE up.ID=" . $userlist[$key]['PROFILE_ID'] . " and se.institute_id=" . UserInstitute() . " AND se.staff_id='" . $userlist[$key]['USER_ID'] . "' group  by staff_id";
                     $profile = DBGet(DBQuery($select));
                     foreach ($profile as $k => $v) {
                         if (!in_array($userlist[$key]['USERNAME'], $exist_username_arr)) {
@@ -584,7 +559,7 @@ if (isset($_REQUEST['modfunc']) && $_REQUEST['modfunc'] == 'add_group_member') {
                 elseif ($ud['PROFILE_ID'] == 'parent')
                     $chck_status = DBGet(DBQuery('SELECT COUNT(1) as DISABLED FROM people WHERE STAFF_ID=' . $ud['USER_ID'] . ' AND IS_DISABLE=\'Y\' '));
                 else
-                    $chck_status = DBGet(DBQuery('SELECT COUNT(1) as DISABLED FROM staff s,staff_school_relationship se WHERE se.STAFF_ID=s.STAFF_ID AND s.STAFF_ID=' . $ud['USER_ID'] . ' AND se.SYEAR=' . UserSyear() . ' AND (s.IS_DISABLE=\'Y\' OR (se.END_DATE<\'' . date('Y-m-d') . '\'  AND se.END_DATE IS NOT NULL AND se.END_DATE<>\'0000-00-00\' ))'));
+                    $chck_status = DBGet(DBQuery('SELECT COUNT(1) as DISABLED FROM staff s,staff_institute_relationship se WHERE se.STAFF_ID=s.STAFF_ID AND s.STAFF_ID=' . $ud['USER_ID'] . ' AND se.SYEAR=' . UserSyear() . ' AND (s.IS_DISABLE=\'Y\' OR (se.END_DATE<\'' . date('Y-m-d') . '\'  AND se.END_DATE IS NOT NULL AND se.END_DATE<>\'0000-00-00\' ))'));
 
 
                 if ($chck_status[1]['DISABLED'] != 0)
@@ -683,7 +658,7 @@ if (isset($_REQUEST['modfunc']) && $_REQUEST['modfunc'] == 'add_group') {
         $userName = $_REQUEST['username'];
         $profile = $_REQUEST['profile'];
         $disable = $_REQUEST['_dis_user'];
-        $allschools = $_REQUEST['_search_all_schools'];
+        $allinstitutes = $_REQUEST['_search_all_institutes'];
 
         $userlist = DBGet(DBQueryMd($user));
 
@@ -733,7 +708,7 @@ if (isset($_REQUEST['modfunc']) && $_REQUEST['modfunc'] == 'member_insert') {
 
             // $grp_members = 'INSERT INTO mail_groupmembers(GROUP_ID,USER_NAME,profile) VALUES(\'' . $grp_select[1]['GROUP_ID'] . '\',\'' . $member_select[1]['USERNAME'] . '\',\'' . $member_select[1]['PROFILE_ID'] . '\')';
 
-            $grp_members = 'INSERT INTO mail_groupmembers(GROUP_ID,USER_NAME,profile,SCHOOL_ID) VALUES(\'' . $grp_select[1]['GROUP_ID'] . '\',\'' . $member_select[1]['USERNAME'] . '\',\'' . $member_select[1]['PROFILE_ID'] . '\',\'' . UserSchool(). '\')';
+            $grp_members = 'INSERT INTO mail_groupmembers(GROUP_ID,USER_NAME,profile,INSTITUTE_ID) VALUES(\'' . $grp_select[1]['GROUP_ID'] . '\',\'' . $member_select[1]['USERNAME'] . '\',\'' . $member_select[1]['PROFILE_ID'] . '\',\'' . UserInstitute(). '\')';
             
             $members = DBQuery($grp_members);
             $mem_ins_msg = 'ins';
@@ -769,7 +744,7 @@ if (isset($_REQUEST['modfunc']) && $_REQUEST['modfunc'] == 'group_insert') {
     if ($_REQUEST['txtGrpName']) {
         // $group = 'INSERT INTO mail_group(GROUP_NAME,DESCRIPTION,USER_NAME,CREATION_DATE) VALUES(\'' . str_replace("'", "''", str_replace("\'", "'", $_REQUEST['txtGrpName'])) . '\',\'' . str_replace("'", "''", str_replace("\\'", "'", $description)) . '\',\'' . $userName . '\',now())';
 
-        $group = 'INSERT INTO mail_group(GROUP_NAME,DESCRIPTION,USER_NAME,SCHOOL_ID,CREATION_DATE) VALUES(\'' . str_replace("'", "''", str_replace("\'", "'", $_REQUEST['txtGrpName'])) . '\',\'' . str_replace("'", "''", str_replace("\\'", "'", $description)) . '\',\'' . $userName . '\',\'' . UserSchool(). '\',now())';
+        $group = 'INSERT INTO mail_group(GROUP_NAME,DESCRIPTION,USER_NAME,INSTITUTE_ID,CREATION_DATE) VALUES(\'' . str_replace("'", "''", str_replace("\'", "'", $_REQUEST['txtGrpName'])) . '\',\'' . str_replace("'", "''", str_replace("\\'", "'", $description)) . '\',\'' . $userName . '\',\'' . UserInstitute(). '\',now())';
 
         $group_info = DBQuery($group);
 
@@ -785,7 +760,7 @@ if (isset($_REQUEST['modfunc']) && $_REQUEST['modfunc'] == 'group_insert') {
 
                 // $grp_members = 'INSERT INTO mail_groupmembers(GROUP_ID,USER_NAME,profile) VALUES(\'' . $grp_select[1]['GROUP_ID'] . '\',\'' . $member_select[1]['USERNAME'] . '\',\'' . $member_select[1]['PROFILE_ID'] . '\')';
                 
-                $group = 'INSERT INTO mail_group(GROUP_NAME,DESCRIPTION,USER_NAME,SCHOOL_ID,CREATION_DATE) VALUES(\'' . str_replace("'", "''", str_replace("\'", "'", $_REQUEST['txtGrpName'])) . '\',\'' . str_replace("'", "''", str_replace("\\'", "'", $description)) . '\',\'' . $userName . '\',\'' . UserSchool(). '\',now())';
+                $group = 'INSERT INTO mail_group(GROUP_NAME,DESCRIPTION,USER_NAME,INSTITUTE_ID,CREATION_DATE) VALUES(\'' . str_replace("'", "''", str_replace("\'", "'", $_REQUEST['txtGrpName'])) . '\',\'' . str_replace("'", "''", str_replace("\\'", "'", $description)) . '\',\'' . $userName . '\',\'' . UserInstitute(). '\',now())';
                 
                 $members = DBGet(DBQuery($grp_members));
             }

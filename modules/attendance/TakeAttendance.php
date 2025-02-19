@@ -1,31 +1,5 @@
 <?php
-
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+ 
 include('../../RedirectModulesInc.php');
 include 'modules/attendance/ConfigInc.php';
 if ($_REQUEST['period']) {
@@ -113,16 +87,16 @@ if ($_REQUEST['table'] == '0') {
 
 
 $date = date('Y-m-d', strtotime($final_date));
-$sc_years_sql = 'SELECT MARKING_PERIOD_ID FROM school_years WHERE SCHOOL_ID=\'' . UserSchool() . '\' AND \'' . date('Y-m-d', strtotime($date)) . '\' BETWEEN START_DATE AND END_DATE';
+$sc_years_sql = 'SELECT MARKING_PERIOD_ID FROM institute_years WHERE INSTITUTE_ID=\'' . UserInstitute() . '\' AND \'' . date('Y-m-d', strtotime($date)) . '\' BETWEEN START_DATE AND END_DATE';
 $sc_years_data = DBGet(DBQuery($sc_years_sql));
 $sc_years_data = $sc_years_data[1]['MARKING_PERIOD_ID'];
 
-$sc_sem_sql = 'SELECT MARKING_PERIOD_ID FROM school_semesters WHERE SCHOOL_ID=\'' . UserSchool() . '\' AND \'' . date('Y-m-d', strtotime($date)) . '\' BETWEEN START_DATE AND 
+$sc_sem_sql = 'SELECT MARKING_PERIOD_ID FROM institute_semesters WHERE INSTITUTE_ID=\'' . UserInstitute() . '\' AND \'' . date('Y-m-d', strtotime($date)) . '\' BETWEEN START_DATE AND 
 END_DATE';
 $sc_sem_data = DBGet(DBQuery($sc_sem_sql));
 $sc_sem_data = $sc_sem_data[1]['MARKING_PERIOD_ID'];
 
-$sc_qtr_sql = 'SELECT MARKING_PERIOD_ID FROM school_quarters WHERE SCHOOL_ID=\'' . UserSchool() . '\' AND \'' . date('Y-m-d', strtotime($date)) . '\' BETWEEN START_DATE AND 
+$sc_qtr_sql = 'SELECT MARKING_PERIOD_ID FROM institute_quarters WHERE INSTITUTE_ID=\'' . UserInstitute() . '\' AND \'' . date('Y-m-d', strtotime($date)) . '\' BETWEEN START_DATE AND 
 END_DATE';
 $sc_qtr_data = DBGet(DBQuery($sc_qtr_sql));
 $sc_qtr_data = $sc_qtr_data[1]['MARKING_PERIOD_ID'];
@@ -142,20 +116,20 @@ if ($sc_qtr_data != '') {
 $mps = substr($mps, 0, -1);
 
 $sql = 'SELECT cp.HALF_DAY 
-FROM attendance_calendar acc,course_periods cp,course_period_var cpv,school_periods sp 
+FROM attendance_calendar acc,course_periods cp,course_period_var cpv,institute_periods sp 
 WHERE acc.SYEAR=\'' . UserSyear() . '\' 
-AND cp.SCHOOL_ID=acc.SCHOOL_ID 
+AND cp.INSTITUTE_ID=acc.INSTITUTE_ID 
 AND cp.SYEAR=acc.SYEAR 
-AND acc.SCHOOL_DATE=\'' . date('Y-m-d', strtotime($date)) . '\' 
+AND acc.INSTITUTE_DATE=\'' . date('Y-m-d', strtotime($date)) . '\' 
 AND cp.CALENDAR_ID=acc.CALENDAR_ID 
 AND cp.COURSE_PERIOD_ID=\'' . (isset($_REQUEST['cp_id_miss_attn']) ? $_REQUEST['cp_id_miss_attn'] : UserCoursePeriod()) . '\'
 AND ( cp.MARKING_PERIOD_ID IN (' . $mps . ') OR (cp.BEGIN_DATE<=\'' . date('Y-m-d') . '\'))
 AND sp.PERIOD_ID=cpv.PERIOD_ID 
 AND cp.COURSE_PERIOD_ID=cpv.COURSE_PERIOD_ID
-AND ((sp.BLOCK IS NULL AND position(substring(\'UMTWHFS\' FROM DAYOFWEEK(acc.SCHOOL_DATE) FOR 1) IN cpv.DAYS)>0
+AND ((sp.BLOCK IS NULL AND position(substring(\'UMTWHFS\' FROM DAYOFWEEK(acc.INSTITUTE_DATE) FOR 1) IN cpv.DAYS)>0
 OR sp.BLOCK IS NOT NULL 
 AND acc.BLOCK IS NOT NULL 
-AND sp.BLOCK=acc.BLOCK) or cpv.course_period_date=acc.school_date)
+AND sp.BLOCK=acc.BLOCK) or cpv.course_period_date=acc.institute_date)
 ' . ($_REQUEST['table'] != '' ? 'AND cpv.DOES_ATTENDANCE=\'Y\'' : '');
 if ($mps != '') {
     $course_RET = DBGET(DBQuery($sql));
@@ -167,9 +141,9 @@ if (!$mp_id)
     $mp_id = GetCurrentMP('SEM', $date, false);
 if (!$mp_id)
     $mp_id = GetCurrentMP('FY', $date, false);
-// if running as a teacher program then openSIS[allow_edit] will already be set according to admin permissions
+// if running as a teacher program then hani[allow_edit] will already be set according to admin permissions
 
-if (!isset($_openSIS['allow_edit'])) {
+if (!isset($_HaniIMS['allow_edit'])) {
     // allow teacher edit if selected date is in the current quarter or in the corresponding grade posting period
 
 
@@ -178,7 +152,7 @@ if (!isset($_openSIS['allow_edit'])) {
 
 
     if (($current_qtr_id || GetMP($mp_id, 'POST_START_DATE') && ($time <= strtotime(GetMP($mp_id, 'POST_END_DATE')))) && ($edit_days_before == '' || strtotime($date) <= $time + $edit_days_before * 86400) && ($edit_days_after == '' || strtotime($date) >= $time - $edit_days_after * 86400)) {
-        $_openSIS['allow_edit'] = true;
+        $_HaniIMS['allow_edit'] = true;
     }
 }
 
@@ -195,14 +169,14 @@ if (CpvId() != '') {
 //echo UserCoursePeriod().'----'.$_REQUEST['cp_id_miss_attn'];
 $tabl = optional_param('table', '', PARAM_ALPHANUM);
 $cq_cpid = ($_REQUEST['cp_id_miss_attn'] != '' ? $_REQUEST['cp_id_miss_attn'] : UserCoursePeriod());
-$current_Q = 'SELECT ATTENDANCE_TEACHER_CODE,STUDENT_ID,ADMIN,COMMENT FROM ' . $table . ' WHERE SCHOOL_DATE=\'' . date('Y-m-d', strtotime($date)) . '\'AND PERIOD_ID=\'' . UserPeriod() . '\' AND COURSE_PERIOD_ID=\'' . $cq_cpid . '\'' . ($table == 'lunch_period' ? ' AND TABLE_NAME=\'' . $tabl . '\'' : '');
+$current_Q = 'SELECT ATTENDANCE_TEACHER_CODE,STUDENT_ID,ADMIN,COMMENT FROM ' . $table . ' WHERE INSTITUTE_DATE=\'' . date('Y-m-d', strtotime($date)) . '\'AND PERIOD_ID=\'' . UserPeriod() . '\' AND COURSE_PERIOD_ID=\'' . $cq_cpid . '\'' . ($table == 'lunch_period' ? ' AND TABLE_NAME=\'' . $tabl . '\'' : '');
 $current_RET = DBGet(DBQuery($current_Q), array(), array('STUDENT_ID'));
 
 if ($_REQUEST['attendance'] && ($_POST['attendance'] || $_REQUEST['ajax'])) {
 
     $already_attn_flag = 0;
 
-    $attendanceIgnoreScheduling = DBGet(DBQuery('SELECT IGNORE_SCHEDULING FROM `school_periods` WHERE  PERIOD_ID=\'' . UserPeriod() . '\' '));
+    $attendanceIgnoreScheduling = DBGet(DBQuery('SELECT IGNORE_SCHEDULING FROM `institute_periods` WHERE  PERIOD_ID=\'' . UserPeriod() . '\' '));
 
     $cpClauseAddOn = '';
 
@@ -210,9 +184,9 @@ if ($_REQUEST['attendance'] && ($_POST['attendance'] || $_REQUEST['ajax'])) {
         $cpClauseAddOn = " AND COURSE_PERIOD_ID= '" . ($cq_cpid != '' ? $cq_cpid : UserCoursePeriod()) . "'";
     }
 
-    $attendanceAlreadyTaken = count(DBGet(DBQuery("SELECT * FROM attendance_period WHERE STUDENT_ID in (" . implode(', ', array_keys($_REQUEST['attendance'])) . ") AND SCHOOL_DATE = '$date' " . $cpClauseAddOn . " AND PERIOD_ID='" . UserPeriod() . "'"))) == count($_REQUEST['attendance']) ? true : false;
+    $attendanceAlreadyTaken = count(DBGet(DBQuery("SELECT * FROM attendance_period WHERE STUDENT_ID in (" . implode(', ', array_keys($_REQUEST['attendance'])) . ") AND INSTITUTE_DATE = '$date' " . $cpClauseAddOn . " AND PERIOD_ID='" . UserPeriod() . "'"))) == count($_REQUEST['attendance']) ? true : false;
 
-    $attendanceAlreadyTakenTwo = DBGet(DBQuery('SELECT * FROM `attendance_completed` WHERE SCHOOL_DATE = \'' . $date . '\' ' . $cpClauseAddOn . ' AND PERIOD_ID=\'' . UserPeriod() . '\' AND STAFF_ID = \'' . User('STAFF_ID') . '\''));
+    $attendanceAlreadyTakenTwo = DBGet(DBQuery('SELECT * FROM `attendance_completed` WHERE INSTITUTE_DATE = \'' . $date . '\' ' . $cpClauseAddOn . ' AND PERIOD_ID=\'' . UserPeriod() . '\' AND STAFF_ID = \'' . User('STAFF_ID') . '\''));
 
 
     if ($attendanceAlreadyTaken && count($attendanceAlreadyTakenTwo) == 0) {
@@ -239,32 +213,32 @@ if ($_REQUEST['attendance'] && ($_POST['attendance'] || $_REQUEST['ajax'])) {
                 $cmnt = clean_param($cmnt, PARAM_SPCL);
                 $sql .= ',COMMENT=\'' . str_replace("'", "\'", $cmnt) . '\'';
             }
-            $sql .= ' WHERE SCHOOL_DATE=\'' . date('Y-m-d', strtotime($date)) . '\' AND COURSE_PERIOD_ID=\'' . UserCoursePeriod() . '\' AND PERIOD_ID=\'' . UserPeriod() . '\'  AND STUDENT_ID=\'' . $student_id . '\'';
+            $sql .= ' WHERE INSTITUTE_DATE=\'' . date('Y-m-d', strtotime($date)) . '\' AND COURSE_PERIOD_ID=\'' . UserCoursePeriod() . '\' AND PERIOD_ID=\'' . UserPeriod() . '\'  AND STUDENT_ID=\'' . $student_id . '\'';
         } else {
             $cmnt = trim($_REQUEST['comment'][$student_id]);
             $cmnt = clean_param($cmnt, PARAM_SPCL);
 
-            $sql = "INSERT INTO " . $table . " (STUDENT_ID,SCHOOL_DATE,MARKING_PERIOD_ID,PERIOD_ID,COURSE_PERIOD_ID,ATTENDANCE_CODE,ATTENDANCE_TEACHER_CODE,COMMENT" . ($table == 'lunch_period' ? ',TABLE_NAME' : '') . ") values('$student_id','$date','$mp_id','" . UserPeriod() . "','" . ($cq_cpid != '' ? $cq_cpid : UserCoursePeriod()) . "','" . substr($value, 5) . "','" . substr($value, 5) . "','" . str_replace("'", "\'", $cmnt) . "'" . ($table == 'lunch_period' ? ",'" . optional_param('table', '', PARAM_ALPHANUM) . "'" : '') . ")";
+            $sql = "INSERT INTO " . $table . " (STUDENT_ID,INSTITUTE_DATE,MARKING_PERIOD_ID,PERIOD_ID,COURSE_PERIOD_ID,ATTENDANCE_CODE,ATTENDANCE_TEACHER_CODE,COMMENT" . ($table == 'lunch_period' ? ',TABLE_NAME' : '') . ") values('$student_id','$date','$mp_id','" . UserPeriod() . "','" . ($cq_cpid != '' ? $cq_cpid : UserCoursePeriod()) . "','" . substr($value, 5) . "','" . substr($value, 5) . "','" . str_replace("'", "\'", $cmnt) . "'" . ($table == 'lunch_period' ? ",'" . optional_param('table', '', PARAM_ALPHANUM) . "'" : '') . ")";
         }
         DBQuery($sql);
         if ($_REQUEST['table'] == '0')
             UpdateAttendanceDaily($student_id, $date);
     }
     if ($_REQUEST['table'] == '0') {
-        // echo 'SELECT \'completed\' AS COMPLETED FROM attendance_completed WHERE (STAFF_ID=\''.User('STAFF_ID').'\' OR SUBSTITUTE_STAFF_ID=\''.  User('STAFF_ID').'\') AND SCHOOL_DATE=\''.date('Y-m-d',strtotime($date)).'\' AND PERIOD_ID=\''.UserPeriod().'\' ';
-        $RET = DBGet(DBQuery('SELECT \'completed\' AS COMPLETED FROM attendance_completed WHERE (STAFF_ID=\'' . User('STAFF_ID') . '\' OR SUBSTITUTE_STAFF_ID=\'' . User('STAFF_ID') . '\') AND SCHOOL_DATE=\'' . date('Y-m-d', strtotime($date)) . '\' AND PERIOD_ID=\'' . UserPeriod() . '\' and course_period_id=\'' . ($cq_cpid != '' ? $cq_cpid : UserCoursePeriod()) . '\''));
+        // echo 'SELECT \'completed\' AS COMPLETED FROM attendance_completed WHERE (STAFF_ID=\''.User('STAFF_ID').'\' OR SUBSTITUTE_STAFF_ID=\''.  User('STAFF_ID').'\') AND INSTITUTE_DATE=\''.date('Y-m-d',strtotime($date)).'\' AND PERIOD_ID=\''.UserPeriod().'\' ';
+        $RET = DBGet(DBQuery('SELECT \'completed\' AS COMPLETED FROM attendance_completed WHERE (STAFF_ID=\'' . User('STAFF_ID') . '\' OR SUBSTITUTE_STAFF_ID=\'' . User('STAFF_ID') . '\') AND INSTITUTE_DATE=\'' . date('Y-m-d', strtotime($date)) . '\' AND PERIOD_ID=\'' . UserPeriod() . '\' and course_period_id=\'' . ($cq_cpid != '' ? $cq_cpid : UserCoursePeriod()) . '\''));
         if (!count($RET)) {
             $teacher_type = DBGet(DBQuery('SELECT TEACHER_ID,SECONDARY_TEACHER_ID FROM course_periods WHERE COURSE_PERIOD_ID=\'' . ($cq_cpid != '' ? $cq_cpid : UserCoursePeriod()) . '\''));
             $secondary_teacher_id = $teacher_type[1]['SECONDARY_TEACHER_ID'];
             $teacher_id = $teacher_type[1]['TEACHER_ID'];
             if ($secondary_teacher_id == User('STAFF_ID'))
-                DBQuery('INSERT INTO attendance_completed (STAFF_ID,SCHOOL_DATE,PERIOD_ID,COURSE_PERIOD_ID,CPV_ID,SUBSTITUTE_STAFF_ID,IS_TAKEN_BY_SUBSTITUTE_STAFF) values(\'' . $teacher_type[1]['TEACHER_ID'] . '\',\'' . $date . '\',\'' . UserPeriod() . '\',\'' . ($cq_cpid != '' ? $cq_cpid : UserCoursePeriod()) . '\',\'' . CpvId() . '\',\'' . $secondary_teacher_id . '\',\'Y\')');
+                DBQuery('INSERT INTO attendance_completed (STAFF_ID,INSTITUTE_DATE,PERIOD_ID,COURSE_PERIOD_ID,CPV_ID,SUBSTITUTE_STAFF_ID,IS_TAKEN_BY_SUBSTITUTE_STAFF) values(\'' . $teacher_type[1]['TEACHER_ID'] . '\',\'' . $date . '\',\'' . UserPeriod() . '\',\'' . ($cq_cpid != '' ? $cq_cpid : UserCoursePeriod()) . '\',\'' . CpvId() . '\',\'' . $secondary_teacher_id . '\',\'Y\')');
             elseif ($teacher_id == User('STAFF_ID'))
-                DBQuery('INSERT INTO attendance_completed (STAFF_ID,SCHOOL_DATE,PERIOD_ID,COURSE_PERIOD_ID,CPV_ID,SUBSTITUTE_STAFF_ID) values(\'' . $teacher_type[1]['TEACHER_ID'] . '\',\'' . $date . '\',\'' . UserPeriod() . '\',\'' . ($cq_cpid != '' ? $cq_cpid : UserCoursePeriod()) . '\',\'' . CpvId() . '\',\'' . $secondary_teacher_id . '\')');
+                DBQuery('INSERT INTO attendance_completed (STAFF_ID,INSTITUTE_DATE,PERIOD_ID,COURSE_PERIOD_ID,CPV_ID,SUBSTITUTE_STAFF_ID) values(\'' . $teacher_type[1]['TEACHER_ID'] . '\',\'' . $date . '\',\'' . UserPeriod() . '\',\'' . ($cq_cpid != '' ? $cq_cpid : UserCoursePeriod()) . '\',\'' . CpvId() . '\',\'' . $secondary_teacher_id . '\')');
             else
-                DBQuery('INSERT INTO attendance_completed (STAFF_ID,SCHOOL_DATE,PERIOD_ID,COURSE_PERIOD_ID,CPV_ID,SUBSTITUTE_STAFF_ID) values(\'' . User('STAFF_ID') . '\',\'' . $date . '\',\'' . UserPeriod() . '\',\'' . ($cq_cpid != '' ? $cq_cpid : UserCoursePeriod()) . '\',\'' . CpvId() . '\',\'' . $secondary_teacher_id . '\')');
+                DBQuery('INSERT INTO attendance_completed (STAFF_ID,INSTITUTE_DATE,PERIOD_ID,COURSE_PERIOD_ID,CPV_ID,SUBSTITUTE_STAFF_ID) values(\'' . User('STAFF_ID') . '\',\'' . $date . '\',\'' . UserPeriod() . '\',\'' . ($cq_cpid != '' ? $cq_cpid : UserCoursePeriod()) . '\',\'' . CpvId() . '\',\'' . $secondary_teacher_id . '\')');
         }
-        DBQuery('DELETE FROM missing_attendance WHERE  SCHOOL_DATE=\'' . $date . '\' AND COURSE_PERIOD_ID=\'' . ($cq_cpid != '' ? $cq_cpid : UserCoursePeriod()) . '\'  AND(TEACHER_ID=\'' . User('STAFF_ID') . '\' OR SECONDARY_TEACHER_ID=\'' . User('STAFF_ID') . '\')  AND PERIOD_ID=\'' . UserPeriod() . '\'');
+        DBQuery('DELETE FROM missing_attendance WHERE  INSTITUTE_DATE=\'' . $date . '\' AND COURSE_PERIOD_ID=\'' . ($cq_cpid != '' ? $cq_cpid : UserCoursePeriod()) . '\'  AND(TEACHER_ID=\'' . User('STAFF_ID') . '\' OR SECONDARY_TEACHER_ID=\'' . User('STAFF_ID') . '\')  AND PERIOD_ID=\'' . UserPeriod() . '\'');
     }
 
     $current_RET = DBGet(DBQuery($current_Q), array(), array('STUDENT_ID'));
@@ -278,9 +252,9 @@ if ($_REQUEST['attendance'] && ($_POST['attendance'] || $_REQUEST['ajax'])) {
 
 
 if ($_SESSION['PROFILE'] == 'teacher')
-    $codes_RET_count = DBGet(DBQuery('SELECT COUNT(*) AS CODES FROM attendance_codes WHERE SCHOOL_ID=\'' . UserSchool() . '\' AND SYEAR=\'' . UserSyear() . '\'  AND TYPE=\'teacher\' AND TABLE_NAME=\'' . $_REQUEST['table'] . '\'' . ($course_RET[1]['HALF_DAY'] ? ' AND STATE_CODE!=\'H\'' : '') . ' ORDER BY SORT_ORDER'));
+    $codes_RET_count = DBGet(DBQuery('SELECT COUNT(*) AS CODES FROM attendance_codes WHERE INSTITUTE_ID=\'' . UserInstitute() . '\' AND SYEAR=\'' . UserSyear() . '\'  AND TYPE=\'teacher\' AND TABLE_NAME=\'' . $_REQUEST['table'] . '\'' . ($course_RET[1]['HALF_DAY'] ? ' AND STATE_CODE!=\'H\'' : '') . ' ORDER BY SORT_ORDER'));
 
-$codes_RET = DBGet(DBQuery('SELECT ID,TITLE,DEFAULT_CODE,STATE_CODE FROM attendance_codes WHERE SCHOOL_ID=\'' . UserSchool() . '\' AND SYEAR=\'' . UserSyear() . '\'  AND TABLE_NAME=\'' . $_REQUEST['table'] . '\'' . ($course_RET[1]['HALF_DAY'] ? ' AND STATE_CODE!=\'H\'' : '') . ' ORDER BY SORT_ORDER'));
+$codes_RET = DBGet(DBQuery('SELECT ID,TITLE,DEFAULT_CODE,STATE_CODE FROM attendance_codes WHERE INSTITUTE_ID=\'' . UserInstitute() . '\' AND SYEAR=\'' . UserSyear() . '\'  AND TABLE_NAME=\'' . $_REQUEST['table'] . '\'' . ($course_RET[1]['HALF_DAY'] ? ' AND STATE_CODE!=\'H\'' : '') . ' ORDER BY SORT_ORDER'));
 if (is_countable($codes_RET) && count($codes_RET)) {
     foreach ($codes_RET as $code) {
         $extra['SELECT'] .= ",'$code[STATE_CODE]' AS CODE_" . $code['ID'];
@@ -350,7 +324,7 @@ $date_note = $date != date('Y-m-d') ? ' <span class="text-danger m-l-10"><i clas
 
 
 if ($_REQUEST['table'] == '0') {
-    $completed_RET = DBGet(DBQuery('SELECT \'Y\' as COMPLETED,STAFF_ID,SUBSTITUTE_STAFF_ID,IS_TAKEN_BY_SUBSTITUTE_STAFF FROM attendance_completed WHERE (STAFF_ID=\'' . User('STAFF_ID') . '\' OR SUBSTITUTE_STAFF_ID=\'' . User('STAFF_ID') . '\') AND SCHOOL_DATE=\'' . $date . '\' AND PERIOD_ID=\'' . UserPeriod() . '\' AND CPV_ID=\'' . CpvId() . '\''));
+    $completed_RET = DBGet(DBQuery('SELECT \'Y\' as COMPLETED,STAFF_ID,SUBSTITUTE_STAFF_ID,IS_TAKEN_BY_SUBSTITUTE_STAFF FROM attendance_completed WHERE (STAFF_ID=\'' . User('STAFF_ID') . '\' OR SUBSTITUTE_STAFF_ID=\'' . User('STAFF_ID') . '\') AND INSTITUTE_DATE=\'' . $date . '\' AND PERIOD_ID=\'' . UserPeriod() . '\' AND CPV_ID=\'' . CpvId() . '\''));
     if ($completed_RET) {
         if ($completed_RET[1]['IS_TAKEN_BY_SUBSTITUTE_STAFF'] != 'Y' && User('STAFF_ID') == $completed_RET[1]['SUBSTITUTE_STAFF_ID'])
             $note = ErrorMessage(array('<IMG SRC=assets/check.gif>'._primaryTeacherHasTakenAttendanceTodayForThisPeriod.'.'), 'note');
@@ -384,7 +358,7 @@ echo '<div class="panel panel-default">';
 $profile = DBGet(DBQuery('SELECT PROFILE FROM staff WHERE STAFF_ID=' . UserID()));
 if ($profile[1]['PROFILE'] != "admin" && UserCoursePeriod() != '') {
     if (isset($_REQUEST['cp_id_miss_attn'])) {
-        $QI = DBQuery('SELECT DISTINCT cpv.ID,cpv.PERIOD_ID,cp.COURSE_PERIOD_ID,sp.TITLE,sp.SHORT_NAME,cp.MARKING_PERIOD_ID,cpv.DAYS,sp.SORT_ORDER,c.TITLE AS COURSE_TITLE FROM course_periods cp,course_period_var cpv, school_periods sp,courses c WHERE c.COURSE_ID=cp.COURSE_ID AND cpv.PERIOD_ID=sp.PERIOD_ID AND cp.COURSE_PERIOD_ID=cpv.COURSE_PERIOD_ID AND cpv.COURSE_PERIOD_ID=' . $_REQUEST['cp_id_miss_attn'] . ' AND cp.SYEAR=\'' . UserSyear() . '\' AND cp.SCHOOL_ID=\'' . UserSchool() . '\' AND (cp.TEACHER_ID=\'' . User('STAFF_ID') . '\' OR cp.SECONDARY_TEACHER_ID=\'' . User('STAFF_ID') . '\') ORDER BY sp.SORT_ORDER ');
+        $QI = DBQuery('SELECT DISTINCT cpv.ID,cpv.PERIOD_ID,cp.COURSE_PERIOD_ID,sp.TITLE,sp.SHORT_NAME,cp.MARKING_PERIOD_ID,cpv.DAYS,sp.SORT_ORDER,c.TITLE AS COURSE_TITLE FROM course_periods cp,course_period_var cpv, institute_periods sp,courses c WHERE c.COURSE_ID=cp.COURSE_ID AND cpv.PERIOD_ID=sp.PERIOD_ID AND cp.COURSE_PERIOD_ID=cpv.COURSE_PERIOD_ID AND cpv.COURSE_PERIOD_ID=' . $_REQUEST['cp_id_miss_attn'] . ' AND cp.SYEAR=\'' . UserSyear() . '\' AND cp.INSTITUTE_ID=\'' . UserInstitute() . '\' AND (cp.TEACHER_ID=\'' . User('STAFF_ID') . '\' OR cp.SECONDARY_TEACHER_ID=\'' . User('STAFF_ID') . '\') ORDER BY sp.SORT_ORDER ');
         $RET = DBGet($QI);
         $period_select = '<label class="control-label">'._choosePeriod.':</label>
         <SELECT class="form-control" name=period onchange="document.location.href=\'Modules.php?modname=' . $_REQUEST['modname'] . '&period=\'+this.options[selectedIndex].value">';
@@ -403,7 +377,7 @@ if ($profile[1]['PROFILE'] != "admin" && UserCoursePeriod() != '') {
         $period_select .= "</SELECT>";
     } else {
 
-        $QI = DBQuery('SELECT DISTINCT cpv.ID,cpv.PERIOD_ID,cp.COURSE_PERIOD_ID,sp.TITLE,sp.SHORT_NAME,cp.MARKING_PERIOD_ID,cpv.DAYS,sp.SORT_ORDER,c.TITLE AS COURSE_TITLE FROM course_periods cp,course_period_var cpv, school_periods sp,courses c WHERE c.COURSE_ID=cp.COURSE_ID AND cpv.PERIOD_ID=sp.PERIOD_ID AND cp.COURSE_PERIOD_ID=cpv.COURSE_PERIOD_ID AND cpv.COURSE_PERIOD_ID=' . UserCoursePeriod() . ' AND cp.SYEAR=\'' . UserSyear() . '\' AND cp.SCHOOL_ID=\'' . UserSchool() . '\' AND (cp.TEACHER_ID=\'' . User('STAFF_ID') . '\' OR cp.SECONDARY_TEACHER_ID=\'' . User('STAFF_ID') . '\') ORDER BY sp.SORT_ORDER ');
+        $QI = DBQuery('SELECT DISTINCT cpv.ID,cpv.PERIOD_ID,cp.COURSE_PERIOD_ID,sp.TITLE,sp.SHORT_NAME,cp.MARKING_PERIOD_ID,cpv.DAYS,sp.SORT_ORDER,c.TITLE AS COURSE_TITLE FROM course_periods cp,course_period_var cpv, institute_periods sp,courses c WHERE c.COURSE_ID=cp.COURSE_ID AND cpv.PERIOD_ID=sp.PERIOD_ID AND cp.COURSE_PERIOD_ID=cpv.COURSE_PERIOD_ID AND cpv.COURSE_PERIOD_ID=' . UserCoursePeriod() . ' AND cp.SYEAR=\'' . UserSyear() . '\' AND cp.INSTITUTE_ID=\'' . UserInstitute() . '\' AND (cp.TEACHER_ID=\'' . User('STAFF_ID') . '\' OR cp.SECONDARY_TEACHER_ID=\'' . User('STAFF_ID') . '\') ORDER BY sp.SORT_ORDER ');
         $RET = DBGet($QI);
 
         $period_select = '<label class="control-label">'._choosePeriod.':</label> 
@@ -479,7 +453,7 @@ $LO_columns = array('FULL_NAME' => _student,
  ) + $columns;
 
 $tabs[] = array('title' => 'Attendance', 'link' => "Modules.php?modname=$_REQUEST[modname]&table=0&month_date=$_REQUEST[month_date]&day_date=$_REQUEST[day_date]&year_date=$_REQUEST[year_date]");
-$categories_RET = DBGet(DBQuery('SELECT ID,TITLE FROM attendance_code_categories WHERE SYEAR=\'' . UserSyear() . '\' AND SCHOOL_ID=\'' . UserSchool() . '\''));
+$categories_RET = DBGet(DBQuery('SELECT ID,TITLE FROM attendance_code_categories WHERE SYEAR=\'' . UserSyear() . '\' AND INSTITUTE_ID=\'' . UserInstitute() . '\''));
 foreach ($categories_RET as $category)
     $tabs[] = array('title' => $category['TITLE'], 'link' => "Modules.php?modname=$_REQUEST[modname]&table=$category[ID]&month_date=$_REQUEST[month_date]&day_date=$_REQUEST[day_date]&year_date=$_REQUEST[year_date]");
 
@@ -497,7 +471,7 @@ else {
     $plural = _students;
 }
 if (!$mp_id) {
-    echo '<div class="panel-body p-t-0 p-b-0"><div class="alert alert-danger alert-bordered">'._theSelectedDateIsNotInASchoolQuarter.'.</div></div>';
+    echo '<div class="panel-body p-t-0 p-b-0"><div class="alert alert-danger alert-bordered">'._theSelectedDateIsNotInAInstituteQuarter.'.</div></div>';
 } else {
     if (is_countable($course_RET) && count($course_RET) != 0) {
         $posted_date2 = ucfirst(strtolower($_REQUEST['month_date'])) . '-' . $_REQUEST['day_date'] . '-' . $_REQUEST['year_date'];
@@ -518,10 +492,10 @@ if (!$mp_id) {
         echo '</div>'; //.panel-footer
     } else {
         if ($_REQUEST['period']) {
-            $extra_sql = 'SELECT COUNT(*) AS day_exist FROM attendance_calendar WHERE SCHOOL_ID=\'' . UserSchool() . '\' AND SYEAR=\'' . UserSyear() . '\' AND SCHOOL_DATE=\'' . date('Y-m-d', strtotime($date)) . '\'';
+            $extra_sql = 'SELECT COUNT(*) AS day_exist FROM attendance_calendar WHERE INSTITUTE_ID=\'' . UserInstitute() . '\' AND SYEAR=\'' . UserSyear() . '\' AND INSTITUTE_DATE=\'' . date('Y-m-d', strtotime($date)) . '\'';
             $extra_ret = DBGET(DBQuery($extra_sql));
             if (isset($extra_ret[1]['DAY_EXIST']) && $extra_ret[1]['DAY_EXIST'] == 0)
-                echo '<div class="panel-body p-b-0"><div class="alert alert-danger alert-bordered">You cannot take attendance on this day, it is a school holiday</div>';
+                echo '<div class="panel-body p-b-0"><div class="alert alert-danger alert-bordered">You cannot take attendance on this day, it is a institute holiday</div>';
             else
                 echo '<div class="panel-body p-b-0"><div class="alert alert-danger alert-bordered">You cannot take attendance for this period on this day</div>';
         }

@@ -1,30 +1,5 @@
 <?php
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+
 include('../../RedirectModulesInc.php');
 $cp_id = $_REQUEST['cp_id'];
 if (UserStaffID() || $_REQUEST['staff_id'])
@@ -65,10 +40,10 @@ if ($_REQUEST['include'] != 'attendance/MissingAttendance.php') {
 }
 
 if (UserStaffID()) {
-    $QI = DBQuery('SELECT DISTINCT cpv.ID,cpv.PERIOD_ID,cp.COURSE_PERIOD_ID,sp.TITLE,CONCAT(cp.SHORT_NAME,\'-\',cpv.DAYS) as SHOW_TITLE,sp.SHORT_NAME,cp.MARKING_PERIOD_ID,cpv.DAYS,sp.SORT_ORDER,c.TITLE AS COURSE_TITLE,cp.TITLE as COURSE_PERIOD_TITLE FROM course_periods cp,course_period_var cpv, school_periods sp,courses c WHERE c.COURSE_ID=cp.COURSE_ID AND cpv.PERIOD_ID=sp.PERIOD_ID AND cp.COURSE_PERIOD_ID=cpv.COURSE_PERIOD_ID AND cp.SYEAR=\'' . UserSyear() . '\' AND cp.SCHOOL_ID=\'' . UserSchool() . '\' AND (cp.TEACHER_ID=\'' . UserStaffID() . '\' OR cp.SECONDARY_TEACHER_ID=\'' . UserStaffID() . '\') AND (cp.MARKING_PERIOD_ID IN (' . GetAllMP_mod(GetMPTable(GetMP(UserMP(), 'TABLE')), UserMP()) . ') OR cp.MARKING_PERIOD_ID IS NULL) ORDER BY sp.SORT_ORDER ');
+    $QI = DBQuery('SELECT DISTINCT cpv.ID,cpv.PERIOD_ID,cp.COURSE_PERIOD_ID,sp.TITLE,CONCAT(cp.SHORT_NAME,\'-\',cpv.DAYS) as SHOW_TITLE,sp.SHORT_NAME,cp.MARKING_PERIOD_ID,cpv.DAYS,sp.SORT_ORDER,c.TITLE AS COURSE_TITLE,cp.TITLE as COURSE_PERIOD_TITLE FROM course_periods cp,course_period_var cpv, institute_periods sp,courses c WHERE c.COURSE_ID=cp.COURSE_ID AND cpv.PERIOD_ID=sp.PERIOD_ID AND cp.COURSE_PERIOD_ID=cpv.COURSE_PERIOD_ID AND cp.SYEAR=\'' . UserSyear() . '\' AND cp.INSTITUTE_ID=\'' . UserInstitute() . '\' AND (cp.TEACHER_ID=\'' . UserStaffID() . '\' OR cp.SECONDARY_TEACHER_ID=\'' . UserStaffID() . '\') AND (cp.MARKING_PERIOD_ID IN (' . GetAllMP_mod(GetMPTable(GetMP(UserMP(), 'TABLE')), UserMP()) . ') OR cp.MARKING_PERIOD_ID IS NULL) ORDER BY sp.SORT_ORDER ');
     $RET = DBGet($QI);
     // get the fy marking period id, there should be exactly one fy marking period
-    $fy_id = DBGet(DBQuery('SELECT MARKING_PERIOD_ID FROM school_years WHERE SYEAR=\'' . UserSyear() . '\' AND SCHOOL_ID=\'' . UserSchool() . '\''));
+    $fy_id = DBGet(DBQuery('SELECT MARKING_PERIOD_ID FROM institute_years WHERE SYEAR=\'' . UserSyear() . '\' AND INSTITUTE_ID=\'' . UserInstitute() . '\''));
     $fy_id = $fy_id[1]['MARKING_PERIOD_ID'];
 
     if (isset($cp_id)) {
@@ -114,7 +89,7 @@ if (UserStaffID()) {
     $incl_page = $_REQUEST['include'];
     if ($incl_page == 'grades/ProgressReports.php') {
 
-        $QI = DBQuery('SELECT DISTINCT cpv.ID,cpv.PERIOD_ID,cp.COURSE_PERIOD_ID,sp.TITLE,cp.SHORT_NAME as SHOW_TITLE,sp.SHORT_NAME,cp.MARKING_PERIOD_ID,cpv.DAYS,sp.SORT_ORDER,c.TITLE AS COURSE_TITLE,cp.TITLE as COURSE_PERIOD_TITLE FROM course_periods cp,course_period_var cpv, school_periods sp,courses c WHERE c.COURSE_ID=cp.COURSE_ID AND cpv.PERIOD_ID=sp.PERIOD_ID AND cp.COURSE_PERIOD_ID=cpv.COURSE_PERIOD_ID AND cp.SYEAR=\'' . UserSyear() . '\' AND cp.SCHOOL_ID=\'' . UserSchool() . '\' AND (cp.TEACHER_ID=\'' . UserStaffID() . '\' OR cp.SECONDARY_TEACHER_ID=\'' . UserStaffID() . '\') AND (cp.MARKING_PERIOD_ID IN (' . GetAllMP_mod(GetMPTable(GetMP(UserMP(), 'TABLE')), UserMP()) . ') OR cp.MARKING_PERIOD_ID IS NULL) GROUP BY cp.COURSE_PERIOD_ID ORDER BY sp.SORT_ORDER ');
+        $QI = DBQuery('SELECT DISTINCT cpv.ID,cpv.PERIOD_ID,cp.COURSE_PERIOD_ID,sp.TITLE,cp.SHORT_NAME as SHOW_TITLE,sp.SHORT_NAME,cp.MARKING_PERIOD_ID,cpv.DAYS,sp.SORT_ORDER,c.TITLE AS COURSE_TITLE,cp.TITLE as COURSE_PERIOD_TITLE FROM course_periods cp,course_period_var cpv, institute_periods sp,courses c WHERE c.COURSE_ID=cp.COURSE_ID AND cpv.PERIOD_ID=sp.PERIOD_ID AND cp.COURSE_PERIOD_ID=cpv.COURSE_PERIOD_ID AND cp.SYEAR=\'' . UserSyear() . '\' AND cp.INSTITUTE_ID=\'' . UserInstitute() . '\' AND (cp.TEACHER_ID=\'' . UserStaffID() . '\' OR cp.SECONDARY_TEACHER_ID=\'' . UserStaffID() . '\') AND (cp.MARKING_PERIOD_ID IN (' . GetAllMP_mod(GetMPTable(GetMP(UserMP(), 'TABLE')), UserMP()) . ') OR cp.MARKING_PERIOD_ID IS NULL) GROUP BY cp.COURSE_PERIOD_ID ORDER BY sp.SORT_ORDER ');
         $RET = DBGet($QI);
          if (isset($_REQUEST['include_inactive']) && $_REQUEST['include_inactive'] == 'Y')
             echo '<input type="hidden" name="include_inactive" value="Y">';
@@ -142,10 +117,10 @@ if (UserStaffID()) {
         }
 
         echo '</FORM>';
-        unset($_openSIS['DrawHeader']);
+        unset($_HaniIMS['DrawHeader']);
 
-        $_openSIS['allow_edit'] = AllowEdit($_REQUEST['modname']);
-        $_openSIS['User'] = array(1 => array('STAFF_ID' => UserStaffID(), 'NAME' => GetTeacher(UserStaffID()), 'USERNAME' => GetTeacher(UserStaffID(), '', 'USERNAME'), 'PROFILE' => 'teacher', 'SCHOOLS' => ',' . UserSchool() . ',', 'SYEAR' => UserSyear()));
+        $_HaniIMS['allow_edit'] = AllowEdit($_REQUEST['modname']);
+        $_HaniIMS['User'] = array(1 => array('STAFF_ID' => UserStaffID(), 'NAME' => GetTeacher(UserStaffID()), 'USERNAME' => GetTeacher(UserStaffID(), '', 'USERNAME'), 'PROFILE' => 'teacher', 'INSTITUTES' => ',' . UserInstitute() . ',', 'SYEAR' => UserSyear()));
 
         include('modules/' . $_REQUEST['include']);
     }
@@ -158,7 +133,7 @@ if (UserStaffID()) {
                 if (!isset($_REQUEST['process'])) {
                     $period_select = '<div class="clearfix">';
 
-                    $QI = DBQuery('SELECT DISTINCT cpv.ID,cpv.PERIOD_ID,cp.COURSE_PERIOD_ID,sp.TITLE,cp.SHORT_NAME as CPSHORT, cpv.DAYS,cpv.COURSE_PERIOD_DATE,sp.SHORT_NAME,cp.MARKING_PERIOD_ID,cpv.DAYS,sp.SORT_ORDER,c.TITLE AS COURSE_TITLE,cp.TITLE as COURSE_PERIOD_TITLE FROM course_periods cp,course_period_var cpv, school_periods sp,courses c WHERE c.COURSE_ID=cp.COURSE_ID AND cpv.PERIOD_ID=sp.PERIOD_ID AND cp.COURSE_PERIOD_ID=cpv.COURSE_PERIOD_ID AND cp.SYEAR=\'' . UserSyear() . '\' AND cp.SCHOOL_ID=\'' . UserSchool() . '\' AND (cp.TEACHER_ID=\'' . UserStaffID() . '\' OR cp.SECONDARY_TEACHER_ID=\'' . UserStaffID() . '\') AND (cp.MARKING_PERIOD_ID IN (' . GetAllMP_mod(GetMPTable(GetMP(UserMP(), 'TABLE')), UserMP()) . ') OR cp.MARKING_PERIOD_ID IS NULL) ORDER BY sp.SORT_ORDER ');
+                    $QI = DBQuery('SELECT DISTINCT cpv.ID,cpv.PERIOD_ID,cp.COURSE_PERIOD_ID,sp.TITLE,cp.SHORT_NAME as CPSHORT, cpv.DAYS,cpv.COURSE_PERIOD_DATE,sp.SHORT_NAME,cp.MARKING_PERIOD_ID,cpv.DAYS,sp.SORT_ORDER,c.TITLE AS COURSE_TITLE,cp.TITLE as COURSE_PERIOD_TITLE FROM course_periods cp,course_period_var cpv, institute_periods sp,courses c WHERE c.COURSE_ID=cp.COURSE_ID AND cpv.PERIOD_ID=sp.PERIOD_ID AND cp.COURSE_PERIOD_ID=cpv.COURSE_PERIOD_ID AND cp.SYEAR=\'' . UserSyear() . '\' AND cp.INSTITUTE_ID=\'' . UserInstitute() . '\' AND (cp.TEACHER_ID=\'' . UserStaffID() . '\' OR cp.SECONDARY_TEACHER_ID=\'' . UserStaffID() . '\') AND (cp.MARKING_PERIOD_ID IN (' . GetAllMP_mod(GetMPTable(GetMP(UserMP(), 'TABLE')), UserMP()) . ') OR cp.MARKING_PERIOD_ID IS NULL) ORDER BY sp.SORT_ORDER ');
                     $RET = DBGet($QI);
                     $period_select .= "<div class=\"form-inline pull-right\"><div class=\"input-group\"><span class=\"input-group-addon\">"._choosePeriod." : </span><SELECT name=period class=\"form-control\" onChange='this.form.submit();'>";
                     $period_select .= "<OPTION value='na' selected>N/A</OPTION>";
@@ -203,7 +178,7 @@ if (UserStaffID()) {
 
                 if (!isset($_REQUEST['process'])) {
 
-                    $QI = DBQuery('SELECT DISTINCT cpv.ID,cpv.PERIOD_ID,cp.COURSE_PERIOD_ID,sp.TITLE,cp.SHORT_NAME as CPSHORT, cpv.DAYS,cpv.COURSE_PERIOD_DATE,sp.SHORT_NAME,cp.MARKING_PERIOD_ID,cpv.DAYS,sp.SORT_ORDER,c.TITLE AS COURSE_TITLE,cp.TITLE as COURSE_PERIOD_TITLE FROM course_periods cp,course_period_var cpv, school_periods sp,courses c WHERE c.COURSE_ID=cp.COURSE_ID AND cpv.PERIOD_ID=sp.PERIOD_ID AND cp.COURSE_PERIOD_ID=cpv.COURSE_PERIOD_ID AND cp.SYEAR=\'' . UserSyear() . '\' AND cp.SCHOOL_ID=\'' . UserSchool() . '\' AND (cp.TEACHER_ID=\'' . UserStaffID() . '\' OR cp.SECONDARY_TEACHER_ID=\'' . UserStaffID() . '\') AND (cp.MARKING_PERIOD_ID IN (' . GetAllMP_mod(GetMPTable(GetMP(UserMP(), 'TABLE')), UserMP()) . ') OR cp.MARKING_PERIOD_ID IS NULL) GROUP BY cp.COURSE_PERIOD_ID ORDER BY sp.SORT_ORDER ');
+                    $QI = DBQuery('SELECT DISTINCT cpv.ID,cpv.PERIOD_ID,cp.COURSE_PERIOD_ID,sp.TITLE,cp.SHORT_NAME as CPSHORT, cpv.DAYS,cpv.COURSE_PERIOD_DATE,sp.SHORT_NAME,cp.MARKING_PERIOD_ID,cpv.DAYS,sp.SORT_ORDER,c.TITLE AS COURSE_TITLE,cp.TITLE as COURSE_PERIOD_TITLE FROM course_periods cp,course_period_var cpv, institute_periods sp,courses c WHERE c.COURSE_ID=cp.COURSE_ID AND cpv.PERIOD_ID=sp.PERIOD_ID AND cp.COURSE_PERIOD_ID=cpv.COURSE_PERIOD_ID AND cp.SYEAR=\'' . UserSyear() . '\' AND cp.INSTITUTE_ID=\'' . UserInstitute() . '\' AND (cp.TEACHER_ID=\'' . UserStaffID() . '\' OR cp.SECONDARY_TEACHER_ID=\'' . UserStaffID() . '\') AND (cp.MARKING_PERIOD_ID IN (' . GetAllMP_mod(GetMPTable(GetMP(UserMP(), 'TABLE')), UserMP()) . ') OR cp.MARKING_PERIOD_ID IS NULL) GROUP BY cp.COURSE_PERIOD_ID ORDER BY sp.SORT_ORDER ');
                     $RET = DBGet($QI);
                     $period_select = "<div class=\"form-inline\"><label class=\"control-label\">"._choosePeriod." : </label> &nbsp;<SELECT name=period onChange='this.form.submit();' class=\"form-control\">";
                     $period_select .= "<OPTION value='na' selected>N/A</OPTION>";
@@ -223,10 +198,10 @@ if (UserStaffID()) {
             DrawHeader($period_select);
 
         echo '</FORM>';
-        unset($_openSIS['DrawHeader']);
+        unset($_HaniIMS['DrawHeader']);
 
-        $_openSIS['allow_edit'] = AllowEdit($_REQUEST['modname']);
-        $_openSIS['User'] = array(1 => array('STAFF_ID' => UserStaffID(), 'NAME' => GetTeacher(UserStaffID()), 'USERNAME' => GetTeacher(UserStaffID(), '', 'USERNAME'), 'PROFILE' => 'teacher', 'SCHOOLS' => ',' . UserSchool() . ',', 'SYEAR' => UserSyear()));
+        $_HaniIMS['allow_edit'] = AllowEdit($_REQUEST['modname']);
+        $_HaniIMS['User'] = array(1 => array('STAFF_ID' => UserStaffID(), 'NAME' => GetTeacher(UserStaffID()), 'USERNAME' => GetTeacher(UserStaffID(), '', 'USERNAME'), 'PROFILE' => 'teacher', 'INSTITUTES' => ',' . UserInstitute() . ',', 'SYEAR' => UserSyear()));
 
 
         //echo '<div class="panel-body">';

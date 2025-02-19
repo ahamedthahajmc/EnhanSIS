@@ -1,30 +1,5 @@
 <?php
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+
 if(!$_SESSION['STAFF_ID'] && !$_SESSION['STUDENT_ID'] && (strpos($_SERVER['PHP_SELF'],'index.php'))===false)
 	{
 		header('Location: index.php');
@@ -36,7 +11,7 @@ if($url===FALSE){
  header('Location: index.php');
  }
 
-echo "<HTML><HEAD><TITLE>"._openSisSchoolSoftware."</TITLE>
+echo "<HTML><HEAD><TITLE>"._HaniIMSInstituteSoftware."</TITLE>
 <script language=javascript>
 function resizeImages()
 {
@@ -79,7 +54,7 @@ echo '<TR>';
 echo '<TD valign=middle width=170><A HREF=index.php target=_top><IMG id=logo SRC="assets/themes/'.Preferences('THEME').'/logo.png" border=0></A></TD>';
 echo '<TD width=15></TD><TD><TABLE width=100% border=0 cellpadding=2 cellspacing=0 style="border: 1px inset #999999"><TR bgcolor=#E8E8E9>';
 require('Menu.php');
-foreach($_openSIS['Menu'] as $modcat=>$value)
+foreach($_HaniIMS['Menu'] as $modcat=>$value)
 {
 	if($value)
 	{

@@ -1,30 +1,5 @@
 <?php
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+ 
 include('../../RedirectModulesInc.php');
 include_once("fckeditor/fckeditor.php");
 if ($_REQUEST['assignment_type_id'] == 'new' && isset($_REQUEST['tables'])) {
@@ -40,11 +15,11 @@ if (isset($_REQUEST['tables']['new']) && $_REQUEST['tables']['new']['TITLE'] == 
 $course_period_id = UserCoursePeriod();
 $course_id = DBGet(DBQuery('SELECT COURSE_ID FROM course_periods WHERE COURSE_PERIOD_ID=\'' . UserCoursePeriod() . '\''));
 $course_id = $course_id[1]['COURSE_ID'];
-$_openSIS['allow_edit'] = true;
+$_HaniIMS['allow_edit'] = true;
 unset($_SESSION['_REQUEST_vars']['assignment_type_id']);
 unset($_SESSION['_REQUEST_vars']['assignment_id']);
 
-$config_RET = DBGet(DBQuery('SELECT TITLE,VALUE FROM program_user_config WHERE USER_ID=\'' . User('STAFF_ID') . '\' AND school_id=\'' . UserSchool() . '\' AND PROGRAM=\'Gradebook\' AND value like "%_' . UserCoursePeriod() . '%"'), array(), array('TITLE'));
+$config_RET = DBGet(DBQuery('SELECT TITLE,VALUE FROM program_user_config WHERE USER_ID=\'' . User('STAFF_ID') . '\' AND institute_id=\'' . UserInstitute() . '\' AND PROGRAM=\'Gradebook\' AND value like "%_' . UserCoursePeriod() . '%"'), array(), array('TITLE'));
 if (count($config_RET)) {
     foreach ($config_RET as $title => $value)
         if (substr($title, 0, 3) == 'SEM' || substr($title, 0, 2) == 'FY' || substr($title, 0, 1) == 'Q') {
@@ -224,7 +199,7 @@ if (clean_param($_REQUEST['tables'], PARAM_NOTAGS) && ($_POST['tables'] || $_REQ
                     $fields = 'ASSIGNMENT_TYPE_ID,STAFF_ID,MARKING_PERIOD_ID,';
                     $values = "'" . $_REQUEST['assignment_type_id'] . "','" . User('STAFF_ID') . "','" . UserMP() . "',";
                 } else {
-                    $full_year_mp = DBGet(DBQuery('SELECT MARKING_PERIOD_ID FROM school_years WHERE SCHOOL_ID=' . UserSchool() . ' AND SYEAR=' . UserSyear()));
+                    $full_year_mp = DBGet(DBQuery('SELECT MARKING_PERIOD_ID FROM institute_years WHERE INSTITUTE_ID=' . UserInstitute() . ' AND SYEAR=' . UserSyear()));
                     $full_year_mp = $full_year_mp[1]['MARKING_PERIOD_ID'];
                     $fields = 'ASSIGNMENT_TYPE_ID,STAFF_ID,MARKING_PERIOD_ID,';
                     $values = "'" . $_REQUEST['assignment_type_id'] . "','" . User('STAFF_ID') . "','" . $full_year_mp . "',";
@@ -363,7 +338,7 @@ if (clean_param($_REQUEST['tables'], PARAM_NOTAGS) && ($_POST['tables'] || $_REQ
                     $assign_tyid = DBGet(DBQuery('SELECT ASSIGNMENT_TYPE_ID FROM gradebook_assignments WHERE ASSIGNMENT_ID=' . $_REQUEST['assignment_id']));
                     $assign_tyid = $assign_tyid[1]['ASSIGNMENT_TYPE_ID'];
                     DBQuery('UPDATE gradebook_assignments SET COURSE_ID=' . UserCourse() . ' WHERE ASSIGNMENT_ID=' . $_REQUEST['assignment_id']);
-                    //                            $get_all_cps=DBGet(DBQuery("SELECT COURSE_PERIOD_ID FROM course_periods  WHERE SYEAR='".UserSyear()."' AND SCHOOL_ID='".UserSchool()."' AND COURSE_ID='".UserCourse()."' AND (TEACHER_ID='".User('STAFF_ID')."' OR SECONDARY_TEACHER_ID='".User('STAFF_ID')."') AND (MARKING_PERIOD_ID IN (".GetAllMP($allMP,UserMP()).") OR (MARKING_PERIOD_ID IS NULL)) AND COURSE_PERIOD_ID!=".UserCoursePeriod()." group by (COURSE_PERIOD_ID)"));
+                    //                            $get_all_cps=DBGet(DBQuery("SELECT COURSE_PERIOD_ID FROM course_periods  WHERE SYEAR='".UserSyear()."' AND INSTITUTE_ID='".UserInstitute()."' AND COURSE_ID='".UserCourse()."' AND (TEACHER_ID='".User('STAFF_ID')."' OR SECONDARY_TEACHER_ID='".User('STAFF_ID')."') AND (MARKING_PERIOD_ID IN (".GetAllMP($allMP,UserMP()).") OR (MARKING_PERIOD_ID IS NULL)) AND COURSE_PERIOD_ID!=".UserCoursePeriod()." group by (COURSE_PERIOD_ID)"));
                     //                            foreach($get_all_cps as $gci=>$gcd)
                     //                            {
                     //                                $assign_type_newid = DBGet(DBQuery('SHOW TABLE STATUS LIKE \'gradebook_assignment_types\''));

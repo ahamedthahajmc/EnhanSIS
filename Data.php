@@ -3,6 +3,6 @@ $DatabaseType = 'mysqli';
 $DatabaseServer = 'localhost'; 
 $DatabaseUsername = 'root'; 
 $DatabasePassword = ''; 
-$DatabaseName = 'schooldb'; 
+$DatabaseName = 'haniims'; 
 $DatabasePort = '3306'; 
 ?>

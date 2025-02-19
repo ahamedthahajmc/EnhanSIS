@@ -1,39 +1,13 @@
 <?php
-
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+ 
 include('../../RedirectModulesInc.php');
 include 'modules/grades/DeletePromptX.fnc.php';
 DrawBC(""._gradebook." > " . ProgramTitle());
 Search('student_id');
 
-$_REQUEST['SCHOOL_NAME'] = str_replace("'", "\'", $_REQUEST['SCHOOL_NAME']);
+$_REQUEST['INSTITUTE_NAME'] = str_replace("'", "\'", $_REQUEST['INSTITUTE_NAME']);
 if (isset($_REQUEST['student_id'])) {
-    $RET = DBGet(DBQuery('SELECT FIRST_NAME,LAST_NAME,MIDDLE_NAME,NAME_SUFFIX,SCHOOL_ID FROM students,student_enrollment WHERE students.STUDENT_ID=\'' . $_REQUEST['student_id'] . '\' AND student_enrollment.STUDENT_ID = students.STUDENT_ID '));
+    $RET = DBGet(DBQuery('SELECT FIRST_NAME,LAST_NAME,MIDDLE_NAME,NAME_SUFFIX,INSTITUTE_ID FROM students,student_enrollment WHERE students.STUDENT_ID=\'' . $_REQUEST['student_id'] . '\' AND student_enrollment.STUDENT_ID = students.STUDENT_ID '));
 
     $count_student_RET = DBGet(DBQuery('SELECT COUNT(*) AS NUM FROM students'));
     echo '<div class="panel panel-default">';
@@ -52,7 +26,7 @@ if (UserStudentID()) {
         $mp_id = $_REQUEST['mp_id'];
     else {
 
-        $current_markingperiod = DBGet(DBQuery('SELECT MARKING_PERIOD_ID from student_gpa_calculated where marking_period_id=(SELECT marking_period_id FROM history_school WHERE STUDENT_ID=' . $student_id . ' ORDER BY ID LIMIT 0,1) AND STUDENT_ID=' . $student_id . ''));
+        $current_markingperiod = DBGet(DBQuery('SELECT MARKING_PERIOD_ID from student_gpa_calculated where marking_period_id=(SELECT marking_period_id FROM history_institute WHERE STUDENT_ID=' . $student_id . ' ORDER BY ID LIMIT 0,1) AND STUDENT_ID=' . $student_id . ''));
         $mp_id = $current_markingperiod[1]['MARKING_PERIOD_ID'];
     }
     $tab_id = ($_REQUEST['tab_id'] ? $_REQUEST['tab_id'] : 'grades');
@@ -75,21 +49,21 @@ if (UserStudentID()) {
             // ------------------------- End --------------------------- //
             $mp_id = $_REQUEST['new_sms'];
         }
-        if (($_REQUEST['SMS_GRADE_LEVEL'] || $_REQUEST['SCHOOL_NAME'] ) && $mp_id) {
+        if (($_REQUEST['SMS_GRADE_LEVEL'] || $_REQUEST['INSTITUTE_NAME'] ) && $mp_id) {
 
             if ($_REQUEST['SMS_GRADE_LEVEL']) {
                 $updategl = DBQuery('UPDATE student_gpa_calculated SET grade_level_short = \'' . trim($_REQUEST['SMS_GRADE_LEVEL']) . '\'
                             WHERE marking_period_id = ' . $mp_id . ' AND student_id = ' . UserStudentID() . '');
             }
-            $res = DBGet(DBQuery('SELECT count(*) as TOT  FROM history_school WHERE student_id=' . UserStudentID() . ' AND marking_period_id=' . $mp_id . ''));
+            $res = DBGet(DBQuery('SELECT count(*) as TOT  FROM history_institute WHERE student_id=' . UserStudentID() . ' AND marking_period_id=' . $mp_id . ''));
             $rows = $res[1]['TOT'];
-            if ($rows != 0 && $_REQUEST['SCHOOL_NAME']) {
-                $updatestats = 'UPDATE history_school SET school_name=\'' . trim($_REQUEST['SCHOOL_NAME']) . '\'
+            if ($rows != 0 && $_REQUEST['INSTITUTE_NAME']) {
+                $updatestats = 'UPDATE history_institute SET institute_name=\'' . trim($_REQUEST['INSTITUTE_NAME']) . '\'
                                      WHERE marking_period_id = ' . $mp_id . ' AND student_id = ' . UserStudentID() . '';
                 DBQuery($updatestats);
             } elseif ($rows == 0) {
-                $updatestats = 'INSERT INTO history_school  (student_id, marking_period_id,school_name) VALUES
-                        (' . UserStudentID() . ',' . $mp_id . ',\'' . trim($_REQUEST['SCHOOL_NAME']) . '\')';
+                $updatestats = 'INSERT INTO history_institute  (student_id, marking_period_id,institute_name) VALUES
+                        (' . UserStudentID() . ',' . $mp_id . ',\'' . trim($_REQUEST['INSTITUTE_NAME']) . '\')';
                 DBQuery($updatestats);
             }
 
@@ -156,8 +130,8 @@ if (UserStudentID()) {
             }
             else {
                 $sql = 'INSERT INTO student_report_card_grades ';
-                $fields = 'SCHOOL_ID, SYEAR, STUDENT_ID, MARKING_PERIOD_ID, ';
-                $values = UserSchool() . ', ' . UserSyear() . ', ' . $student_id . ', ' . $mp_id . ', ';
+                $fields = 'INSTITUTE_ID, SYEAR, STUDENT_ID, MARKING_PERIOD_ID, ';
+                $values = UserInstitute() . ', ' . UserSyear() . ', ' . $student_id . ', ' . $mp_id . ', ';
 
                 $go = false;
 
@@ -220,8 +194,8 @@ if (UserStudentID()) {
             (select SUM(sg.unweighted_gp*sg.credit_earned) from student_report_card_grades sg where sg.marking_period_id=\'' . $stu_val['MARKING_PERIOD_ID'] . '\' AND sg.student_id=\'' . $stu_val['STUDENT_ID'] . '\' AND sg.gpa_cal=\'Y\')/ (select sum(sg.credit_attempted) from student_report_card_grades sg where sg.marking_period_id=\'' . $stu_val['MARKING_PERIOD_ID'] . '\' AND sg.student_id=\'' . $stu_val['STUDENT_ID'] . '\'
                 AND sg.gpa_cal=\'Y\' AND sg.unweighted_gp  IS NOT NULL  AND sg.weighted_gp IS NULL GROUP BY sg.student_id, sg.marking_period_id) unweighted_gpa,
             eg.short_name AS grade_level_short FROM student_report_card_grades srcg
-            INNER JOIN schools s ON s.id=srcg.school_id
-            LEFT JOIN enroll_grade eg on eg.student_id=srcg.student_id AND eg.syear=srcg.syear AND eg.school_id=srcg.school_id
+            INNER JOIN institutes s ON s.id=srcg.institute_id
+            LEFT JOIN enroll_grade eg on eg.student_id=srcg.student_id AND eg.syear=srcg.syear AND eg.institute_id=srcg.institute_id
             WHERE  srcg.student_id=\'' . $stu_val['STUDENT_ID'] . '\' AND srcg.gp_scale<>0 AND srcg.gpa_cal=\'Y\' AND srcg.course_period_id IS NULL AND srcg.marking_period_id NOT LIKE \'E%\'
             GROUP BY srcg.marking_period_id,eg.short_name'));
 
@@ -236,7 +210,7 @@ if (UserStudentID()) {
         		SUM(s.weighted_gp/sc.reporting_gp_scale)/COUNT(*) AS cum_weighted_factor,
         		SUM(s.unweighted_gp/s.gp_scale)/COUNT(*) AS cum_unweighted_factor
         	FROM student_report_card_grades s
-        	INNER JOIN schools sc ON sc.id=s.school_id
+        	INNER JOIN institutes sc ON sc.id=s.institute_id
         	WHERE s.marking_period_id=\'' . $stu_val['MARKING_PERIOD_ID'] . '\' AND s.course_period_id IS NULL AND s.gpa_cal=\'Y\' AND 
         	s.student_id=\'' . $stu_val['STUDENT_ID'] . '\') gg ON gg.student_id=g.student_id
             SET g.cum_unweighted_factor=gg.cum_unweighted_factor
@@ -275,17 +249,17 @@ if (UserStudentID()) {
 
         // $gquery = 'SELECT mp.syear, mp.marking_period_id as mp_id, mp.title as mp_name, mp.post_end_date as posted, sgc.grade_level_short as GRADE_LEVEL, 
         // sgc.weighted_gpa, sgc.unweighted_gpa
-        // FROM marking_periods mp, student_gpa_calculated sgc, schools s
+        // FROM marking_periods mp, student_gpa_calculated sgc, institutes s
         // WHERE sgc.marking_period_id = mp.marking_period_id and
-        //      s.id = mp.school_id and sgc.student_id = ' . $student_id . ' AND mp.marking_period_id IN (SELECT marking_period_id FROM  history_marking_periods)
-        // AND mp.school_id = \'' . UserSchool() . '\' order by mp.post_end_date';
+        //      s.id = mp.institute_id and sgc.student_id = ' . $student_id . ' AND mp.marking_period_id IN (SELECT marking_period_id FROM  history_marking_periods)
+        // AND mp.institute_id = \'' . UserInstitute() . '\' order by mp.post_end_date';
 
         $gquery = 'SELECT mp.syear, mp.marking_period_id as mp_id, mp.title as mp_name, mp.post_end_date as posted, sgc.grade_level_short as GRADE_LEVEL, 
         sgc.weighted_gpa, sgc.unweighted_gpa
-        FROM marking_periods mp, student_gpa_calculated sgc, schools s
+        FROM marking_periods mp, student_gpa_calculated sgc, institutes s
         WHERE sgc.marking_period_id = mp.marking_period_id and
-            s.id = mp.school_id and sgc.student_id = ' . $student_id . ' 
-        AND mp.school_id = \'' . UserSchool() . '\' order by mp.syear, mp.post_end_date';
+            s.id = mp.institute_id and sgc.student_id = ' . $student_id . ' 
+        AND mp.institute_id = \'' . UserInstitute() . '\' order by mp.syear, mp.post_end_date';
 
         $GRET = DBGet(DBQuery($gquery));
 
@@ -297,7 +271,7 @@ if (UserStudentID()) {
             foreach ($GRET as $rec) {
                 if ($mp_id == null || $mp_id == $rec['MP_ID']) {
                     $mp_id = $rec['MP_ID'];
-                    $gmp[$rec['MP_ID']] = array('schoolyear' => formatSyear($rec['SYEAR']),
+                    $gmp[$rec['MP_ID']] = array('instituteyear' => formatSyear($rec['SYEAR']),
                         'mp_name' => $rec['MP_NAME'],
                         'grade_level' => $rec['GRADE_LEVEL'],
                         'weighted_cum' => $rec['WEIGHTED_CUM'],
@@ -307,7 +281,7 @@ if (UserStudentID()) {
                         'gpa' => $rec['GPA']);
                 }
                 if ($mp_id != $rec['MP_ID']) {
-                    $gmp[$rec['MP_ID']] = array('schoolyear' => formatSyear($rec['SYEAR']),
+                    $gmp[$rec['MP_ID']] = array('instituteyear' => formatSyear($rec['SYEAR']),
                         'mp_name' => $rec['MP_NAME'],
                         'grade_level' => $rec['GRADE_LEVEL'],
                         'weighted_cum' => $rec['WEIGHTED_CUM'],
@@ -324,12 +298,12 @@ if (UserStudentID()) {
         }
 
         if ($mp_id)
-            $historyschool = DBGet(DBQuery('SELECT SCHOOL_NAME  from history_school where STUDENT_ID = ' . $student_id . ' and marking_period_id=' . $mp_id . ' '));
+            $historyinstitute = DBGet(DBQuery('SELECT INSTITUTE_NAME  from history_institute where STUDENT_ID = ' . $student_id . ' and marking_period_id=' . $mp_id . ' '));
 
         $mpselect = "<FORM class=\"form-horizontal\" action=Modules.php?modname=$_REQUEST[modname]&tab_id=" . $_REQUEST['tab_id'] . " method=POST id=F2 name=F2>";
         $mpselect .= "<SELECT class=\"form-control\" name=mp_id onchange='this.form.submit();'>";
         foreach ($gmp as $id => $mparray) {
-            $mpselect .= "<OPTION value=" . $id . (($id == $mp_id) ? ' SELECTED' : '') . ">" . $mparray['schoolyear'] . ' | ' . $mparray['mp_name'] . "</OPTION>";
+            $mpselect .= "<OPTION value=" . $id . (($id == $mp_id) ? ' SELECTED' : '') . ">" . $mparray['instituteyear'] . ' | ' . $mparray['mp_name'] . "</OPTION>";
         }
         $mpselect .= "<OPTION value=0 " . (($mp_id == '0') ? ' SELECTED' : '') . ">"._addAnotherMarkingPeriod."</OPTION>";
         $mpselect .= '</SELECT>';
@@ -344,18 +318,18 @@ if (UserStudentID()) {
         $preSelectedGradeLevel = '';
 
         if ($mp_id != '0') {
-            $findMP = DBGet(DBQuery('SELECT mp_source, syear, school_id FROM marking_periods WHERE marking_period_id = ' . $mp_id));
+            $findMP = DBGet(DBQuery('SELECT mp_source, syear, institute_id FROM marking_periods WHERE marking_period_id = ' . $mp_id));
 
-            if ($findMP[1]['MP_SOURCE'] == 'openSIS') {
-                $findStudentGradelevel = DBGet(DBQuery('SELECT * FROM enroll_grade WHERE syear = ' . $findMP[1]['SYEAR'] . ' AND school_id = ' . $findMP[1]['SCHOOL_ID'] . ' AND student_id = ' . UserStudentID()));
+            if ($findMP[1]['MP_SOURCE'] == 'hani') {
+                $findStudentGradelevel = DBGet(DBQuery('SELECT * FROM enroll_grade WHERE syear = ' . $findMP[1]['SYEAR'] . ' AND institute_id = ' . $findMP[1]['INSTITUTE_ID'] . ' AND student_id = ' . UserStudentID()));
 
                 if (!empty($findStudentGradelevel)) {
-                    $schoolinfo = DBGET(DBQUERY('SELECT * FROM schools WHERE ID = ' . $findMP[1]['SCHOOL_ID']));
-                    $schoolinfo = $schoolinfo[1];
+                    $instituteinfo = DBGET(DBQUERY('SELECT * FROM institutes WHERE ID = ' . $findMP[1]['INSTITUTE_ID']));
+                    $instituteinfo = $instituteinfo[1];
 
                     $preSelectedGradeLevel = NoInput($findStudentGradelevel[1]['SHORT_NAME']);
                     
-                    $preSelectedGradeLevel .= '<div class="help-block">You cannot change the Grade Level as the student is already in this Grade Level in ' . $schoolinfo['TITLE'] . ' for ' . $gmp[$mp_id]['schoolyear'] . '.</div>';
+                    $preSelectedGradeLevel .= '<div class="help-block">You cannot change the Grade Level as the student is already in this Grade Level in ' . $instituteinfo['TITLE'] . ' for ' . $gmp[$mp_id]['instituteyear'] . '.</div>';
                 }
             }
         }
@@ -365,7 +339,7 @@ if (UserStudentID()) {
 
         $stu_img_info = [];
         if (UserStudentID()) {
-            $stu_img_info = DBGet(DBQuery('SELECT * FROM user_file_upload WHERE USER_ID=' . UserStudentID() . ' AND PROFILE_ID=3 AND SCHOOL_ID=' . UserSchool() . ' AND FILE_INFO=\'stuimg\' AND ID = (SELECT MAX(ID) AS LATEST_UPLOADED_IMG FROM user_file_upload WHERE USER_ID=' . UserStudentID() . ' AND PROFILE_ID=3)'));
+            $stu_img_info = DBGet(DBQuery('SELECT * FROM user_file_upload WHERE USER_ID=' . UserStudentID() . ' AND PROFILE_ID=3 AND INSTITUTE_ID=' . UserInstitute() . ' AND FILE_INFO=\'stuimg\' AND ID = (SELECT MAX(ID) AS LATEST_UPLOADED_IMG FROM user_file_upload WHERE USER_ID=' . UserStudentID() . ' AND PROFILE_ID=3)'));
         }
 
         echo '<div class="panel-body alpha-grey">';
@@ -391,11 +365,11 @@ if (UserStudentID()) {
 
         if ($mp_id == "0") {
             $syear = UserSyear();
-            $sql = 'SELECT MARKING_PERIOD_ID, SYEAR, TITLE, POST_END_DATE FROM marking_periods WHERE SCHOOL_ID = \'' . UserSchool() .
+            $sql = 'SELECT MARKING_PERIOD_ID, SYEAR, TITLE, POST_END_DATE FROM marking_periods WHERE INSTITUTE_ID = \'' . UserInstitute() .
                     '\' AND MARKING_PERIOD_ID NOT IN (SELECT MARKING_PERIOD_ID FROM history_marking_periods) ORDER BY SYEAR, POST_END_DATE';
             $MPRET = DBGet(DBQuery($sql));
 
-            $hist_mp_sql = 'SELECT MARKING_PERIOD_ID, SYEAR, TITLE, POST_END_DATE FROM marking_periods WHERE SCHOOL_ID = \'' . UserSchool() .
+            $hist_mp_sql = 'SELECT MARKING_PERIOD_ID, SYEAR, TITLE, POST_END_DATE FROM marking_periods WHERE INSTITUTE_ID = \'' . UserInstitute() .
                     '\' AND MARKING_PERIOD_ID IN (SELECT MARKING_PERIOD_ID FROM history_marking_periods) ORDER BY SYEAR, POST_END_DATE';
             $HIST_MPRET = DBGet(DBQuery($hist_mp_sql));
 
@@ -412,14 +386,14 @@ if (UserStudentID()) {
 
                 $yearGradelevelInfo = [];
 
-                foreach ($MPRET as $oneSchoolMp) {
-                    $yearGradelevelInfo[$oneSchoolMp['MARKING_PERIOD_ID']] = [];
+                foreach ($MPRET as $oneInstituteMp) {
+                    $yearGradelevelInfo[$oneInstituteMp['MARKING_PERIOD_ID']] = [];
 
-                    $gradelevelInfo = DBGet(DBQuery('SELECT eg.short_name, eg.title, s.title AS school_name FROM `enroll_grade` eg LEFT JOIN schools s ON eg.school_id = s.id WHERE eg.`student_id` = ' . UserStudentID() . ' AND eg.syear = ' . $oneSchoolMp['SYEAR']));
+                    $gradelevelInfo = DBGet(DBQuery('SELECT eg.short_name, eg.title, s.title AS institute_name FROM `enroll_grade` eg LEFT JOIN institutes s ON eg.institute_id = s.id WHERE eg.`student_id` = ' . UserStudentID() . ' AND eg.syear = ' . $oneInstituteMp['SYEAR']));
 
                     if (count($gradelevelInfo) > 0) {
-                        $yearGradelevelInfo[$oneSchoolMp['MARKING_PERIOD_ID']]['grade_level'] = $gradelevelInfo[1]['SHORT_NAME'];
-                        $yearGradelevelInfo[$oneSchoolMp['MARKING_PERIOD_ID']]['school_name'] = $gradelevelInfo[1]['SCHOOL_NAME'];
+                        $yearGradelevelInfo[$oneInstituteMp['MARKING_PERIOD_ID']]['grade_level'] = $gradelevelInfo[1]['SHORT_NAME'];
+                        $yearGradelevelInfo[$oneInstituteMp['MARKING_PERIOD_ID']]['institute_name'] = $gradelevelInfo[1]['INSTITUTE_NAME'];
                     }
                 }
 
@@ -429,7 +403,7 @@ if (UserStudentID()) {
                 $new_MP_RET_OPT .= '<option value="0" disabled selected>' . _select . '</option>';
                 
                 if (count($MPRET) > 0) {
-                    $new_MP_RET_OPT .= '<option value="0" disabled>▼ ' . _schoolMarkingPeriods . '</option>';
+                    $new_MP_RET_OPT .= '<option value="0" disabled>▼ ' . _instituteMarkingPeriods . '</option>';
 
                     foreach ($mpoptions as $s_mp_key => $s_mp_val) {
                         $new_MP_RET_OPT .= '<option value="' . $s_mp_key . '">' . $s_mp_val . '</option>';
@@ -449,7 +423,7 @@ if (UserStudentID()) {
                 echo '<div class="form-group">';
                 // echo '<div class="col-md-4"><label class="control-label">'._newMarkingPeriod.'</label>' . SelectInput(null, 'new_sms', '', $mpoptions, false, $extra) . '</div>';
                 echo '<div class="col-md-4"><label class="control-label">'._newMarkingPeriod.':</label>' . $new_MP_RET_OPT . '<div id="gradelevelData" class="hidden">' . $yearGradelevelInfoJSON . '</div></div>';
-                echo '<div class="col-md-4"><label class="control-label">'._schoolName.':</label>' . TextInput($historyschool[1]['school_name'], "SCHOOL_NAME", "", 'size=35  class=form-control ') . '</div>';
+                echo '<div class="col-md-4"><label class="control-label">'._instituteName.':</label>' . TextInput($historyinstitute[1]['institute_name'], "INSTITUTE_NAME", "", 'size=35  class=form-control ') . '</div>';
                 echo '<div id="gradeLevelArea" class="col-md-4"><label class="control-label">'._gradeLevel.':</label>' . $sms_grade_level . '</div>';
                 echo '</div>';
             }
@@ -458,19 +432,19 @@ if (UserStudentID()) {
 
             $selectedmp = $mp_id;
 
-            if ($historyschool[1]['SCHOOL_NAME'])
-                $school_name = $historyschool[1]['SCHOOL_NAME'];
+            if ($historyinstitute[1]['INSTITUTE_NAME'])
+                $institute_name = $historyinstitute[1]['INSTITUTE_NAME'];
             else {
-                $get_schoolid = DBGet(DBQuery("SELECT school_id FROM  marking_periods  WHERE marking_period_id = $selectedmp"));
-                if ($get_schoolid[1]['SCHOOL_ID']) {
-                    $get_school_name = DBGet(DBQuery('SELECT title FROM  schools  WHERE id = \'' . $get_schoolid[1]['SCHOOL_ID'] . '\''));
-                    $school_name = $get_school_name[1]['TITLE'];
+                $get_instituteid = DBGet(DBQuery("SELECT institute_id FROM  marking_periods  WHERE marking_period_id = $selectedmp"));
+                if ($get_instituteid[1]['INSTITUTE_ID']) {
+                    $get_institute_name = DBGet(DBQuery('SELECT title FROM  institutes  WHERE id = \'' . $get_instituteid[1]['INSTITUTE_ID'] . '\''));
+                    $institute_name = $get_institute_name[1]['TITLE'];
                 }
             }
             echo '<div class="form-group clearfix">';
             echo '<div class="col-md-4"><label class="control-label">'._gradeLevel.':</label>' . $sms_grade_level . '</div>';
             echo '<div class="col-md-4"><label class="control-label">'.ucwords(strtolower(_selectMarkingPeriod)).':</label>' . $mpselect . '</div>';
-            echo '<div class="col-md-4"><label class="control-label">'._schoolName.':</label>' . TextInput($school_name, "SCHOOL_NAME", "", 'size=35  class=form-control') . '</div>';
+            echo '<div class="col-md-4"><label class="control-label">'._instituteName.':</label>' . TextInput($institute_name, "INSTITUTE_NAME", "", 'size=35  class=form-control') . '</div>';
             echo '</div>';
             
             $sql = 'SELECT ID,COURSE_CODE,COURSE_TITLE,GRADE_PERCENT,GRADE_LETTER,

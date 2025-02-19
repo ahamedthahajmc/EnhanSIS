@@ -1,30 +1,5 @@
 <?php
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+ 
 error_reporting(0);
 
 include('RedirectRootInc.php');
@@ -32,9 +7,9 @@ include 'Warehouse.php';
 include 'Data.php';
 DBQuery('Create Table TEMP_SRCG AS SELECT * FROM student_report_card_grades  WHERE SYEAR=\'' . UserSyear() . '\'  AND COURSE_PERIOD_ID IS NOT NULL AND STUDENT_ID IN (\'' . $_REQUEST['students'] . '\') AND MARKING_PERIOD_ID=\'' . $_REQUEST['mp'] . '\'');
 DBQuery('DELETE FROM student_report_card_grades WHERE SYEAR=\'' . UserSyear() . '\'  AND COURSE_PERIOD_ID IS NOT NULL AND STUDENT_ID IN (\'' . $_REQUEST['students'] . '\') AND MARKING_PERIOD_ID=\'' . $_REQUEST['mp'] . '\'');
-DBQuery('INSERT INTO `student_report_card_grades`(`syear`, `school_id`, `student_id`, `course_period_id`, `report_card_grade_id`, `report_card_comment_id`, `comment`, `grade_percent`, `marking_period_id`, `grade_letter`, `weighted_gp`, `unweighted_gp`, `gp_scale`,`gpa_cal`, `credit_attempted`, `credit_earned`, `credit_category`,`course_code`, `course_title`, `id`) SELECT `syear`, `school_id`, `student_id`, `course_period_id`, `report_card_grade_id`, `report_card_comment_id`, `comment`, `grade_percent`, `marking_period_id`, `grade_letter`, `weighted_gp`, `unweighted_gp`, `gp_scale`,`gpa_cal`, `credit_attempted`, `credit_earned`, `credit_category`, `course_code`,`course_title`, `id` FROM TEMP_SRCG ');
+DBQuery('INSERT INTO `student_report_card_grades`(`syear`, `institute_id`, `student_id`, `course_period_id`, `report_card_grade_id`, `report_card_comment_id`, `comment`, `grade_percent`, `marking_period_id`, `grade_letter`, `weighted_gp`, `unweighted_gp`, `gp_scale`,`gpa_cal`, `credit_attempted`, `credit_earned`, `credit_category`,`course_code`, `course_title`, `id`) SELECT `syear`, `institute_id`, `student_id`, `course_period_id`, `report_card_grade_id`, `report_card_comment_id`, `comment`, `grade_percent`, `marking_period_id`, `grade_letter`, `weighted_gp`, `unweighted_gp`, `gp_scale`,`gpa_cal`, `credit_attempted`, `credit_earned`, `credit_category`, `course_code`,`course_title`, `id` FROM TEMP_SRCG ');
 DBQuery('DROP TABLE TEMP_SRCG');
-$students_RET = DBGet(DBQuery('SELECT STUDENT_ID,MARKING_PERIOD_ID FROM student_report_card_grades WHERE SYEAR=\'' . UserSyear() . '\' AND SCHOOL_ID=\'' . UserSchool() . '\' AND COURSE_PERIOD_ID IS NULL GROUP BY MARKING_PERIOD_ID'));
+$students_RET = DBGet(DBQuery('SELECT STUDENT_ID,MARKING_PERIOD_ID FROM student_report_card_grades WHERE SYEAR=\'' . UserSyear() . '\' AND INSTITUTE_ID=\'' . UserInstitute() . '\' AND COURSE_PERIOD_ID IS NULL GROUP BY MARKING_PERIOD_ID'));
 foreach ($students_RET as $stu_key => $stu_val) {
   $res =  DBGet(DBQuery('SELECT
     SUM(srcg.weighted_gp/s.reporting_gp_scale) AS sum_weighted_factors,  COUNT(*) AS count_weighted_factors,                        
@@ -51,9 +26,9 @@ foreach ($students_RET as $stu_key => $stu_val) {
     (select SUM(sg.unweighted_gp*sg.credit_earned) from student_report_card_grades sg where sg.marking_period_id=\'' . $stu_val['MARKING_PERIOD_ID'] . '\' AND sg.student_id=\'' . $stu_val['STUDENT_ID'] . '\' AND sg.gpa_cal=\'Y\')/ (select sum(sg.credit_attempted) from student_report_card_grades sg where sg.marking_period_id=\'' . $stu_val['MARKING_PERIOD_ID'] . '\' AND sg.student_id=\'' . $stu_val['STUDENT_ID'] . '\'
                                                      AND sg.gpa_cal=\'Y\' AND sg.unweighted_gp  IS NOT NULL  AND sg.weighted_gp IS NULL GROUP BY sg.student_id, sg.marking_period_id) unweighted_gpa,
     eg.short_name AS grade_level_short FROM student_report_card_grades srcg
-  INNER JOIN schools s ON s.id=srcg.school_id
+  INNER JOIN institutes s ON s.id=srcg.institute_id
 
-  LEFT JOIN enroll_grade eg on eg.student_id=srcg.student_id AND eg.syear=srcg.syear AND eg.school_id=srcg.school_id
+  LEFT JOIN enroll_grade eg on eg.student_id=srcg.student_id AND eg.syear=srcg.syear AND eg.institute_id=srcg.institute_id
   WHERE  srcg.student_id=\'' . $stu_val['STUDENT_ID'] . '\' AND srcg.gp_scale<>0 AND srcg.gpa_cal=\'Y\' AND srcg.course_period_id IS NULL AND srcg.marking_period_id NOT LIKE \'E%\'
   GROUP BY srcg.marking_period_id,eg.short_name'));
 
@@ -68,7 +43,7 @@ foreach ($students_RET as $stu_key => $stu_val) {
 		SUM(s.weighted_gp/sc.reporting_gp_scale)/COUNT(*) AS cum_weighted_factor,
 		SUM(s.unweighted_gp/s.gp_scale)/COUNT(*) AS cum_unweighted_factor
 	FROM student_report_card_grades s
-	INNER JOIN schools sc ON sc.id=s.school_id
+	INNER JOIN institutes sc ON sc.id=s.institute_id
 	
 	WHERE s.marking_period_id=\'' . $stu_val['MARKING_PERIOD_ID'] . '\' AND s.course_period_id IS NULL AND s.gpa_cal=\'Y\' AND 
 	s.student_id=\'' . $stu_val['STUDENT_ID'] . '\') gg ON gg.student_id=g.student_id

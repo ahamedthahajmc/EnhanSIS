@@ -1,30 +1,5 @@
 <?php
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that
-#  include student demographic info, scheduling, grade book, attendance,
-#  report cards, eligibility, transcripts, parent portal,
-#  student portal and more.
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as
-#  published by the Free Software Foundation, version 2 of the License.
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+ 
 // Establish MySQL DB connection.
 include 'RedirectRootInc.php';
 include 'ConnectionClass.php';
@@ -32,7 +7,7 @@ require_once "functions/PragRepFnc.php";
 function db_start()
 {
     global $DatabaseServer, $DatabaseUsername, $DatabasePassword, $DatabaseName, $DatabasePort, $DatabaseType, $connection;
-    $connection = new ConnectDBOpensis();
+    $connection = new ConnectDBHaniIMS();
     switch ($DatabaseType) {
         case 'mysqli':
 
@@ -77,7 +52,7 @@ if (!empty($DatabaseServer) && !empty($DatabaseUsername) && !empty($DatabaseName
 //        ie, $processable_results = DBQuery("select * from students");
 function DBQuery($sql)
 {
-    global $DatabaseType, $_openSIS, $connection;
+    global $DatabaseType, $_HaniIMS, $connection;
 
     // $connection = db_start();
 
@@ -148,7 +123,7 @@ function DBQuery($sql)
 }
 function DBQuery_assignment($sql)
 {
-    global $DatabaseType, $_openSIS, $connection;
+    global $DatabaseType, $_HaniIMS, $connection;
 
     $connection = db_start();
 
@@ -198,7 +173,7 @@ function DBQuery_assignment($sql)
 }
 function DBQueryMod($sql)
 {
-    global $DatabaseType, $_openSIS, $connection;
+    global $DatabaseType, $_HaniIMS, $connection;
 
     $connection = db_start();
 
@@ -346,7 +321,7 @@ function db_properties($table)
 
 function db_show_error($sql, $failnote, $additional = '')
 {
-    global $openSISTitle, $openSISVersion, $openSISNotifyAddress;
+    global $HaniIMSTitle, $HaniIMSVersion, $HaniIMSNotifyAddress;
 
     PopTable('header', _error);
     $tb = debug_backtrace();
@@ -377,7 +352,7 @@ function db_show_error($sql, $failnote, $additional = '')
 			<TD><pre>" . date("m/d/Y h:i:s") . "</pre></TD>
 		</TR><TR>
 			<TD align=right></TD>
-			<TD>" . _openSisHasEncounteredAnErrorThatCouldHaveResultedFromAnyOfTheFollowing . ":
+			<TD>" . _HaniIMSHasEncounteredAnErrorThatCouldHaveResultedFromAnyOfTheFollowing . ":
 			<br/>
 			<ul>
 			<li>" . _invalidDataInput . "</li>
@@ -385,7 +360,7 @@ function db_show_error($sql, $failnote, $additional = '')
 			<li>" . _programError . "</li>
 			</ul>
 
-			" . _pleaseTakeThisScreenShotAndSendItToYourOpenSisRepresentativeForDebuggingAndResolution . ".
+			" . _pleaseTakeThisScreenShotAndSendItToYourHaniIMSRepresentativeForDebuggingAndResolution . ".
 			</TD>
 		</TR>
 
@@ -394,8 +369,8 @@ function db_show_error($sql, $failnote, $additional = '')
     PopTable('footer');
     echo "<!-- " . _sqlStatement . ": \n\n $sql \n\n -->";
 
-    if ($openSISNotifyAddress) {
-        $message = "System : " . $openSISTitle . " \n";
+    if ($HaniIMSNotifyAddress) {
+        $message = "System : " . $HaniIMSTitle . " \n";
         $message .= "" . _date . ": " . date("m/d/Y h:i:s") . "\n";
         $message .= " Page : " . $_SERVER['PHP_SELF'] . ' ' . ProgramTitle() . " \n\n";
         $message .= "" . _failureNotice . ":  $failnote \n";
@@ -403,7 +378,7 @@ function db_show_error($sql, $failnote, $additional = '')
         $message .= "\n $sql \n";
         $message .= "" . _requestArray . ": \n" . ShowVar($_REQUEST, 'Y', 'N');
         $message .= "\n\n" . _sessionArray . ": \n" . ShowVar($_SESSION, 'Y', 'N');
-        mail($openSISNotifyAddress, _openSisDatabaseError, $message);
+        mail($HaniIMSNotifyAddress, _HaniIMSDatabaseError, $message);
     }
 
     die();

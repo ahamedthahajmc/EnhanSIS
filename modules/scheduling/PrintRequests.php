@@ -1,31 +1,6 @@
 <?php
 
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that
-#  include student demographic info, scheduling, grade book, attendance,
-#  report cards, eligibility, transcripts, parent portal,
-#  student portal and more.
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as
-#  published by the Free Software Foundation, version 2 of the License.
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+ 
 include '../../RedirectModulesInc.php';
 include 'lang/language.php';
 unset($_SESSION['student_id']);
@@ -40,10 +15,10 @@ $extra['search'] .= '</div>'; //.col-lg-6
 $extra['search'] .= '</div>'; //.row
 
 $extra['force_search'] = true;
-if (!$_REQUEST['search_modfunc'] || $_openSIS['modules_search']) {
+if (!$_REQUEST['search_modfunc'] || $_hani['modules_search']) {
     DrawBC("" . _scheduling . " > " . ProgramTitle());
     $extra['new'] = true;
-    $extra['action'] .= "&_openSIS_PDF=true&head_html=Student+Print+Request";
+    $extra['action'] .= "&HaniIMS_PDF=true&head_html=Student+Print+Request";
     $extra['pdf'] = true;
     Search('student_id', $extra);
 } else {
@@ -63,12 +38,12 @@ if (!$_REQUEST['search_modfunc'] || $_openSIS['modules_search']) {
         $__DBINC_NO_SQLSHOW = true;
         $handle = PDFStart();
         echo "<table width=100%  style=\" font-family:Arial; font-size:12px;\" >";
-        echo "<tr><td width=105>" . DrawLogo() . "</td><td  style=\"font-size:15px; font-weight:bold; padding-top:20px;\">" . GetSchool(UserSchool()) . "<div style=\"font-size:12px;\">" . _studentPrintRequest . "</div></td><td align=right style=\"padding-top:20px;\">" . ProperDate(DBDate()) . "<br \>" . _poweredByOpenSis . " openSIS</td></tr><tr><td colspan=3 style=\"border-top:1px solid #333;\">&nbsp;</td></tr></table>";
+        echo "<tr><td width=105>" . DrawLogo() . "</td><td  style=\"font-size:15px; font-weight:bold; padding-top:20px;\">" . GetInstitute(UserInstitute()) . "<div style=\"font-size:12px;\">" . _studentPrintRequest . "</div></td><td align=right style=\"padding-top:20px;\">" . ProperDate(DBDate()) . "<br \>" . _poweredByhani . " hani</td></tr><tr><td colspan=3 style=\"border-top:1px solid #333;\">&nbsp;</td></tr></table>";
         foreach ($RET as $student_id => $courses) {
             if ($_REQUEST['mailing_labels'] == 'Y') {
                 foreach ($courses as $address) {
 
-                    unset($_openSIS['DrawHeader']);
+                    unset($_hani['DrawHeader']);
 
                     echo "</table >";
                     echo '<BR><BR>';
@@ -89,7 +64,7 @@ if (!$_REQUEST['search_modfunc'] || $_openSIS['modules_search']) {
                     echo '<!-- NEW PAGE -->';
                 }
             } else {
-                unset($_openSIS['DrawHeader']);
+                unset($_hani['DrawHeader']);
 
                 echo "</table >";
                 echo '<BR><BR>';
@@ -140,7 +115,7 @@ if (!$_REQUEST['search_modfunc'] || $_openSIS['modules_search']) {
                     }
                     // set WITH_PERIOD_ID
                     if ($courses[$key]['WITH_PERIOD_ID']) {
-                        $stmt = DBGet(DBQuery('select title from school_periods where period_id=\'' . $courses[$key]['WITH_PERIOD_ID'] . '\' limit 1'));
+                        $stmt = DBGet(DBQuery('select title from institute_periods where period_id=\'' . $courses[$key]['WITH_PERIOD_ID'] . '\' limit 1'));
                         $period_id = $courses[$key]['WITH_PERIOD_ID'];
                         $title = '';
                         $courses[$key]['WITH_PERIOD_ID'] = $stmt[1]['TITLE'];
@@ -148,7 +123,7 @@ if (!$_REQUEST['search_modfunc'] || $_openSIS['modules_search']) {
                     }
                     // set NOT_PERIOD_ID
                     if ($courses[$key]['NOT_PERIOD_ID']) {
-                        $stmt = DBGet(DBQuery('select title from school_periods where period_id=\'' . $courses[$key]['NOT_PERIOD_ID'] . '\' limit 1'));
+                        $stmt = DBGet(DBQuery('select title from institute_periods where period_id=\'' . $courses[$key]['NOT_PERIOD_ID'] . '\' limit 1'));
                         $period_id = $courses[$key]['NOT_PERIOD_ID'];
                         $title = '';
                         $courses[$key]['NOT_PERIOD_ID'] = $stmt[1]['TITLE'];
@@ -166,7 +141,7 @@ if (!$_REQUEST['search_modfunc'] || $_openSIS['modules_search']) {
     }
 
 }
-if (!$_REQUEST['search_modfunc'] || $_openSIS['modules_search']) {
+if (!$_REQUEST['search_modfunc'] || $_hani['modules_search']) {
     echo '<div id="modal_default_request" class="modal fade">';
     echo '<div class="modal-dialog">';
     echo '<div class="modal-content">';
@@ -180,7 +155,7 @@ if (!$_REQUEST['search_modfunc'] || $_openSIS['modules_search']) {
     echo '<div id="conf_div" class="text-center"></div>';
     echo '<div class="row" id="resp_table">';
     echo '<div class="col-md-6">';
-    $sql = "SELECT SUBJECT_ID,TITLE FROM course_subjects WHERE SCHOOL_ID='" . UserSchool() . "' AND SYEAR='" . UserSyear() . "' ORDER BY TITLE";
+    $sql = "SELECT SUBJECT_ID,TITLE FROM course_subjects WHERE INSTITUTE_ID='" . UserInstitute() . "' AND SYEAR='" . UserSyear() . "' ORDER BY TITLE";
     $QI = DBQuery($sql);
     $subjects_RET = DBGet($QI);
 

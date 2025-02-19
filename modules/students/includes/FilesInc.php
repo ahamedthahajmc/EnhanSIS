@@ -1,31 +1,6 @@
 <?php
 
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that
-#  include student demographic info, scheduling, grade book, attendance,
-#  report cards, eligibility, transcripts, parent portal,
-#  student portal and more.
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as
-#  published by the Free Software Foundation, version 2 of the License.
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+
 
 include('../../../RedirectIncludes.php');
 $dir = 'assets/studentfiles';
@@ -67,7 +42,7 @@ if (!$_REQUEST['modfunc']) {
 
         for($i=0; $i<$no_of_files; $i++) {
             if ($_FILES['uploadfile']['name'][$i]) {
-                $_FILES['uploadfile']['name'][$i] = str_replace(" ", "opensis_space_here", $_FILES['uploadfile']['name'][$i]);
+                $_FILES['uploadfile']['name'][$i] = str_replace(" ", "hani_space_here", $_FILES['uploadfile']['name'][$i]);
                 
                 $target_path = $dir . '/' . UserStudentID() . '-' . $_FILES['uploadfile']['name'][$i];
                 
@@ -122,7 +97,7 @@ if (!$_REQUEST['modfunc']) {
                         $fileName = str_replace($dir.'/', '', $target_path);
                         $content = 'IN_DIR';
 
-                        DBQuery('INSERT INTO user_file_upload (USER_ID,PROFILE_ID,SCHOOL_ID,SYEAR,NAME, SIZE, TYPE, CONTENT,FILE_INFO) VALUES (' . UserStudentID() . ',\'3\',' . UserSchool() . ',' . UserSyear() . ',\'' . addslashes($fileName) . '\', \'' . addslashes($fileSize) . '\', \'' . addslashes($fileType) . '\', \'' . addslashes($content) . '\',\'stufile\')');
+                        DBQuery('INSERT INTO user_file_upload (USER_ID,PROFILE_ID,INSTITUTE_ID,SYEAR,NAME, SIZE, TYPE, CONTENT,FILE_INFO) VALUES (' . UserStudentID() . ',\'3\',' . UserInstitute() . ',' . UserSyear() . ',\'' . addslashes($fileName) . '\', \'' . addslashes($fileSize) . '\', \'' . addslashes($fileType) . '\', \'' . addslashes($content) . '\',\'stufile\')');
 
                         $uploadedFiles++;
 
@@ -201,8 +176,8 @@ if (!$_REQUEST['modfunc']) {
 
         echo '<table class="table table-bordered table-striped m-t-15">';
         // $dir = dir($dir);
-        // $file_info = DBGet(DBQuery('SELECT * FROM user_file_upload WHERE USER_ID=' . UserStudentID() . ' AND PROFILE_ID=3 AND SCHOOL_ID=' . UserSchool() . ' AND SYEAR=' . UserSyear() . ' AND file_info=\'stufile\''));
-        $file_info = DBGet(DBQuery('SELECT * FROM user_file_upload WHERE USER_ID=' . UserStudentID() . ' AND PROFILE_ID=3 AND SCHOOL_ID=' . UserSchool() . ' AND file_info=\'stufile\''));
+        // $file_info = DBGet(DBQuery('SELECT * FROM user_file_upload WHERE USER_ID=' . UserStudentID() . ' AND PROFILE_ID=3 AND INSTITUTE_ID=' . UserInstitute() . ' AND SYEAR=' . UserSyear() . ' AND file_info=\'stufile\''));
+        $file_info = DBGet(DBQuery('SELECT * FROM user_file_upload WHERE USER_ID=' . UserStudentID() . ' AND PROFILE_ID=3 AND INSTITUTE_ID=' . UserInstitute() . ' AND file_info=\'stufile\''));
         echo '<tbody>';
         $found = false;
         $gridClass = "";
@@ -250,12 +225,12 @@ if (!$_REQUEST['modfunc']) {
 
                     echo '<tr class="' . $gridClass . '">';
                     echo '<td style="vertical-align: middle;">';
-                    echo '<a href="DownloadWindow.php?down_id=' . $file_val['DOWNLOAD_ID'] . '&studentfile=Y">' . $fileIcon . ' &nbsp; '. str_replace("opensis_space_here", " ", str_replace(UserStudentID()."-","",$file_display)) . '</a>';
+                    echo '<a href="DownloadWindow.php?down_id=' . $file_val['DOWNLOAD_ID'] . '&studentfile=Y">' . $fileIcon . ' &nbsp; '. str_replace("hani_space_here", " ", str_replace(UserStudentID()."-","",$file_display)) . '</a>';
                     echo '</td>';
 
                     if (AllowEdit()) {
                         echo '<td width="80"><input type="hidden" name="del" value="' . $file_val['ID'] . '"/>';
-                        echo '<a href=Modules.php?modname=' . $_REQUEST[modname] . '&removefile=' . base64_encode($file_val['NAME']) . '&title=' . base64_encode(str_replace("opensis_space_here", " ", str_replace(UserStudentID()."-","",$file_val['NAME']))) . '&include=' . $_REQUEST['include'] . '&modfunc=delete&del=' . $file_val['ID'] . ' class="btn btn-danger btn-icon btn-xs" title="'._delete.'"><i class="icon-cross2"></i></a>
+                        echo '<a href=Modules.php?modname=' . $_REQUEST[modname] . '&removefile=' . base64_encode($file_val['NAME']) . '&title=' . base64_encode(str_replace("hani_space_here", " ", str_replace(UserStudentID()."-","",$file_val['NAME']))) . '&include=' . $_REQUEST['include'] . '&modfunc=delete&del=' . $file_val['ID'] . ' class="btn btn-danger btn-icon btn-xs" title="'._delete.'"><i class="icon-cross2"></i></a>
                               </td>';
                     }
 

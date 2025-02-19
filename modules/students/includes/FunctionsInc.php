@@ -1,31 +1,5 @@
 <?php
 
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
 include('../../../RedirectIncludes.php');
 
 function _makeTextInput($column, $name, $size, $request = 'students', $title = "")
@@ -184,9 +158,9 @@ function _makeTextareaInput($column, $name, $request = 'students')
 }
 
 // function _makeMultipleInput($column, $name, $request = 'students') {
-//     global $value, $field, $_openSIS;
+//     global $value, $field, $_hani;
 
-//     if ((AllowEdit() || $_openSIS['allow_edit']) && !$_REQUEST['_openSIS_PDF']) {
+//     if ((AllowEdit() || $_hani['allow_edit']) && !$_REQUEST['HaniIMS_PDF']) {
 //         $field['SELECT_OPTIONS'] = str_replace("\n", "\r", str_replace("\r\n", "\r", $field['SELECT_OPTIONS']));
 //         $select_options = explode("\r", $field['SELECT_OPTIONS']);
 //         if (count($select_options)) {
@@ -238,9 +212,9 @@ function _makeTextareaInput($column, $name, $request = 'students')
 
 function _makeMultipleInput($column, $name, $request = 'students')
 {
-    global $value, $field, $_openSIS;
+    global $value, $field, $_hani;
 
-    if ((AllowEdit() || $_openSIS['allow_edit']) && !$_REQUEST['_openSIS_PDF']) {
+    if ((AllowEdit() || $_hani['allow_edit']) && !$_REQUEST['HaniIMS_PDF']) {
         $field['SELECT_OPTIONS'] = str_replace("\n", "\r", str_replace("\r\n", "\r", $field['SELECT_OPTIONS']));
         $select_options = explode("\r", $field['SELECT_OPTIONS']);
         if (count($select_options)) {
@@ -309,7 +283,7 @@ function _makeEnrollmentDates($column, $counter = 0, $ret_array = '')
 
         $value = $ret_array[$column];
         if ($column == 'START_DATE' && $value == '') {
-            $value = DBGet(DBQuery('SELECT min(SCHOOL_DATE) AS START_DATE FROM attendance_calendar WHERE SYEAR=\'' . UserSyear() . '\' AND SCHOOL_ID=\'' . UserSchool() . '\''));
+            $value = DBGet(DBQuery('SELECT min(INSTITUTE_DATE) AS START_DATE FROM attendance_calendar WHERE SYEAR=\'' . UserSyear() . '\' AND INSTITUTE_ID=\'' . UserInstitute() . '\''));
             $value = $value[1]['START_DATE'];
             if (!$value || DBDate('mysql') > $value)
                 $value = DBDate('mysql');
@@ -319,7 +293,7 @@ function _makeEnrollmentDates($column, $counter = 0, $ret_array = '')
     } else {
         if ($column == 'START_DATE') {
 
-            $value = DBGet(DBQuery('SELECT min(SCHOOL_DATE) AS START_DATE,SYEAR FROM attendance_calendar WHERE SYEAR=\'' . UserSyear() . '\' AND SCHOOL_ID=\'' . UserSchool() . '\''));
+            $value = DBGet(DBQuery('SELECT min(INSTITUTE_DATE) AS START_DATE,SYEAR FROM attendance_calendar WHERE SYEAR=\'' . UserSyear() . '\' AND INSTITUTE_ID=\'' . UserInstitute() . '\''));
 
             $val_syear = $value[1]['SYEAR'];
             $value = $value[1]['START_DATE'];
@@ -463,7 +437,7 @@ function _makeStartInputDate($value, $column)
         $id = $THIS_RET['ID'];
     elseif ($_REQUEST['student_id'] == 'new') {
         $id = 'new';
-        $default = DBGet(DBQuery('SELECT min(SCHOOL_DATE) AS START_DATE FROM attendance_calendar WHERE SYEAR=\'' . UserSyear() . '\' AND SCHOOL_ID=\'' . UserSchool() . '\''));
+        $default = DBGet(DBQuery('SELECT min(INSTITUTE_DATE) AS START_DATE FROM attendance_calendar WHERE SYEAR=\'' . UserSyear() . '\' AND INSTITUTE_ID=\'' . UserInstitute() . '\''));
         $default = $default[1]['START_DATE'];
         if (!$default || DBDate() > $default)
             $default = DBDate();
@@ -503,7 +477,7 @@ function _makeStartInputDateenrl($value, $column)
         $id = $THIS_RET['ID'];
     elseif ($_REQUEST['student_id'] == 'new') {
         $id = 'new';
-        $default = DBGet(DBQuery('SELECT min(SCHOOL_DATE) AS START_DATE FROM attendance_calendar WHERE SYEAR=\'' . UserSyear() . '\' AND SCHOOL_ID=\'' . UserSchool() . '\''));
+        $default = DBGet(DBQuery('SELECT min(INSTITUTE_DATE) AS START_DATE FROM attendance_calendar WHERE SYEAR=\'' . UserSyear() . '\' AND INSTITUTE_ID=\'' . UserInstitute() . '\''));
         $default = $default[1]['START_DATE'];
         if (!$default || DBDate() > $default)
             $default = DBDate();
@@ -604,35 +578,35 @@ function _makeEndInputCode($value, $column)
     }
 }
 
-function _makeSchoolInput($value, $column)
+function _makeInstituteInput($value, $column)
 {
-    global $THIS_RET, $schools;
-    $schools = array();
+    global $THIS_RET, $institutes;
+    $institutes = array();
     if ($THIS_RET['ID'])
         $id = $THIS_RET['ID'];
     else
         $id = 'new';
 
-    if (!$schools)
-        $schools = DBGet(DBQuery('SELECT ID,TITLE FROM schools'), array(), array('ID'));
+    if (!$institutes)
+        $institutes = DBGet(DBQuery('SELECT ID,TITLE FROM institutes'), array(), array('ID'));
 
-    foreach ($schools as $sid => $school)
-        $options[$sid] = $school[1]['TITLE'];
-    // mab - allow school to be editted if illegal value
-    if ($THIS_RET['SCHOOL_ID']) {
-        $name = DBGet(DBQuery('SELECT TITLE FROM schools WHERE ID=\'' . $THIS_RET['SCHOOL_ID'] . '\''));
+    foreach ($institutes as $sid => $institute)
+        $options[$sid] = $institute[1]['TITLE'];
+    // mab - allow institute to be editted if illegal value
+    if ($THIS_RET['INSTITUTE_ID']) {
+        $name = DBGet(DBQuery('SELECT TITLE FROM institutes WHERE ID=\'' . $THIS_RET['INSTITUTE_ID'] . '\''));
         return $name[1]['TITLE'] . '<input type=hidden name=enrollment_id value="' . $id . '" />';
     } elseif ($_REQUEST['student_id'] != 'new') {
         if ($id != 'new') {
-            if ($schools[$value]) {
-                $name = DBGet(DBQuery('SELECT TITLE FROM schools WHERE ID=\'' . UserSchool() . '\''));
+            if ($institutes[$value]) {
+                $name = DBGet(DBQuery('SELECT TITLE FROM institutes WHERE ID=\'' . UserInstitute() . '\''));
                 return $name[1]['TITLE'] . '<input type=hidden name=enrollment_id value="' . $id . '" />';
             } else
-                return SelectInput($value, 'values[student_enrollment][' . $id . '][SCHOOL_ID]', '', $options);
+                return SelectInput($value, 'values[student_enrollment][' . $id . '][INSTITUTE_ID]', '', $options);
         } else
-            return SelectInput(UserSchool(), 'values[student_enrollment][' . $id . '][SCHOOL_ID]', '', $options, false, '', false);
+            return SelectInput(UserInstitute(), 'values[student_enrollment][' . $id . '][INSTITUTE_ID]', '', $options, false, '', false);
     } else
-        return $schools[UserSchool()][1]['TITLE'] . '<input type=hidden name=enrollment_id value="' . $id . '" />';
+        return $institutes[UserInstitute()][1]['TITLE'] . '<input type=hidden name=enrollment_id value="' . $id . '" />';
 }
 
 function _makeStartInputCodeenrl($value, $column)

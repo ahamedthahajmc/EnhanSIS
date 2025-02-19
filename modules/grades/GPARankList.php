@@ -1,31 +1,5 @@
 <?php
-
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+ 
 include('../../RedirectModulesInc.php');
 
 if(isset($_SESSION['student_id']) && $_SESSION['student_id'] != '')
@@ -122,7 +96,7 @@ echo '<div class="modal-body">';
 echo '<div id="conf_div" class="text-center"></div>';
 echo '<div class="row" id="resp_table">';
 echo '<div class="col-md-4">';
-$sql = "SELECT SUBJECT_ID,TITLE FROM course_subjects WHERE SCHOOL_ID='" . UserSchool() . "' AND SYEAR='" . UserSyear() . "' ORDER BY TITLE";
+$sql = "SELECT SUBJECT_ID,TITLE FROM course_subjects WHERE INSTITUTE_ID='" . UserInstitute() . "' AND SYEAR='" . UserSyear() . "' ORDER BY TITLE";
 $QI = DBQuery($sql);
 $subjects_RET = DBGet($QI);
 
@@ -170,12 +144,12 @@ $extra['new'] = true;
 
 if (User('PROFILE') == 'parent' || User('PROFILE') == 'student')
     $_REQUEST['search_modfunc'] = 'list';
-$SCHOOL_RET = DBGet(DBQuery('SELECT * from schools where ID = \'' . UserSchool() . '\''));
+$INSTITUTE_RET = DBGet(DBQuery('SELECT * from institutes where ID = \'' . UserInstitute() . '\''));
 Search('student_id', $extra, 'true');
 
 function _roundGPA($gpa, $column) {
-    GLOBAL $SCHOOL_RET;
-    return round($gpa * $SCHOOL_RET[1]['REPORTING_GP_SCALE'], 3);
+    GLOBAL $INSTITUTE_RET;
+    return round($gpa * $INSTITUTE_RET[1]['REPORTING_GP_SCALE'], 3);
 }
 
 ?>

@@ -1,30 +1,5 @@
 <?php
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+ 
 
 include "functions/ParamLibFnc.php";
 require_once "Data.php";
@@ -33,7 +8,7 @@ include 'ConfigInc.php';
 include 'Warehouse.php';
 
 $REQUEST_calendar_id = sqlSecurityFilter($_REQUEST['calendar_id']);
-$REQUEST_school_date = sqlSecurityFilter($_REQUEST['school_date']);
+$REQUEST_institute_date = sqlSecurityFilter($_REQUEST['institute_date']);
 $REQUEST_month = sqlSecurityFilter($_REQUEST['month']);
 $REQUEST_year = sqlSecurityFilter($_REQUEST['year']);
 $_REQUEST['event_id'] = sqlSecurityFilter($_REQUEST['event_id']);
@@ -45,19 +20,19 @@ $_REQUEST['assignment_id'] = sqlSecurityFilter($_REQUEST['assignment_id']);
 
 if (($_REQUEST['event_id'] || !isset($_REQUEST['event_id'])) && !isset($_REQUEST['assignment_id'])) {
     if ($_REQUEST['event_id'] != 'new' && isset($_REQUEST['event_id'])) {
-        $RET = DBGet(DBQuery("SELECT TITLE,DESCRIPTION,SCHOOL_DATE,CALENDAR_ID FROM calendar_events WHERE ID='$_REQUEST[event_id]'"));
+        $RET = DBGet(DBQuery("SELECT TITLE,DESCRIPTION,INSTITUTE_DATE,CALENDAR_ID FROM calendar_events WHERE ID='$_REQUEST[event_id]'"));
         $title = $RET[1]['TITLE'];
         $calendar_id = $RET[1]['CALENDAR_ID'];
     } else {
         $_REQUEST['event_id'] = 'new';
         $title = _newEvent;
-        $RET[1]['SCHOOL_DATE'] = date('Y-m-d', strtotime($REQUEST_school_date));
+        $RET[1]['INSTITUTE_DATE'] = date('Y-m-d', strtotime($REQUEST_institute_date));
         $RET[1]['CALENDAR_ID'] = '';
         $calendar_id = $REQUEST_calendar_id;
     }
-    echo "<FORM name=popform class=\"m-b-0\" id=popform action=Modules.php?modname=schoolsetup/Calendar.php&dd=$REQUEST_school_date&modfunc=detail&event_id=$_REQUEST[event_id]&calendar_id=$calendar_id&month=$REQUEST_month&year=$REQUEST_year METHOD=POST>";
+    echo "<FORM name=popform class=\"m-b-0\" id=popform action=Modules.php?modname=institutesetup/Calendar.php&dd=$REQUEST_institute_date&modfunc=detail&event_id=$_REQUEST[event_id]&calendar_id=$calendar_id&month=$REQUEST_month&year=$REQUEST_year METHOD=POST>";
 } else {
-    $RET = DBGet(DBQuery('SELECT TITLE,STAFF_ID,DATE_FORMAT(DUE_DATE,\'%d-%b-%y\') AS SCHOOL_DATE,ASSIGNED_DATE,DUE_DATE,DESCRIPTION FROM gradebook_assignments WHERE ASSIGNMENT_ID=\'' . $_REQUEST['assignment_id'] . '\''));
+    $RET = DBGet(DBQuery('SELECT TITLE,STAFF_ID,DATE_FORMAT(DUE_DATE,\'%d-%b-%y\') AS INSTITUTE_DATE,ASSIGNED_DATE,DUE_DATE,DESCRIPTION FROM gradebook_assignments WHERE ASSIGNMENT_ID=\'' . $_REQUEST['assignment_id'] . '\''));
     $title = $RET[1]['TITLE'];
     $RET[1]['STAFF_ID'] = GetTeacher($RET[1]['STAFF_ID']);
 }
@@ -67,7 +42,7 @@ echo '<div class="modal-body">';
 echo '<div id=err_message ></div>';
 
 echo '<div class="form-group">';
-echo '<label class="control-label">Date: ' . ProperDate($REQUEST_school_date) . '</label>';
+echo '<label class="control-label">Date: ' . ProperDate($REQUEST_institute_date) . '</label>';
 echo '</div>';
 
 if ($RET[1]['TITLE'] == '') {

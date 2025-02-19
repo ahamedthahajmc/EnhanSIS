@@ -1,30 +1,6 @@
 <?php
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+
+
 error_reporting(0);
 include('../../RedirectModulesInc.php');
 
@@ -33,10 +9,10 @@ if(isset($_SESSION['student_id']) && $_SESSION['student_id'] != '')
     $_REQUEST['search_modfunc'] = 'list';
 }
 
-$schoolinfo = DBGET(DBQUERY('SELECT * FROM schools WHERE ID = ' . UserSchool()));
-$schoolinfo = $schoolinfo[1];
+$instituteinfo = DBGET(DBQUERY('SELECT * FROM institutes WHERE ID = ' . UserInstitute()));
+$instituteinfo = $instituteinfo[1];
 $tsyear = UserSyear();
-$tpicturepath = $openSISPath . $StudentPicturesPath;
+$tpicturepath = $haniPath . $StudentPicturesPath;
 $studataquery = 'select 
 s.first_name
 , s.last_name
@@ -59,8 +35,8 @@ WHEN sg.short_name = \'09\' THEN e.syear + 4
   END AS gradyear
 from students s
 inner join student_enrollment e on e.student_id=s.student_id and (e.start_date <= e.end_date or e.end_date is null) and e.syear = ' . $tsyear . '
-inner join school_gradelevels sg on sg.id=e.grade_id
-inner join schools sch on sch.id=e.school_id
+inner join institute_gradelevels sg on sg.id=e.grade_id
+inner join institutes sch on sch.id=e.institute_id
 left join student_address a on (a.student_id=s.student_id and a.type=\'Home Address\')
 where  s.student_id = ';
 $creditquery = 'SELECT divisor AS credit_attempted,credit_earned AS credit_earned
@@ -100,8 +76,8 @@ if ($_REQUEST['modfunc'] == 'save') {
             }
 
             // $tquery = "select * from transcript_grades where student_id = $student_id  order by mp_id  ";
-            // $tquery = "SELECT tg.*, IF(tg.gradelevel IS NULL, CONCAT('O', TRIM((SELECT sg.ID FROM school_gradelevels sg, student_enrollment se WHERE se.STUDENT_ID = tg.STUDENT_ID AND se.SCHOOL_ID = tg.SCHOOL_ID AND se.SYEAR = tg.SYEAR AND se.GRADE_ID = sg.ID ORDER BY se.ID DESC LIMIT 0,1))), CONCAT('H', TRIM(tg.gradelevel))) AS gradelevel_ret FROM transcript_grades tg WHERE student_id = " . $student_id . $gradelevel_addon . " ORDER BY tg.mp_id";
-            $tquery = "SELECT tg.*, IF(tg.MP_SOURCE != 'History', CONCAT('O', TRIM((SELECT sg.ID FROM school_gradelevels sg, student_enrollment se WHERE se.STUDENT_ID = tg.STUDENT_ID AND se.SCHOOL_ID = tg.SCHOOL_ID AND se.SYEAR = tg.SYEAR AND se.GRADE_ID = sg.ID ORDER BY se.ID DESC LIMIT 0,1))), CONCAT('H', TRIM(tg.gradelevel))) AS gradelevel_ret FROM transcript_grades tg WHERE student_id = " . $student_id . $gradelevel_addon . " ORDER BY tg.mp_id";
+            // $tquery = "SELECT tg.*, IF(tg.gradelevel IS NULL, CONCAT('O', TRIM((SELECT sg.ID FROM institute_gradelevels sg, student_enrollment se WHERE se.STUDENT_ID = tg.STUDENT_ID AND se.INSTITUTE_ID = tg.INSTITUTE_ID AND se.SYEAR = tg.SYEAR AND se.GRADE_ID = sg.ID ORDER BY se.ID DESC LIMIT 0,1))), CONCAT('H', TRIM(tg.gradelevel))) AS gradelevel_ret FROM transcript_grades tg WHERE student_id = " . $student_id . $gradelevel_addon . " ORDER BY tg.mp_id";
+            $tquery = "SELECT tg.*, IF(tg.MP_SOURCE != 'History', CONCAT('O', TRIM((SELECT sg.ID FROM institute_gradelevels sg, student_enrollment se WHERE se.STUDENT_ID = tg.STUDENT_ID AND se.INSTITUTE_ID = tg.INSTITUTE_ID AND se.SYEAR = tg.SYEAR AND se.GRADE_ID = sg.ID ORDER BY se.ID DESC LIMIT 0,1))), CONCAT('H', TRIM(tg.gradelevel))) AS gradelevel_ret FROM transcript_grades tg WHERE student_id = " . $student_id . $gradelevel_addon . " ORDER BY tg.mp_id";
 
             $TRET = DBGet(DBQuery($tquery));
             $course_html = array(0 => '', 1 => '', 2 => '');
@@ -158,14 +134,14 @@ if ($_REQUEST['modfunc'] == 'save') {
                     $posted_arr = explode('-', $firstrec['POSTED']);
 
 
-                    if ($firstrec['SCHOOL_ID'] != '' && $firstrec['SYEAR'] != '') {
-                        $gradelevel = DBGet(DBQuery('SELECT sg.TITLE FROM school_gradelevels sg,student_enrollment se WHERE se.STUDENT_ID=' . $firstrec['STUDENT_ID'] . ' AND se.SCHOOL_ID=' . $firstrec['SCHOOL_ID'] . ' AND se.SYEAR=' . $firstrec['SYEAR'] . ' AND se.GRADE_ID=sg.ID ORDER BY se.ID DESC LIMIT 0,1'));
+                    if ($firstrec['INSTITUTE_ID'] != '' && $firstrec['SYEAR'] != '') {
+                        $gradelevel = DBGet(DBQuery('SELECT sg.TITLE FROM institute_gradelevels sg,student_enrollment se WHERE se.STUDENT_ID=' . $firstrec['STUDENT_ID'] . ' AND se.INSTITUTE_ID=' . $firstrec['INSTITUTE_ID'] . ' AND se.SYEAR=' . $firstrec['SYEAR'] . ' AND se.GRADE_ID=sg.ID ORDER BY se.ID DESC LIMIT 0,1'));
                         $gradelevel = $gradelevel[1]['TITLE'];
                     }
                     if ($gradelevel == '' && $firstrec['MP_SOURCE'] == 'History')
                         $gradelevel = ($firstrec['GRADELEVEL'] != '' ? $firstrec['GRADELEVEL'] : 'Not Found');
 
-                    $course_html[$colnum] .= '<h4 class="f-s-15 m-b-0 m-t-0"><span class="text-blue">' . $firstrec['SCHOOL_NAME'] . '</span> - ' . $firstrec['MP_NAME'] . ' (' . $gradelevel . ')</h4>';
+                    $course_html[$colnum] .= '<h4 class="f-s-15 m-b-0 m-t-0"><span class="text-blue">' . $firstrec['INSTITUTE_NAME'] . '</span> - ' . $firstrec['MP_NAME'] . ' (' . $gradelevel . ')</h4>';
                     $course_html[$colnum] .= '<p class="m-t-0 m-b-5">'._postedDate.' : ' . $posted_arr[1] . '/' . $posted_arr[0] . '</p>';
                     $course_html[$colnum] .= '<table class="invoice-table table-bordered">';
                     $course_html[$colnum] .= '<thead>';
@@ -398,11 +374,11 @@ if ($_REQUEST['modfunc'] == 'save') {
             ?>
             <div class="print-wrapper">
                 <div class="print-header m-b-10">
-                    <div class="school-details">
-                        <h2><?php echo $schoolinfo['TITLE']; ?></h2>
-                        <b><?=_address?> :</b> <?php echo (($schoolinfo['ADDRESS'] != '') ? $schoolinfo['ADDRESS'] : '') . ' ' . (($schoolinfo['CITY'] != '') ? ', ' . $schoolinfo['CITY'] : '') . (($schoolinfo['STATE'] != '') ? ', ' . $schoolinfo['STATE'] : '') . (($schoolinfo['ZIPCODE'] != '') ? ', ' . $schoolinfo['ZIPCODE'] : '') ?>
-                        <?php if ($schoolinfo['PHONE']) { ?>
-                            <p><b><?=_phone?> :</b> <?php echo $schoolinfo['PHONE']; ?></p>
+                    <div class="institute-details">
+                        <h2><?php echo $instituteinfo['TITLE']; ?></h2>
+                        <b><?=_address?> :</b> <?php echo (($instituteinfo['ADDRESS'] != '') ? $instituteinfo['ADDRESS'] : '') . ' ' . (($instituteinfo['CITY'] != '') ? ', ' . $instituteinfo['CITY'] : '') . (($instituteinfo['STATE'] != '') ? ', ' . $instituteinfo['STATE'] : '') . (($instituteinfo['ZIPCODE'] != '') ? ', ' . $instituteinfo['ZIPCODE'] : '') ?>
+                        <?php if ($instituteinfo['PHONE']) { ?>
+                            <p><b><?=_phone?> :</b> <?php echo $instituteinfo['PHONE']; ?></p>
                         <?php } ?>
                     </div>
                     <div class="header-right">
@@ -417,7 +393,7 @@ if ($_REQUEST['modfunc'] == 'save') {
                         $picturehtml_tx = '';
 
                         if ($_REQUEST['show_photo']) {
-                            $stu_img_info_tx = DBGet(DBQuery('SELECT * FROM user_file_upload WHERE USER_ID=' . $student_id . ' AND PROFILE_ID=3 AND SCHOOL_ID=' . UserSchool() . ' AND FILE_INFO=\'stuimg\''));
+                            $stu_img_info_tx = DBGet(DBQuery('SELECT * FROM user_file_upload WHERE USER_ID=' . $student_id . ' AND PROFILE_ID=3 AND INSTITUTE_ID=' . UserInstitute() . ' AND FILE_INFO=\'stuimg\''));
                             if (count($stu_img_info_tx) > 0) {
                                 $picturehtml_tx = '<img class="pic" src="data:image/jpeg;base64,' . base64_encode($stu_img_info_tx[1]['CONTENT']) . '" width="120">';
                             } else {
@@ -534,7 +510,7 @@ if ($_REQUEST['modfunc'] == 'save') {
 
                 <?php
                 $grade_scale = DBGet(DBQuery('SELECT rcg.TITLE,rcg.GPA_VALUE, rcg.UNWEIGHTED_GP,rcg.COMMENT,rcgs.GP_SCALE FROM report_card_grade_scales rcgs,report_card_grades rcg
-                                        WHERE rcg.grade_scale_id =rcgs.id and rcg.syear=\'' . $tsyear . '\' and rcg.school_id=\'' . UserSchool() . '\' ORDER BY rcg.SORT_ORDER'));
+                                        WHERE rcg.grade_scale_id =rcgs.id and rcg.syear=\'' . $tsyear . '\' and rcg.institute_id=\'' . UserInstitute() . '\' ORDER BY rcg.SORT_ORDER'));
 
                 $grade_scale_value = $grade_scale[1];
                 ?>
@@ -577,7 +553,7 @@ if ($_REQUEST['modfunc'] == 'save') {
 if (!$_REQUEST['modfunc']) {
     DrawBC(""._gradebook." > " . ProgramTitle());
     if ($_REQUEST['search_modfunc'] == 'list') {
-        echo "<FORM action=ForExport.php?modname=" . strip_tags(trim($_REQUEST[modname])) . "&modfunc=save&_openSIS_PDF=true method=POST target=_blank>";
+        echo "<FORM action=ForExport.php?modname=" . strip_tags(trim($_REQUEST[modname])) . "&modfunc=save&HaniIMS_PDF=true method=POST target=_blank>";
 
         $extra['extra_header_left'] = '<div class="form-inline">';
         $extra['extra_header_left'] .= '<div class="form-group"><div class="checkbox checkbox-switch switch-success switch-xs"><label><input type="checkbox" name="show_photo" id="show_photo" /><span></span> '._includeStudentPicture.'</label></div></div>';
@@ -588,10 +564,10 @@ if (!$_REQUEST['modfunc']) {
 
         $extra['extra_header_left'] .= '<h6 class="m-t-20">'._includeGradeLevelsInTranscript.'</h6>';
 
-        $get_sis_gradelevels = DBGet(DBQuery('SELECT ID,TITLE,SHORT_NAME,SORT_ORDER FROM `school_gradelevels` WHERE SCHOOL_ID=\''.UserSchool().'\' ORDER BY SORT_ORDER'));
+        $get_sis_gradelevels = DBGet(DBQuery('SELECT ID,TITLE,SHORT_NAME,SORT_ORDER FROM `institute_gradelevels` WHERE INSTITUTE_ID=\''.UserInstitute().'\' ORDER BY SORT_ORDER'));
 
         if (count($get_sis_gradelevels) > 0) {
-            $extra['extra_header_left'] .= '<h6 class="text-primary">'._openSISGradeLevels.':</h6>';
+            $extra['extra_header_left'] .= '<h6 class="text-primary">'._haniGradeLevels.':</h6>';
             $extra['extra_header_left'] .= '<div class="form-group">';
 
             foreach ($get_sis_gradelevels as $one_gradel) {
@@ -601,7 +577,7 @@ if (!$_REQUEST['modfunc']) {
             $extra['extra_header_left'] .= '</div>';
         }
 
-        $get_hist_gradelevels = DBGet(DBQuery('SELECT DISTINCT(GRADELEVEL) AS TITLE FROM `transcript_grades` WHERE SCHOOL_ID=\''.UserSchool().'\' AND MP_SOURCE = \'History\' AND GRADELEVEL IS NOT NULL'));
+        $get_hist_gradelevels = DBGet(DBQuery('SELECT DISTINCT(GRADELEVEL) AS TITLE FROM `transcript_grades` WHERE INSTITUTE_ID=\''.UserInstitute().'\' AND MP_SOURCE = \'History\' AND GRADELEVEL IS NOT NULL'));
 
         if (count($get_hist_gradelevels) > 0) {
             $extra['extra_header_left'] .= '<h6 class="text-primary">'._historicalGradeLevels.':</h6>';
@@ -670,7 +646,7 @@ if (!$_REQUEST['modfunc']) {
     echo '<div id="conf_div" class="text-center"></div>';
     echo '<div class="row" id="resp_table">';
     echo '<div class="col-md-4">';
-    $sql = "SELECT SUBJECT_ID,TITLE FROM course_subjects WHERE SCHOOL_ID='" . UserSchool() . "' AND SYEAR='" . UserSyear() . "' ORDER BY TITLE";
+    $sql = "SELECT SUBJECT_ID,TITLE FROM course_subjects WHERE INSTITUTE_ID='" . UserInstitute() . "' AND SYEAR='" . UserSyear() . "' ORDER BY TITLE";
     $QI = DBQuery($sql);
     $subjects_RET = DBGet($QI);
 

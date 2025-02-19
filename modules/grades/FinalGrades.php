@@ -1,31 +1,5 @@
 <?php
-
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+ 
 include('../../RedirectModulesInc.php');
 require_once('modules/grades/DeletePromptX.fnc.php');
 
@@ -62,7 +36,7 @@ if (clean_param($_REQUEST['modfunc'], PARAM_ALPHAMOD) == 'save') {
         if ($_REQUEST['elements']['comments'] == 'Y')
             $extra['SELECT'] .= ',sg1.MARKING_PERIOD_ID AS COMMENTS_RET';
         $extra['FROM'] .= ',student_report_card_grades sg1 LEFT OUTER JOIN report_card_grades rpg ON (rpg.ID=sg1.REPORT_CARD_GRADE_ID),
-                                    course_periods rc_cp,course_period_var cpv,courses c,school_periods sp';
+                                    course_periods rc_cp,course_period_var cpv,courses c,institute_periods sp';
         $extra['WHERE'] .= ' AND sg1.MARKING_PERIOD_ID IN (' . $mp_list . ')
                              AND rc_cp.COURSE_PERIOD_ID=sg1.COURSE_PERIOD_ID AND cpv.COURSE_PERIOD_ID=rc_cp.COURSE_PERIOD_ID AND c.COURSE_ID = rc_cp.COURSE_ID AND sg1.STUDENT_ID=ssm.STUDENT_ID AND sp.PERIOD_ID=cpv.PERIOD_ID';
         if(User('PROFILE')=='teacher')
@@ -81,13 +55,13 @@ if (clean_param($_REQUEST['modfunc'], PARAM_ALPHAMOD) == 'save') {
 
         // GET THE COMMENTS
         if ($_REQUEST['elements']['comments'] == 'Y')
-            $comments_RET = DBGet(DBQuery('SELECT ID,TITLE,SORT_ORDER FROM report_card_comments WHERE SCHOOL_ID=\'' . UserSchool() . '\' AND SYEAR=\'' . UserSyear() . '\''), array(), array('ID'));
+            $comments_RET = DBGet(DBQuery('SELECT ID,TITLE,SORT_ORDER FROM report_card_comments WHERE INSTITUTE_ID=\'' . UserInstitute() . '\' AND SYEAR=\'' . UserSyear() . '\''), array(), array('ID'));
 
         if ($_REQUEST['elements']['mp_tardies'] == 'Y' || $_REQUEST['elements']['ytd_tardies'] == 'Y') {
             // GET THE ATTENDANCE
             unset($extra);
             $extra['WHERE'] = ' AND s.STUDENT_ID IN (' . $st_list . ')';
-            $extra['SELECT_ONLY'] .= 'ap.SCHOOL_DATE,ap.COURSE_PERIOD_ID,ac.ID AS ATTENDANCE_CODE,ap.MARKING_PERIOD_ID,ssm.STUDENT_ID';
+            $extra['SELECT_ONLY'] .= 'ap.INSTITUTE_DATE,ap.COURSE_PERIOD_ID,ac.ID AS ATTENDANCE_CODE,ap.MARKING_PERIOD_ID,ssm.STUDENT_ID';
             $extra['FROM'] .= ',attendance_codes ac,attendance_period ap';
             $extra['WHERE'] .= ' AND ac.ID=ap.ATTENDANCE_CODE AND (ac.DEFAULT_CODE!=\'Y\' OR ac.DEFAULT_CODE IS NULL) AND ac.SYEAR=ssm.SYEAR AND ap.STUDENT_ID=ssm.STUDENT_ID';
             $extra['group'][] = 'STUDENT_ID';
@@ -126,9 +100,9 @@ if (clean_param($_REQUEST['modfunc'], PARAM_ALPHAMOD) == 'save') {
             // GET THE DAILY ATTENDANCE
             unset($extra);
             $extra['WHERE'] = ' AND s.STUDENT_ID IN (' . $st_list . ')';
-            $extra['SELECT_ONLY'] .= 'ad.SCHOOL_DATE,ad.MARKING_PERIOD_ID,ad.STATE_VALUE,ssm.STUDENT_ID';
+            $extra['SELECT_ONLY'] .= 'ad.INSTITUTE_DATE,ad.MARKING_PERIOD_ID,ad.STATE_VALUE,ssm.STUDENT_ID';
             $extra['FROM'] .= ',attendance_day ad';
-            $extra['WHERE'] .= ' AND ad.STUDENT_ID=ssm.STUDENT_ID AND ad.SYEAR=ssm.SYEAR AND (ad.STATE_VALUE=\'0.0\' OR ad.STATE_VALUE=\'.5\') AND ad.SCHOOL_DATE<=\'' . GetMP($last_mp, 'END_DATE') . '\'';
+            $extra['WHERE'] .= ' AND ad.STUDENT_ID=ssm.STUDENT_ID AND ad.SYEAR=ssm.SYEAR AND (ad.STATE_VALUE=\'0.0\' OR ad.STATE_VALUE=\'.5\') AND ad.INSTITUTE_DATE<=\'' . GetMP($last_mp, 'END_DATE') . '\'';
             $extra['group'][] = 'STUDENT_ID';
             $extra['group'][] = 'MARKING_PERIOD_ID';
 
@@ -273,7 +247,7 @@ if (!$_REQUEST['modfunc']) {
     echo '<div id="conf_div" class="text-center"></div>';
     echo '<div class="row" id="resp_table">';
     echo '<div class="col-md-4">';
-    $sql = "SELECT SUBJECT_ID,TITLE FROM course_subjects WHERE SCHOOL_ID='" . UserSchool() . "' AND SYEAR='" . UserSyear() . "' ORDER BY TITLE";
+    $sql = "SELECT SUBJECT_ID,TITLE FROM course_subjects WHERE INSTITUTE_ID='" . UserInstitute() . "' AND SYEAR='" . UserSyear() . "' ORDER BY TITLE";
     $QI = DBQuery($sql);
     $subjects_RET = DBGet($QI);
 
@@ -301,11 +275,11 @@ if (!$_REQUEST['modfunc']) {
     DrawBC(""._gradebook." > " . ProgramTitle());
 
     if ($_REQUEST['search_modfunc'] == 'list') {
-        $_openSIS['allow_edit'] = true;
+        $_HaniIMS['allow_edit'] = true;
 
         echo "<FORM action=Modules.php?modname=" . strip_tags(trim($_REQUEST[modname])) . "&modfunc=save&include_inactive=" . strip_tags(trim($_REQUEST['include_inactive'])) . " method=POST>";
 
-        $attendance_codes = DBGet(DBQuery('SELECT SHORT_NAME,ID FROM attendance_codes WHERE SYEAR=\'' . UserSyear() . '\' AND SCHOOL_ID=\'' . UserSchool() . '\' AND (DEFAULT_CODE!=\'Y\' OR DEFAULT_CODE IS NULL) AND TABLE_NAME=\'0\''));
+        $attendance_codes = DBGet(DBQuery('SELECT SHORT_NAME,ID FROM attendance_codes WHERE SYEAR=\'' . UserSyear() . '\' AND INSTITUTE_ID=\'' . UserInstitute() . '\' AND (DEFAULT_CODE!=\'Y\' OR DEFAULT_CODE IS NULL) AND TABLE_NAME=\'0\''));
         //PopTable_wo_header('header');
         $extra['extra_header_left'] = '<h5 class="text-primary no-margin-top">'._includeOnGradeList.':</h5>';
         $extra['extra_header_left'] .= '<div class="row">';
@@ -326,17 +300,17 @@ if (!$_REQUEST['modfunc']) {
         $extra['extra_header_left'] .= '</div>';
 
 
-        $mps_RET = DBGet(DBQuery('SELECT SEMESTER_ID,MARKING_PERIOD_ID,SHORT_NAME FROM school_quarters WHERE SYEAR=\'' . UserSyear() . '\' AND SCHOOL_ID=\'' . UserSchool() . '\' ORDER BY SORT_ORDER'), array(), array('SEMESTER_ID'));
+        $mps_RET = DBGet(DBQuery('SELECT SEMESTER_ID,MARKING_PERIOD_ID,SHORT_NAME FROM institute_quarters WHERE SYEAR=\'' . UserSyear() . '\' AND INSTITUTE_ID=\'' . UserInstitute() . '\' ORDER BY SORT_ORDER'), array(), array('SEMESTER_ID'));
 
         $MP_TYPE = 'QTR';
         if (!$mps_RET) {
             $MP_TYPE = 'SEM';
-            $mps_RET = DBGet(DBQuery('SELECT YEAR_ID,MARKING_PERIOD_ID,SHORT_NAME FROM school_semesters WHERE SYEAR=\'' . UserSyear() . '\' AND SCHOOL_ID=\'' . UserSchool() . '\' ORDER BY SORT_ORDER'), array(), array('YEAR_ID'));
+            $mps_RET = DBGet(DBQuery('SELECT YEAR_ID,MARKING_PERIOD_ID,SHORT_NAME FROM institute_semesters WHERE SYEAR=\'' . UserSyear() . '\' AND INSTITUTE_ID=\'' . UserInstitute() . '\' ORDER BY SORT_ORDER'), array(), array('YEAR_ID'));
         }
 
         if (!$mps_RET) {
             $MP_TYPE = 'FY';
-            $mps_RET = DBGet(DBQuery('SELECT MARKING_PERIOD_ID,SHORT_NAME FROM school_years WHERE SYEAR=\'' . UserSyear() . '\' AND SCHOOL_ID=\'' . UserSchool() . '\' ORDER BY SORT_ORDER'), array(), array('MARKING_PERIOD_ID'));
+            $mps_RET = DBGet(DBQuery('SELECT MARKING_PERIOD_ID,SHORT_NAME FROM institute_years WHERE SYEAR=\'' . UserSyear() . '\' AND INSTITUTE_ID=\'' . UserInstitute() . '\' ORDER BY SORT_ORDER'), array(), array('MARKING_PERIOD_ID'));
         }
 
         $extra['extra_header_left'] .= '<h5 class="text-primary">'._markingPeriods.'</h5>';

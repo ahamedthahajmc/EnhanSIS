@@ -1,31 +1,5 @@
 <?php
-
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+ 
 error_reporting(0);
 include('../../RedirectModulesInc.php');
 if ($_REQUEST['month_values'] && ($_POST['month_values'] || $_REQUEST['ajax'])) {
@@ -90,7 +64,7 @@ if ($_REQUEST['values'] && ($_POST['values'] || $_REQUEST['ajax'])) {
             }
             $sql = substr($sql, 0, -1) . ' WHERE ID=\'' . $id . '\'';
 
-            $check_rec = DBGet(DBQuery('SELECT COUNT(*) as REC_EX FROM eligibility_activities WHERE UPPER(TITLE)=\'' . $title . '\' AND ID!=\'' . $id . '\' AND SYEAR=\'' . UserSyear() . '\'  AND SCHOOL_ID=\'' . UserSchool() . '\''));
+            $check_rec = DBGet(DBQuery('SELECT COUNT(*) as REC_EX FROM eligibility_activities WHERE UPPER(TITLE)=\'' . $title . '\' AND ID!=\'' . $id . '\' AND SYEAR=\'' . UserSyear() . '\'  AND INSTITUTE_ID=\'' . UserInstitute() . '\''));
 
 
 
@@ -113,8 +87,8 @@ if ($_REQUEST['values'] && ($_POST['values'] || $_REQUEST['ajax'])) {
             $cnt = 0;
             $sql = 'INSERT INTO eligibility_activities ';
 
-            $fields = 'SCHOOL_ID,SYEAR,';
-            $values = '\'' . UserSchool() . '\',\'' . UserSyear() . '\',';
+            $fields = 'INSTITUTE_ID,SYEAR,';
+            $values = '\'' . UserInstitute() . '\',\'' . UserSyear() . '\',';
 
             $go = 0;
             foreach ($columns as $column => $value) {
@@ -154,7 +128,7 @@ if ($_REQUEST['values'] && ($_POST['values'] || $_REQUEST['ajax'])) {
             $sql .= '(' . substr($fields, 0, -1) . ') values(' . substr($values, 0, -1) . ')';
 
             if ($go) {
-                $check_rec = DBGet(DBQuery('SELECT COUNT(*) as REC_EX FROM eligibility_activities WHERE UPPER(TITLE)=\'' . $title . '\' AND SYEAR=\'' . UserSyear() . '\'  AND SCHOOL_ID=\'' . UserSchool() . '\''));
+                $check_rec = DBGet(DBQuery('SELECT COUNT(*) as REC_EX FROM eligibility_activities WHERE UPPER(TITLE)=\'' . $title . '\' AND SYEAR=\'' . UserSyear() . '\'  AND INSTITUTE_ID=\'' . UserInstitute() . '\''));
                 if ($s_date == '' || $e_date == '' && $title != '') {
                     $err = '<div class="alert bg-danger alert-styled-left">'._startDateOrEndDateCannotBeBlank.'.</div>';
                     $cnt = 1;
@@ -196,7 +170,7 @@ if (optional_param('modfunc', '', PARAM_NOTAGS) == 'remove') {
 }
 
 if ($_REQUEST['modfunc'] != 'remove') {
-    $sql = 'SELECT ID,TITLE,START_DATE,END_DATE FROM eligibility_activities WHERE SYEAR=\'' . UserSyear() . '\' AND SCHOOL_ID=\'' . UserSchool() . '\' ORDER BY TITLE';
+    $sql = 'SELECT ID,TITLE,START_DATE,END_DATE FROM eligibility_activities WHERE SYEAR=\'' . UserSyear() . '\' AND INSTITUTE_ID=\'' . UserInstitute() . '\' ORDER BY TITLE';
     $QI = DBQuery($sql);
     $activities_RET = DBGet($QI, array('TITLE' => 'makeTextInput'));
     $last_id = 0;

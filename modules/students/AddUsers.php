@@ -1,31 +1,6 @@
 <?php
 
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+
 include('../../RedirectModulesInc.php');
 if (clean_param($_REQUEST['modfunc'], PARAM_ALPHAMOD) == 'save' && AllowEdit()) {
     $current_RET = DBGet(DBQuery('SELECT STAFF_ID FROM students_join_users WHERE STUDENT_ID=\'' . UserStudentID() . '\''), array(), array('STAFF_ID'));
@@ -46,7 +21,7 @@ if (isset($_REQUEST['student_id']) && $_REQUEST['student_id'] != 'new' || UserSt
         $stu_id = $_REQUEST['student_id'];
     else
         $stu_id = UserStudentID();
-    $RET = DBGet(DBQuery('SELECT FIRST_NAME,LAST_NAME,MIDDLE_NAME,NAME_SUFFIX,SCHOOL_ID FROM students,student_enrollment WHERE students.STUDENT_ID=\'' . $stu_id . '\' AND student_enrollment.STUDENT_ID = students.STUDENT_ID '));
+    $RET = DBGet(DBQuery('SELECT FIRST_NAME,LAST_NAME,MIDDLE_NAME,NAME_SUFFIX,INSTITUTE_ID FROM students,student_enrollment WHERE students.STUDENT_ID=\'' . $stu_id . '\' AND student_enrollment.STUDENT_ID = students.STUDENT_ID '));
 
     $count_student_RET = DBGet(DBQuery('SELECT COUNT(*) AS NUM FROM students'));
     if ($count_student_RET[1]['NUM'] > 1) {
@@ -96,7 +71,7 @@ if ($_REQUEST['modfunc'] != 'delete') {
             $extra['new'] = true;
             $extra['options']['search'] = false;
             $extra['profile'] = 'parent';
-            $_openSIS['DrawHeader'] = 'bgcolor=#ff8040';
+            $_hani['DrawHeader'] = 'bgcolor=#ff8040';
 
             Search('staff_id', $extra);
         }

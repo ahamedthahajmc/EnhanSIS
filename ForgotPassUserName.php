@@ -1,30 +1,5 @@
 <?php
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+ 
 include("functions/ParamLibFnc.php");
 include("Data.php");
 include("functions/DbGetFnc.php");
@@ -65,7 +40,7 @@ if (!$connection) {
 //		ie, $processable_results = DBQuery("select * from students");
 function DBQuery($sql)
 {
-	global $DatabaseType, $_openSIS, $connection;
+	global $DatabaseType, $_HaniIMS, $connection;
 
 	// $connection = db_start();
 
@@ -193,7 +168,7 @@ function db_properties($table)
 
 function db_show_error($sql, $failnote, $additional = '')
 {
-	global $openSISTitle, $openSISVersion, $openSISNotifyAddress, $openSISMode;
+	global $HaniIMSTitle, $HaniIMSVersion, $HaniIMSNotifyAddress, $HaniIMSMode;
 
 
 	$tb = debug_backtrace();
@@ -226,7 +201,7 @@ function db_show_error($sql, $failnote, $additional = '')
 			<TD><pre>" . date("m/d/Y h:i:s") . "</pre></TD>
 		</TR><TR>
 			<TD align=right></TD>
-			<TD>openSIS has encountered an error that could have resulted from any of the following:
+			<TD>HaniIMS has encountered an error that could have resulted from any of the following:
 			<br/>
 			<ul>
 			<li>Invalid data input</li>
@@ -234,7 +209,7 @@ function db_show_error($sql, $failnote, $additional = '')
 			<li>Program error</li>
 			</ul>
 			
-			Please take this screen shot and send it to your openSIS representative for debugging and resolution.
+			Please take this screen shot and send it to your HaniIMS representative for debugging and resolution.
 			</TD>
 		</TR>
 		
@@ -242,8 +217,8 @@ function db_show_error($sql, $failnote, $additional = '')
 
 	echo "<!-- SQL STATEMENT: \n\n $sql \n\n -->";
 
-	if ($openSISNotifyAddress) {
-		$message = "System: $openSISTitle \n";
+	if ($HaniIMSNotifyAddress) {
+		$message = "System: $HaniIMSTitle \n";
 		$message .= "Date: " . date("m/d/Y h:i:s") . "\n";
 		$message .= "Page: " . $_SERVER['PHP_SELF'] . ' ' . ProgramTitle() . " \n\n";
 		$message .= "Failure Notice:  $failnote \n";
@@ -251,7 +226,7 @@ function db_show_error($sql, $failnote, $additional = '')
 		$message .= "\n $sql \n";
 		$message .= "Request Array: \n" . ShowVar($_REQUEST, 'Y', 'N');
 		$message .= "\n\nSession Array: \n" . ShowVar($_SESSION, 'Y', 'N');
-		mail($openSISNotifyAddress, 'openSIS Database Error', $message);
+		mail($HaniIMSNotifyAddress, 'HaniIMS Database Error', $message);
 	}
 
 	die();

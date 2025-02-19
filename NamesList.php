@@ -1,31 +1,6 @@
 <?php
 
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+ 
 error_reporting(0);
 
 include("Data.php");
@@ -63,8 +38,8 @@ if (User('PROFILE_ID') == 0) {
         $tmp_p_arr[] = $tmp_a['STAFF_ID'];
     }
 } elseif (User('PROFILE_ID') != 0 && User('PROFILE') == 'admin') {
-    $schools = DBGet(DBQuery('SELECT GROUP_CONCAT(SCHOOL_ID) as SCHOOL_ID FROM staff_school_relationship WHERE STAFF_ID=' . $user_id . ' AND (START_DATE=\'0000-00-00\' OR START_DATE<=\'' . date('Y-m-d') . '\') AND (END_DATE=\'0000-00-00\' OR END_DATE IS NULL OR END_DATE>=\'' . date('Y-m-d') . '\') '));
-    $schools = $schools[1]['SCHOOL_ID'];
+    $institutes = DBGet(DBQuery('SELECT GROUP_CONCAT(INSTITUTE_ID) as INSTITUTE_ID FROM staff_institute_relationship WHERE STAFF_ID=' . $user_id . ' AND (START_DATE=\'0000-00-00\' OR START_DATE<=\'' . date('Y-m-d') . '\') AND (END_DATE=\'0000-00-00\' OR END_DATE IS NULL OR END_DATE>=\'' . date('Y-m-d') . '\') '));
+    $institutes = $institutes[1]['INSTITUTE_ID'];
 
 
     $tmp_q = '';
@@ -73,21 +48,21 @@ if (User('PROFILE_ID') == 0) {
     $tmp_stf_arr = array();
     $tmp_p_arr = array();
 
-    $tmp_q = DBGet(DBQuery('SELECT DISTINCT STUDENT_ID FROM student_enrollment WHERE SCHOOL_ID IN (' . $schools . ') AND (START_DATE=\'0000-00-00\' OR START_DATE<=\'' . date('Y-m-d') . '\') AND (END_DATE=\'0000-00-00\' OR END_DATE IS NULL OR END_DATE>=\'' . date('Y-m-d') . '\') '));
+    $tmp_q = DBGet(DBQuery('SELECT DISTINCT STUDENT_ID FROM student_enrollment WHERE INSTITUTE_ID IN (' . $institutes . ') AND (START_DATE=\'0000-00-00\' OR START_DATE<=\'' . date('Y-m-d') . '\') AND (END_DATE=\'0000-00-00\' OR END_DATE IS NULL OR END_DATE>=\'' . date('Y-m-d') . '\') '));
     foreach ($tmp_q as $tmp_a) {
         $tmp_stu_arr[] = $tmp_a['STUDENT_ID'];
     }
 
     $tmp_q = '';
     $tmp_a = array();
-    $tmp_q = DBGet(DBQuery('SELECT DISTINCT STAFF_ID FROM staff_school_relationship WHERE SCHOOL_ID IN (' . $schools . ') AND (START_DATE=\'0000-00-00\' OR START_DATE<=\'' . date('Y-m-d') . '\') AND (END_DATE=\'0000-00-00\' OR END_DATE IS NULL OR END_DATE>=\'' . date('Y-m-d') . '\') '));
+    $tmp_q = DBGet(DBQuery('SELECT DISTINCT STAFF_ID FROM staff_institute_relationship WHERE INSTITUTE_ID IN (' . $institutes . ') AND (START_DATE=\'0000-00-00\' OR START_DATE<=\'' . date('Y-m-d') . '\') AND (END_DATE=\'0000-00-00\' OR END_DATE IS NULL OR END_DATE>=\'' . date('Y-m-d') . '\') '));
     foreach ($tmp_q as $tmp_a) {
         $tmp_stf_arr[] = $tmp_a['STAFF_ID'];
     }
 
     $tmp_q = '';
     $tmp_a = array();
-    $tmp_q = DBGet(DBQuery('SELECT DISTINCT sjp.PERSON_ID FROM student_enrollment se,students_join_people sjp WHERE se.SCHOOL_ID IN (' . $schools . ') AND (se.START_DATE=\'0000-00-00\' OR se.START_DATE<=\'' . date('Y-m-d') . '\') AND (se.END_DATE=\'0000-00-00\' OR se.END_DATE IS NULL OR se.END_DATE>=\'' . date('Y-m-d') . '\') AND se.STUDENT_ID=sjp.STUDENT_ID '));
+    $tmp_q = DBGet(DBQuery('SELECT DISTINCT sjp.PERSON_ID FROM student_enrollment se,students_join_people sjp WHERE se.INSTITUTE_ID IN (' . $institutes . ') AND (se.START_DATE=\'0000-00-00\' OR se.START_DATE<=\'' . date('Y-m-d') . '\') AND (se.END_DATE=\'0000-00-00\' OR se.END_DATE IS NULL OR se.END_DATE>=\'' . date('Y-m-d') . '\') AND se.STUDENT_ID=sjp.STUDENT_ID '));
     foreach ($tmp_q as $tmp_a) {
         $tmp_p_arr[] = $tmp_a['PERSON_ID'];
     }
@@ -135,13 +110,13 @@ if (User('PROFILE_ID') == 0) {
 
     $tmp_q = '';
     $tmp_a = array();
-    $tmp_q = DBGet(DBQuery('SELECT s.STAFF_ID FROM staff s,staff_school_relationship ssr WHERE PROFILE=\'admin\' AND ssr.STAFF_ID=s.STAFF_ID AND (ssr.START_DATE=\'0000-00-00\' OR ssr.START_DATE<=\'' . date('Y-m-d') . '\') AND (ssr.END_DATE=\'0000-00-00\' OR ssr.END_DATE IS NULL OR ssr.END_DATE>=\'' . date('Y-m-d') . '\') AND ssr.SCHOOL_ID=' . UserSchool()));
+    $tmp_q = DBGet(DBQuery('SELECT s.STAFF_ID FROM staff s,staff_institute_relationship ssr WHERE PROFILE=\'admin\' AND ssr.STAFF_ID=s.STAFF_ID AND (ssr.START_DATE=\'0000-00-00\' OR ssr.START_DATE<=\'' . date('Y-m-d') . '\') AND (ssr.END_DATE=\'0000-00-00\' OR ssr.END_DATE IS NULL OR ssr.END_DATE>=\'' . date('Y-m-d') . '\') AND ssr.INSTITUTE_ID=' . UserInstitute()));
     foreach ($tmp_q as $tmp_a) {
         $tmp_stf_arr[] = $tmp_a['STAFF_ID'];
     }
 } elseif (User('PROFILE') == 'teacher') {
-    $schools = DBGet(DBQuery('SELECT GROUP_CONCAT(SCHOOL_ID) as SCHOOL_ID FROM staff_school_relationship WHERE STAFF_ID=' . $user_id . ' AND (START_DATE=\'0000-00-00\' OR START_DATE<=\'' . date('Y-m-d') . '\') AND (END_DATE=\'0000-00-00\' OR END_DATE IS NULL OR END_DATE>=\'' . date('Y-m-d') . '\') '));
-    $schools = $schools[1]['SCHOOL_ID'];
+    $institutes = DBGet(DBQuery('SELECT GROUP_CONCAT(INSTITUTE_ID) as INSTITUTE_ID FROM staff_institute_relationship WHERE STAFF_ID=' . $user_id . ' AND (START_DATE=\'0000-00-00\' OR START_DATE<=\'' . date('Y-m-d') . '\') AND (END_DATE=\'0000-00-00\' OR END_DATE IS NULL OR END_DATE>=\'' . date('Y-m-d') . '\') '));
+    $institutes = $institutes[1]['INSTITUTE_ID'];
 
     $course_periods = DBGet(DBQuery('SELECT GROUP_CONCAT(course_period_id) as COURSE_PERIOD_ID FROM course_periods WHERE TEACHER_ID=' . $user_id . ' OR SECONDARY_TEACHER_ID=' . $user_id));
     $course_periods = $course_periods[1]['COURSE_PERIOD_ID'];
@@ -151,7 +126,7 @@ if (User('PROFILE_ID') == 0) {
 
 
 
-    $course_periods_ass = DBGet(DBQuery('SELECT GROUP_CONCAT(course_period_id) as COURSE_PERIOD_ID FROM course_periods WHERE  BEGIN_DATE <=\'' . date('Y-m-d') . '\' and END_DATE>=\'' . date('Y-m-d') . '\' AND  SCHOOL_ID=\'' . $schools . '\'  AND  (TEACHER_ID=' . $user_id . ' OR SECONDARY_TEACHER_ID=' . $user_id . ')'));
+    $course_periods_ass = DBGet(DBQuery('SELECT GROUP_CONCAT(course_period_id) as COURSE_PERIOD_ID FROM course_periods WHERE  BEGIN_DATE <=\'' . date('Y-m-d') . '\' and END_DATE>=\'' . date('Y-m-d') . '\' AND  INSTITUTE_ID=\'' . $institutes . '\'  AND  (TEACHER_ID=' . $user_id . ' OR SECONDARY_TEACHER_ID=' . $user_id . ')'));
     $course_periods_ass = $course_periods_ass[1]['COURSE_PERIOD_ID'];
 
 
@@ -186,7 +161,7 @@ if (User('PROFILE_ID') == 0) {
 
     $tmp_q = '';
     $tmp_a = array();
-    $tmp_q = DBGet(DBQuery('SELECT s.STAFF_ID FROM staff s,staff_school_relationship ssr WHERE PROFILE=\'admin\' AND ssr.STAFF_ID=s.STAFF_ID AND (ssr.START_DATE=\'0000-00-00\' OR ssr.START_DATE<=\'' . date('Y-m-d') . '\') AND (ssr.END_DATE=\'0000-00-00\' OR ssr.END_DATE IS NULL OR ssr.END_DATE>=\'' . date('Y-m-d') . '\') AND ssr.SCHOOL_ID IN (' . $schools . ')'));
+    $tmp_q = DBGet(DBQuery('SELECT s.STAFF_ID FROM staff s,staff_institute_relationship ssr WHERE PROFILE=\'admin\' AND ssr.STAFF_ID=s.STAFF_ID AND (ssr.START_DATE=\'0000-00-00\' OR ssr.START_DATE<=\'' . date('Y-m-d') . '\') AND (ssr.END_DATE=\'0000-00-00\' OR ssr.END_DATE IS NULL OR ssr.END_DATE>=\'' . date('Y-m-d') . '\') AND ssr.INSTITUTE_ID IN (' . $institutes . ')'));
 
     foreach ($tmp_q as $tmp_a) {
         $tmp_stf_arr[] = $tmp_a['STAFF_ID'];

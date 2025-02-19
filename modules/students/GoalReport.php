@@ -1,31 +1,6 @@
 <?php
 
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+
 include('../../RedirectModulesInc.php');
 
 if(isset($_SESSION['student_id']) && $_SESSION['student_id'] != '')
@@ -80,21 +55,21 @@ if ($_REQUEST['modfunc'] == 'save') {
                 $sql_student = $sql_student[1];
 
                 $bir_dt = $sql_student['BDATE'];
-                unset($_openSIS['DrawHeader']);
+                unset($_HaniIMS['DrawHeader']);
 
                 if (!isset($st_dt) && !isset($end_dt)) {
-                    $sql_goal = 'SELECT GOAL_ID,GOAL_TITLE,START_DATE,END_DATE,GOAL_DESCRIPTION FROM student_goal WHERE STUDENT_ID=\'' . $_SESSION['student_id'] . '\' AND SYEAR=\'' . UserSyear() . '\' ' . ($_REQUEST['_search_all_schools'] != 'Y' ? 'AND  SCHOOL_ID=' . UserSchool() : '') . ' ORDER BY GOAL_TITLE';
-//        $sql_goal = 'SELECT GOAL_ID,GOAL_TITLE,START_DATE,END_DATE,GOAL_DESCRIPTION FROM student_goal WHERE STUDENT_ID=\''.$_SESSION['student_id'].'\' AND SYEAR=\''.UserSyear().'\' AND SCHOOL_ID='.UserSchool().' ORDER BY GOAL_TITLE';
+                    $sql_goal = 'SELECT GOAL_ID,GOAL_TITLE,START_DATE,END_DATE,GOAL_DESCRIPTION FROM student_goal WHERE STUDENT_ID=\'' . $_SESSION['student_id'] . '\' AND SYEAR=\'' . UserSyear() . '\' ' . ($_REQUEST['_search_all_institutes'] != 'Y' ? 'AND  INSTITUTE_ID=' . UserInstitute() : '') . ' ORDER BY GOAL_TITLE';
+//        $sql_goal = 'SELECT GOAL_ID,GOAL_TITLE,START_DATE,END_DATE,GOAL_DESCRIPTION FROM student_goal WHERE STUDENT_ID=\''.$_SESSION['student_id'].'\' AND SYEAR=\''.UserSyear().'\' AND INSTITUTE_ID='.UserInstitute().' ORDER BY GOAL_TITLE';
                 }
                 if (isset($st_dt) && !isset($end_dt)) {
-//	$sql_goal = 'SELECT GOAL_ID,GOAL_TITLE,START_DATE,END_DATE,GOAL_DESCRIPTION FROM student_goal WHERE STUDENT_ID=\''.$_SESSION['student_id'].'\' AND SYEAR=\''.UserSyear().'\' AND SCHOOL_ID=\''.UserSchool().'\' AND START_DATE>=\''.$st_dt.'\' ORDER BY GOAL_TITLE';
-                    $sql_goal = 'SELECT GOAL_ID,GOAL_TITLE,START_DATE,END_DATE,GOAL_DESCRIPTION FROM student_goal WHERE STUDENT_ID=\'' . $_SESSION['student_id'] . '\' AND SYEAR=\'' . UserSyear() . '\' ' . ($_REQUEST['_search_all_schools'] != 'Y' ? 'AND  SCHOOL_ID=' . UserSchool() : '') . ' AND START_DATE>=\'' . $st_dt . '\' ORDER BY GOAL_TITLE';
+//	$sql_goal = 'SELECT GOAL_ID,GOAL_TITLE,START_DATE,END_DATE,GOAL_DESCRIPTION FROM student_goal WHERE STUDENT_ID=\''.$_SESSION['student_id'].'\' AND SYEAR=\''.UserSyear().'\' AND INSTITUTE_ID=\''.UserInstitute().'\' AND START_DATE>=\''.$st_dt.'\' ORDER BY GOAL_TITLE';
+                    $sql_goal = 'SELECT GOAL_ID,GOAL_TITLE,START_DATE,END_DATE,GOAL_DESCRIPTION FROM student_goal WHERE STUDENT_ID=\'' . $_SESSION['student_id'] . '\' AND SYEAR=\'' . UserSyear() . '\' ' . ($_REQUEST['_search_all_institutes'] != 'Y' ? 'AND  INSTITUTE_ID=' . UserInstitute() : '') . ' AND START_DATE>=\'' . $st_dt . '\' ORDER BY GOAL_TITLE';
                 }
                 if (!isset($st_dt) && isset($end_dt)) {
-                    $sql_goal = 'SELECT GOAL_ID,GOAL_TITLE,START_DATE,END_DATE,GOAL_DESCRIPTION FROM student_goal WHERE STUDENT_ID=\'' . $_SESSION['student_id'] . '\' AND SYEAR=\'' . UserSyear() . '\' ' . ($_REQUEST['_search_all_schools'] != 'Y' ? 'AND  SCHOOL_ID=' . UserSchool() : '') . ' AND START_DATE<=\'' . $end_dt . '\' ORDER BY GOAL_TITLE';
+                    $sql_goal = 'SELECT GOAL_ID,GOAL_TITLE,START_DATE,END_DATE,GOAL_DESCRIPTION FROM student_goal WHERE STUDENT_ID=\'' . $_SESSION['student_id'] . '\' AND SYEAR=\'' . UserSyear() . '\' ' . ($_REQUEST['_search_all_institutes'] != 'Y' ? 'AND  INSTITUTE_ID=' . UserInstitute() : '') . ' AND START_DATE<=\'' . $end_dt . '\' ORDER BY GOAL_TITLE';
                 }
                 if (isset($st_dt) && isset($end_dt)) {
-                    $sql_goal = 'SELECT GOAL_ID,GOAL_TITLE,START_DATE,END_DATE,GOAL_DESCRIPTION FROM student_goal WHERE STUDENT_ID=\'' . $_SESSION['student_id'] . '\' AND SYEAR=\'' . UserSyear() . '\' ' . ($_REQUEST['_search_all_schools'] != 'Y' ? 'AND  SCHOOL_ID=' . UserSchool() : '') . ' AND START_DATE>=\'' . $st_dt . '\' AND START_DATE<=\'' . $end_dt . '\' ORDER BY GOAL_TITLE';
+                    $sql_goal = 'SELECT GOAL_ID,GOAL_TITLE,START_DATE,END_DATE,GOAL_DESCRIPTION FROM student_goal WHERE STUDENT_ID=\'' . $_SESSION['student_id'] . '\' AND SYEAR=\'' . UserSyear() . '\' ' . ($_REQUEST['_search_all_institutes'] != 'Y' ? 'AND  INSTITUTE_ID=' . UserInstitute() : '') . ' AND START_DATE>=\'' . $st_dt . '\' AND START_DATE<=\'' . $end_dt . '\' ORDER BY GOAL_TITLE';
                 }
 
                 $res_goal = DBGet(DBQuery($sql_goal), array('START_DATE' => 'ProperDate', 'END_DATE' => 'ProperDate'));
@@ -106,7 +81,7 @@ if ($_REQUEST['modfunc'] == 'save') {
                 if (count($res_goal) != 0) {
                     $error = 'N';
                     echo "<table width=100%  style=\" font-family:Arial; font-size:12px;\" >";
-                    echo "<tr><td width=105>" . DrawLogoParam($student['SCHOOL_ID']) . "</td><td  style=\"font-size:15px; font-weight:bold; padding-top:20px;\">" . GetSchool($student['SCHOOL_ID']) . "</font></td><td align=right style=\"padding-top:20px;\">" . ProperDate(DBDate()) . "<br />"._poweredByOpenSis."</td></tr><tr><td colspan=3 style=\"border-top:1px solid #333;\">&nbsp;</td></tr></table>";
+                    echo "<tr><td width=105>" . DrawLogoParam($student['INSTITUTE_ID']) . "</td><td  style=\"font-size:15px; font-weight:bold; padding-top:20px;\">" . GetInstitute($student['INSTITUTE_ID']) . "</font></td><td align=right style=\"padding-top:20px;\">" . ProperDate(DBDate()) . "<br />"._poweredByhani."</td></tr><tr><td colspan=3 style=\"border-top:1px solid #333;\">&nbsp;</td></tr></table>";
                     echo "<table width=100% cellspacing=0 style=\"border-collapse:collapse\">";
 
 
@@ -202,10 +177,10 @@ if (!$_REQUEST['modfunc']) {
     DrawBC(""._students." > " . ProgramTitle());
 
     if ($_REQUEST['search_modfunc'] == 'list') {
-        echo "<FORM action=ForExport.php?modname=$_REQUEST[modname]&modfunc=save&include_inactive=$_REQUEST[include_inactive]&_search_all_schools=$_REQUEST[_search_all_schools]&_openSIS_PDF=true method=POST target=_blank>";
+        echo "<FORM action=ForExport.php?modname=$_REQUEST[modname]&modfunc=save&include_inactive=$_REQUEST[include_inactive]&_search_all_institutes=$_REQUEST[_search_all_institutes]&HaniIMS_PDF=true method=POST target=_blank>";
         echo '<div class="panel panel-default">';
-        if ($_REQUEST['_search_all_schools'] == 'Y')
-            echo '<input type="hidden" name="_search_all_schools" value="Y" />';
+        if ($_REQUEST['_search_all_institutes'] == 'Y')
+            echo '<input type="hidden" name="_search_all_institutes" value="Y" />';
         echo '<div class="panel-body form-inline">';
         echo '<div class="form-group">';
         echo '<label>'._pleaseSelectTheDateRange.' :</label>';
@@ -291,7 +266,7 @@ if (!$_REQUEST['modfunc']) {
 
     echo '<div class="row" id="resp_table">';
     echo '<div class="col-md-4">';
-    $sql = "SELECT SUBJECT_ID,TITLE FROM course_subjects WHERE SCHOOL_ID='" . UserSchool() . "' AND SYEAR='" . UserSyear() . "' ORDER BY TITLE";
+    $sql = "SELECT SUBJECT_ID,TITLE FROM course_subjects WHERE INSTITUTE_ID='" . UserInstitute() . "' AND SYEAR='" . UserSyear() . "' ORDER BY TITLE";
     $QI = DBQuery($sql);
     $subjects_RET = DBGet($QI);
 
@@ -329,7 +304,7 @@ if (!$_REQUEST['modfunc']) {
 
     echo '<div class="row" id="resp_table">';
     echo '<div class="col-md-6">';
-    $sql = "SELECT SUBJECT_ID,TITLE FROM course_subjects WHERE SCHOOL_ID='" . UserSchool() . "' AND SYEAR='" . UserSyear() . "' ORDER BY TITLE";
+    $sql = "SELECT SUBJECT_ID,TITLE FROM course_subjects WHERE INSTITUTE_ID='" . UserInstitute() . "' AND SYEAR='" . UserSyear() . "' ORDER BY TITLE";
     $QI = DBQuery($sql);
     $subjects_RET = DBGet($QI);
 

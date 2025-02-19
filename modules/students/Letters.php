@@ -1,33 +1,8 @@
 <?php
 
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+
 include('../../RedirectModulesInc.php');
-$extra['action'] .= "&_openSIS_PDF=true";
+$extra['action'] .= "&HaniIMS_PDF=true";
 
 
 $extra['search'] .= '<div class="row">';
@@ -78,7 +53,7 @@ if (!$current_mp)
     $current_mp = GetCurrentMP('SEM', DBDate());
 if (!$current_mp)
     $current_mp = GetCurrentMP('FY', DBDate());
-if (!$_REQUEST['search_modfunc'] || $_openSIS['modules_search']) {
+if (!$_REQUEST['search_modfunc'] || $_hani['modules_search']) {
     DrawBC(""._students." -> " . ProgramTitle());
 
     $extra['new'] = true;
@@ -112,7 +87,7 @@ if (!$_REQUEST['search_modfunc'] || $_openSIS['modules_search']) {
 
     echo '<div class="row" id="resp_table">';
     echo '<div class="col-md-4">';
-    $sql = "SELECT SUBJECT_ID,TITLE FROM course_subjects WHERE SCHOOL_ID='" . UserSchool() . "' AND SYEAR='" . UserSyear() . "' ORDER BY TITLE";
+    $sql = "SELECT SUBJECT_ID,TITLE FROM course_subjects WHERE INSTITUTE_ID='" . UserInstitute() . "' AND SYEAR='" . UserSyear() . "' ORDER BY TITLE";
     $QI = DBQuery($sql);
     $subjects_RET = DBGet($QI);
 
@@ -150,7 +125,7 @@ if (!$_REQUEST['search_modfunc'] || $_openSIS['modules_search']) {
 
     echo '<div class = "row" id = "resp_table">';
     echo '<div class = "col-md-6">';
-    $sql = "SELECT SUBJECT_ID,TITLE FROM course_subjects WHERE SCHOOL_ID='" . UserSchool() . "' AND SYEAR='" . UserSyear() . "' ORDER BY TITLE";
+    $sql = "SELECT SUBJECT_ID,TITLE FROM course_subjects WHERE INSTITUTE_ID='" . UserInstitute() . "' AND SYEAR='" . UserSyear() . "' ORDER BY TITLE";
     $QI = DBQuery($sql);
     $subjects_RET = DBGet($QI);
 
@@ -186,12 +161,12 @@ if (!$_REQUEST['search_modfunc'] || $_openSIS['modules_search']) {
 
         foreach ($RET as $student) {
             $student_points = $total_points = 0;
-            unset($_openSIS['DrawHeader']);
+            unset($_hani['DrawHeader']);
 
             if ($_REQUEST['mailing_labels'] == 'Y') {
                 echo "<tr><td colspan = 2 style = \"height:18px\"></td></tr>";
                 echo "<table width=100%  style=\" font-family:Arial; font-size:12px;\" >";
-                echo "<tr><td width=105>" . DrawLogo() . "</td><td  style=\"font-size:15px; font-weight:bold; padding-top:20px;\">" . GetSchool(UserSchool()) . "<div style=\"font-size:12px;\">"._studentLetter."</div></td><td align=right style=\"padding-top:20px;\">" . ProperDate(DBDate()) . "<br />"._studentLetter."</td></tr><tr><td colspan=3 style=\"border-top:1px solid #333;\">&nbsp;</td></tr></table>";
+                echo "<tr><td width=105>" . DrawLogo() . "</td><td  style=\"font-size:15px; font-weight:bold; padding-top:20px;\">" . GetInstitute(UserInstitute()) . "<div style=\"font-size:12px;\">"._studentLetter."</div></td><td align=right style=\"padding-top:20px;\">" . ProperDate(DBDate()) . "<br />"._studentLetter."</td></tr><tr><td colspan=3 style=\"border-top:1px solid #333;\">&nbsp;</td></tr></table>";
                 echo '<table border=0 style=\" font-family:Arial; font-size:12px;\">';
                 echo '<tr>';
                 echo '<td>' . $student['FULL_NAME'] . ', #' . $student['STUDENT_ID'] . '</td></tr>';
@@ -216,11 +191,11 @@ if (!$_REQUEST['search_modfunc'] || $_openSIS['modules_search']) {
                 echo "<div style=\"page-break-before: always;\"></div>";
             }
             else {
-                unset($_openSIS['DrawHeader']);
+                unset($_hani['DrawHeader']);
 
                 echo "<tr><td colspan=2 style=\"height:18px\"></td></tr>";
                 echo "<table width=100%  style=\" font-family:Arial; font-size:12px;\" >";
-                echo "<tr><td width=105>" . DrawLogo() . "</td><td  style=\"font-size:15px; font-weight:bold; padding-top:20px;\">" . GetSchool(UserSchool()) . "<div style=\"font-size:12px;\">"._studentLetter."</div></td><td align=right style=\"padding-top:20px;\">" . ProperDate(DBDate()) . "<br \>"._studentLetter."</td></tr><tr><td colspan=3 style=\"border-top:1px solid #333;\">&nbsp;</td></tr></table>";
+                echo "<tr><td width=105>" . DrawLogo() . "</td><td  style=\"font-size:15px; font-weight:bold; padding-top:20px;\">" . GetInstitute(UserInstitute()) . "<div style=\"font-size:12px;\">"._studentLetter."</div></td><td align=right style=\"padding-top:20px;\">" . ProperDate(DBDate()) . "<br \>"._studentLetter."</td></tr><tr><td colspan=3 style=\"border-top:1px solid #333;\">&nbsp;</td></tr></table>";
                 echo '<table border=0 style=\" font-family:Arial; font-size:12px;\">';
                 echo '<tr>';
                 echo '<td>' . $student['FULL_NAME'] . ', #' . $student['STUDENT_ID'] . '</td></tr>';

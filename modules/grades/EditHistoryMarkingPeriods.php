@@ -1,31 +1,6 @@
 <?php
 
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+ 
 include('../../RedirectModulesInc.php');
 include 'modules/grades/DeletePromptX.fnc.php';
 echo '<div class="panel panel-default">';
@@ -67,8 +42,8 @@ if ($_REQUEST['modfunc'] == 'update') {
             $id_RET = DBGet(DBQuery('SELECT  max(id) AS ID from marking_period_id_generator'));
             $MARKING_PERIOD_ID_VALUE = $id_RET[1]['ID'];
             $sql = 'INSERT INTO history_marking_periods ';
-            $fields = 'MARKING_PERIOD_ID, SCHOOL_ID, ';
-            $values = $MARKING_PERIOD_ID_VALUE . ", " . UserSchool() . ", ";
+            $fields = 'MARKING_PERIOD_ID, INSTITUTE_ID, ';
+            $values = $MARKING_PERIOD_ID_VALUE . ", " . UserInstitute() . ", ";
 
             $go = false;
             foreach ($columns as $column => $value)
@@ -105,22 +80,22 @@ if (!$_REQUEST['modfunc']) {
     DrawHeader(ProgramTitle(), SubmitButton(_save, '', 'class="btn btn-primary" onclick="self_disable(this);"'));
     echo '<hr class="no-margin"/>';
 
-    $sql = 'SELECT * FROM history_marking_periods WHERE SCHOOL_ID = ' . UserSchool() . ' ORDER BY SYEAR, POST_END_DATE';
+    $sql = 'SELECT * FROM history_marking_periods WHERE INSTITUTE_ID = ' . UserInstitute() . ' ORDER BY SYEAR, POST_END_DATE';
 
     $functions = array('MP_TYPE' => 'makeSelectInput',
         'NAME' => 'makeTextInput',
         'POST_END_DATE' => 'makeDateInput',
-        'SYEAR' => 'makeSchoolYearSelectInput'
+        'SYEAR' => 'makeInstituteYearSelectInput'
     );
     $LO_columns = array('MP_TYPE' =>_type,
         'NAME' =>_name,
         'POST_END_DATE' =>_gradePostDate,
-        'SYEAR' =>_schoolYear,
+        'SYEAR' =>_instituteYear,
     );
     $link['add']['html'] = array('MP_TYPE' => makeSelectInput('', 'MP_TYPE'),
         'NAME' => makeTextInput('', 'NAME'),
         'POST_END_DATE' => makeDateInput('', 'POST_END_DATE'),
-        'SYEAR' => makeSchoolYearSelectInput('', 'SYEAR')
+        'SYEAR' => makeInstituteYearSelectInput('', 'SYEAR')
     );
 
 
@@ -185,7 +160,7 @@ function makeSelectInput($value, $name) {
     return SelectInput(trim($value), "values[$id][$name]", '', $options, false);
 }
 
-function makeSchoolYearSelectInput($value, $name) {
+function makeInstituteYearSelectInput($value, $name) {
     global $THIS_RET;
 
     if ($THIS_RET['MARKING_PERIOD_ID'])
@@ -194,7 +169,7 @@ function makeSchoolYearSelectInput($value, $name) {
         $id = 'new';
     $options = array();
 
-    $get_min_year = DBGet(DBQuery('SELECT MIN(`syear`) AS MIN_SYEAR FROM `school_years` WHERE `school_id` = \'' . UserSchool() . '\''));
+    $get_min_year = DBGet(DBQuery('SELECT MIN(`syear`) AS MIN_SYEAR FROM `institute_years` WHERE `institute_id` = \'' . UserInstitute() . '\''));
     $least_available_syear = $get_min_year[1]['MIN_SYEAR'];
 
     foreach (range($least_available_syear - 15, UserSyear()) as $year)

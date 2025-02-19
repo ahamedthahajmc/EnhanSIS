@@ -1,33 +1,7 @@
 <?php
 
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
 include('../../RedirectModulesInc.php');
-if ($_openSIS['modules_search'] && $extra['force_search'])
+if ($_hani['modules_search'] && $extra['force_search'])
     $_REQUEST['search_modfunc'] = '';
 
 if (Preferences('SEARCH') != 'Y' && !$extra['force_search'])
@@ -180,7 +154,7 @@ if (($_REQUEST['search_modfunc'] == 'search_fnc' && !$_SESSION['student_id']) ||
             echo '<div class="col-md-12">';
             if (User('PROFILE') == 'admin') {
                 echo '<label class="checkbox-inline"><INPUT class="styled" type=checkbox name=address_group value=Y' . (Preferences('DEFAULT_FAMILIES') == 'Y' ? ' CHECKED' : '') . '> '._groupByFamily.'</label>';
-                echo '<label class="checkbox-inline"><INPUT class="styled" type=checkbox name=_search_all_schools value=Y' . (Preferences('DEFAULT_ALL_SCHOOLS') == 'Y' ? ' CHECKED' : '') . '> '._searchAllSchools.'</label>';
+                echo '<label class="checkbox-inline"><INPUT class="styled" type=checkbox name=_search_all_institutes value=Y' . (Preferences('DEFAULT_ALL_INSTITUTES') == 'Y' ? ' CHECKED' : '') . '> '._searchAllInstitutes.'</label>';
             }
             if ($_REQUEST['modname'] != 'students/StudentReenroll.php')
                 echo '<label class="checkbox-inline"><INPUT class="styled" type=checkbox name=include_inactive value=Y> '._includeInactiveStudents.'</label>';
@@ -319,10 +293,10 @@ else if($_REQUEST['search_modfunc'] == 'search_mod')
 
         if ($_REQUEST['expanded_view'] != 'true' && UserStudentID() && count($students_RET) != 0) {
             DrawHeader("<A HREF=" . PreparePHP_SELF($tmp_REQUEST) . "&expanded_view=true><i class=\"icon-square-down-right\"></i> "._expandedView."</A>", $extra['header_right']);
-            DrawHeader(str_replace('<BR>', '', substr($_openSIS['SearchTerms'], 0, -4)));
+            DrawHeader(str_replace('<BR>', '', substr($_hani['SearchTerms'], 0, -4)));
         } elseif (UserStudentID() && count($students_RET) != 0) {
             DrawHeader("<A HREF=" . PreparePHP_SELF($tmp_REQUEST) . "&expanded_view=false><i class=\"icon-square-up-left\"></i> "._originalView."</A>", $extra['header_right']);
-            DrawHeader(str_replace('<BR>', '', substr($_openSIS['Search'], 0, -4)));
+            DrawHeader(str_replace('<BR>', '', substr($_hani['Search'], 0, -4)));
         }
         DrawHeader($extra['extra_header_left'], $extra['extra_header_right']);
         if ($_REQUEST['LO_save'] != '1' && !$extra['suppress_save']) {
@@ -336,8 +310,8 @@ else if($_REQUEST['search_modfunc'] == 'search_mod')
         }
 
         echo "<div id='students'>";
-        if ($_REQUEST['_search_all_schools'] == 'Y' && $_REQUEST['modname'] == 'scheduling/PrintSchedules.php')
-            echo '<INPUT type=hidden name="_search_all_schools" value="Y">';
+        if ($_REQUEST['_search_all_institutes'] == 'Y' && $_REQUEST['modname'] == 'scheduling/PrintSchedules.php')
+            echo '<INPUT type=hidden name="_search_all_institutes" value="Y">';
 
 
         if ($_REQUEST['modname'] == 'scheduling/Schedule.php' && $extra['singular'] == 'Request') {
@@ -425,9 +399,9 @@ else if($_REQUEST['search_modfunc'] == 'search_mod')
 
 
             if (User('PROFILE') == 'admin')
-                $_SESSION['UserSchool'] = $students_RET[1]['LIST_SCHOOL_ID'];
+                $_SESSION['UserInstitute'] = $students_RET[1]['LIST_INSTITUTE_ID'];
             if (User('PROFILE') == 'teacher')
-                $_SESSION['UserSchool'] = $students_RET[1]['SCHOOL_ID'];
+                $_SESSION['UserInstitute'] = $students_RET[1]['INSTITUTE_ID'];
 
 
            // echo '<script language=JavaScript>parent.side.location="' . $_SESSION['Side_PHP_SELF'] . '?modcat="+parent.side.document.forms[0].modcat.value;</script>';
@@ -476,12 +450,12 @@ else {
         $course = DBGet(DBQuery('SELECT c.TITLE FROM courses c WHERE c.COURSE_ID=\'' . $_REQUEST['request_course_id'] . '\''));
         if (!$_REQUEST['not_request_course']) {
             $extra['FROM'] .= ',schedule_requests sch_r';
-            $extra['WHERE'] = ' AND sch_r.STUDENT_ID=s.STUDENT_ID AND sch_r.SYEAR=ssm.SYEAR AND sch_r.SCHOOL_ID=ssm.SCHOOL_ID AND sch_r.COURSE_ID=\'' . $_REQUEST['request_course_id'] . '\'';
+            $extra['WHERE'] = ' AND sch_r.STUDENT_ID=s.STUDENT_ID AND sch_r.SYEAR=ssm.SYEAR AND sch_r.INSTITUTE_ID=ssm.INSTITUTE_ID AND sch_r.COURSE_ID=\'' . $_REQUEST['request_course_id'] . '\'';
 
-            $_openSIS['SearchTerms'] .= '<font color=gray><b>'._request.': </b></font>' . $course[1]['TITLE'] . '<BR>';
+            $_hani['SearchTerms'] .= '<font color=gray><b>'._request.': </b></font>' . $course[1]['TITLE'] . '<BR>';
         } else {
             $extra['WHERE'] .= ' AND NOT EXISTS (SELECT \'\' FROM schedule_requests sch_r WHERE sch_r.STUDENT_ID=ssm.STUDENT_ID AND sch_r.SYEAR=ssm.SYEAR AND sch_r.COURSE_ID=\'' . $_REQUEST['request_course_id'] . '\') ';
-            $_openSIS['SearchTerms'] .= '<font color=gray><b>'._missingRequest.': </b></font>' . $course[1]['TITLE'] . '<BR>';
+            $_hani['SearchTerms'] .= '<font color=gray><b>'._missingRequest.': </b></font>' . $course[1]['TITLE'] . '<BR>';
         }
     }
 
@@ -491,7 +465,7 @@ else {
             $extra['FROM'] .=',schedule sr '; 
                  $extra['WHERE'] .=' AND sr.STUDENT_ID=ssm.STUDENT_ID AND s.student_id=ssm.student_id'; 
        }
-       $extra['WHERE'] .= ' AND sr.SYEAR=ssm.SYEAR AND sr.SCHOOL_ID=ssm.SCHOOL_ID AND sr.COURSE_PERIOD_ID=\'' . $_SESSION['MassDrops.php']['course_period_id'] . '\'';
+       $extra['WHERE'] .= ' AND sr.SYEAR=ssm.SYEAR AND sr.INSTITUTE_ID=ssm.INSTITUTE_ID AND sr.COURSE_PERIOD_ID=\'' . $_SESSION['MassDrops.php']['course_period_id'] . '\'';
        if($_REQUEST['modname'] !='attendance/DailySummary.php' && $_REQUEST['modname'] !='scheduling/Schedule.php' && $_REQUEST['modname'] !='scheduling/ViewSchedule.php') 
        unset($_SESSION['MassDrops.php']['course_period_id']);
     }
@@ -548,8 +522,8 @@ else {
     );
     $name_link['FULL_NAME']['link'] = "Modules.php?modname=$_REQUEST[next_modname]";
     $name_link['FULL_NAME']['variables'] = array('student_id' => 'STUDENT_ID');
-    if ($_REQUEST['_search_all_schools'])
-        $name_link['FULL_NAME']['variables'] += array('school_id' => 'SCHOOL_ID');
+    if ($_REQUEST['_search_all_institutes'])
+        $name_link['FULL_NAME']['variables'] += array('institute_id' => 'INSTITUTE_ID');
 
     if (is_array($extra['link']))
         $link = $extra['link'] + $name_link;
@@ -573,10 +547,10 @@ else {
         unset($tmp_REQUEST['expanded_view']);
         if ($_REQUEST['expanded_view'] != 'true' && !UserStudentID() && (is_countable($students_RET) && count($students_RET) != 0)) {
             DrawHeader("<A HREF=" . PreparePHP_SELF($tmp_REQUEST) . "&expanded_view=true><i class=\"icon-square-down-right\"></i> "._expandedView."</A>", $extra['header_right']);
-            DrawHeader(str_replace('<BR>', '', substr($_openSIS['SearchTerms'], 0, -4)));
+            DrawHeader(str_replace('<BR>', '', substr($_hani['SearchTerms'], 0, -4)));
         } elseif (!UserStudentID() && (is_countable($students_RET) && count($students_RET) != 0)) {
             DrawHeader("<A HREF=" . PreparePHP_SELF($tmp_REQUEST) . "&expanded_view=false><i class=\"icon-square-up-left\"></i> "._originalView."</A>", $extra['header_right']);
-            DrawHeader(str_replace('<BR>', '', substr($_openSIS['Search'], 0, -4)));
+            DrawHeader(str_replace('<BR>', '', substr($_hani['Search'], 0, -4)));
         }
         DrawHeader($extra['extra_header_left'], $extra['extra_header_right']);
         if ($_REQUEST['LO_save'] != '1' && !$extra['suppress_save']) {
@@ -619,8 +593,8 @@ else {
         }
 
         echo "<div id='students'>";
-        if ($_REQUEST['_search_all_schools'] == 'Y' && $_REQUEST['modname'] == 'scheduling/PrintSchedules.php')
-            echo '<INPUT type=hidden name="_search_all_schools" value="Y">';
+        if ($_REQUEST['_search_all_institutes'] == 'Y' && $_REQUEST['modname'] == 'scheduling/PrintSchedules.php')
+            echo '<INPUT type=hidden name="_search_all_institutes" value="Y">';
 
 
         if ($_REQUEST['modname'] == 'scheduling/Schedule.php' && $extra['singular'] == 'Request') {
@@ -693,9 +667,9 @@ else {
 
 
             if (User('PROFILE') == 'admin')
-                $_SESSION['UserSchool'] = $students_RET[1]['LIST_SCHOOL_ID'];
+                $_SESSION['UserInstitute'] = $students_RET[1]['LIST_INSTITUTE_ID'];
             if (User('PROFILE') == 'teacher')
-                $_SESSION['UserSchool'] = $students_RET[1]['SCHOOL_ID'];
+                $_SESSION['UserInstitute'] = $students_RET[1]['INSTITUTE_ID'];
 
 
 //            echo '<script language=JavaScript>parent.side.location="' . $_SESSION['Side_PHP_SELF'] . '?modcat="+parent.side.document.forms[0].modcat.value;</script>';
@@ -727,7 +701,7 @@ echo '<center><div id="conf_div"></div></center>';
 
 echo'<div class="row" id="resp_table">';
 echo '<div class="col-md-6">';
-$sql = "SELECT SUBJECT_ID,TITLE FROM course_subjects WHERE SCHOOL_ID='" . UserSchool() . "' AND SYEAR='" . UserSyear() . "' ORDER BY TITLE";
+$sql = "SELECT SUBJECT_ID,TITLE FROM course_subjects WHERE INSTITUTE_ID='" . UserInstitute() . "' AND SYEAR='" . UserSyear() . "' ORDER BY TITLE";
 $QI = DBQuery($sql);
 $subjects_RET = DBGet($QI);
 
@@ -762,7 +736,7 @@ echo '<div class="modal-body">';
 echo '<div id="conf_div" class="text-center"></div>';
 echo '<div class="row" id="resp_table">';
 echo '<div class="col-md-4">';
-$sql = "SELECT SUBJECT_ID,TITLE FROM course_subjects WHERE SCHOOL_ID='" . UserSchool() . "' AND SYEAR='" . UserSyear() . "' ORDER BY TITLE";
+$sql = "SELECT SUBJECT_ID,TITLE FROM course_subjects WHERE INSTITUTE_ID='" . UserInstitute() . "' AND SYEAR='" . UserSyear() . "' ORDER BY TITLE";
 $QI = DBQuery($sql);
 $subjects_RET = DBGet($QI);
 
@@ -818,7 +792,7 @@ if ($clash) {
 echo '<div class="row" id="resp_table">';
 echo '<div class="col-md-12" class="col-md-4"id="selected_course1"></div>';
 echo '<div class="col-md-4">';
-$sql = "SELECT SUBJECT_ID,TITLE FROM course_subjects WHERE SCHOOL_ID='" . UserSchool() . "' AND SYEAR='" . UserSyear() . "' ORDER BY TITLE";
+$sql = "SELECT SUBJECT_ID,TITLE FROM course_subjects WHERE INSTITUTE_ID='" . UserInstitute() . "' AND SYEAR='" . UserSyear() . "' ORDER BY TITLE";
 $QI = DBQuery($sql);
 $subjects_RET = DBGet($QI);
 
@@ -847,7 +821,7 @@ echo '</div>'; //.modal
 
 // function _make_sections($value) {
 //     if ($value != '') {
-//         $get = DBGet(DBQuery('SELECT NAME FROM school_gradelevel_sections WHERE ID=' . $value));
+//         $get = DBGet(DBQuery('SELECT NAME FROM institute_gradelevel_sections WHERE ID=' . $value));
 //         return $get[1]['NAME'];
 //     } else
 //         return '';

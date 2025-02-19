@@ -1,31 +1,5 @@
 <?php
 
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
 include('../../RedirectModulesInc.php');
 include('lang/language.php');
 
@@ -54,7 +28,7 @@ if (optional_param('delete', '', PARAM_ALPHA) == 'true') {
         $sid = optional_param('studentidx', '', PARAM_ALPHANUM);
         $cnt = optional_param('deletecheck', '', PARAM_INT);
         $pid = optional_param('periodidx', '', PARAM_SPCL);
-        $sdt = $_REQUEST['schooldatex'];
+        $sdt = $_REQUEST['institutedatex'];
 
 
 
@@ -78,9 +52,9 @@ if (optional_param('delete', '', PARAM_ALPHA) == 'true') {
 
                                         $sch_typ = DBGet(DBQuery('SELECT PERIOD_ID FROM course_period_var WHERE COURSE_PERIOD_ID=' . $val3 . ' '));
                                         if ($sch_typ[1]['PERIOD_ID'] != '' && $val2 != '' && $val4 != '' && $val3 != '')
-                                            $count_dup = DBGet(DBQuery('SELECT * FROM attendance_period WHERE STUDENT_ID=\'' . $val2 . '\' AND SCHOOL_DATE=\'' . $val4 . '\' AND COURSE_PERIOD_ID=\'' . $val3 . '\' AND PERIOD_ID=' . $sch_typ[1]['PERIOD_ID'] . ' '));
+                                            $count_dup = DBGet(DBQuery('SELECT * FROM attendance_period WHERE STUDENT_ID=\'' . $val2 . '\' AND INSTITUTE_DATE=\'' . $val4 . '\' AND COURSE_PERIOD_ID=\'' . $val3 . '\' AND PERIOD_ID=' . $sch_typ[1]['PERIOD_ID'] . ' '));
                                         if (count($count_dup) > 1)
-                                            DBQuery('DELETE FROM attendance_period WHERE STUDENT_ID=\'' . $val2 . '\' AND SCHOOL_DATE=\'' . $val4 . '\' AND COURSE_PERIOD_ID=\'' . $val3 . '\' LIMIT ' . (count($count_dup) - 1));
+                                            DBQuery('DELETE FROM attendance_period WHERE STUDENT_ID=\'' . $val2 . '\' AND INSTITUTE_DATE=\'' . $val4 . '\' AND COURSE_PERIOD_ID=\'' . $val3 . '\' LIMIT ' . (count($count_dup) - 1));
                                     }
                                     $iii++;
                                 }
@@ -105,7 +79,7 @@ if (optional_param('delete', '', PARAM_ALPHA) == 'true') {
     }
 }
 
-if ((!$_REQUEST['search_modfunc'] || $_openSIS['modules_search']) && $_REQUEST['delete'] != 'true' && !$_SESSION['student_id']) {
+if ((!$_REQUEST['search_modfunc'] || $_HaniIMS['modules_search']) && $_REQUEST['delete'] != 'true' && !$_SESSION['student_id']) {
     DrawBC("" . _attendance . " > " . ProgramTitle());
 
     $extra['new'] = true;
@@ -129,18 +103,18 @@ if ((!$_REQUEST['search_modfunc'] || $_openSIS['modules_search']) && $_REQUEST['
         unset($extra);
 
         if (isset($_SESSION['student_id'])) {
-            $getstudent = DBGet(DBQuery('SELECT FIRST_NAME,LAST_NAME,MIDDLE_NAME,NAME_SUFFIX,SCHOOL_ID FROM students,student_enrollment WHERE students.STUDENT_ID=\'' . $_SESSION['student_id'] . '\' AND student_enrollment.STUDENT_ID = students.STUDENT_ID '));
+            $getstudent = DBGet(DBQuery('SELECT FIRST_NAME,LAST_NAME,MIDDLE_NAME,NAME_SUFFIX,INSTITUTE_ID FROM students,student_enrollment WHERE students.STUDENT_ID=\'' . $_SESSION['student_id'] . '\' AND student_enrollment.STUDENT_ID = students.STUDENT_ID '));
             DrawHeaderHome('<div class="panel"><div class="panel-heading"><h6 class="panel-title">' . _selectedStudent . '' . ' : ' . $getstudent[1]['FIRST_NAME'] . '&nbsp;' . ($getstudent[1]['MIDDLE_NAME'] ? $getstudent[1]['MIDDLE_NAME'] . ' ' : '') . $getstudent[1]['LAST_NAME'] . '&nbsp;' . $getstudent[1]['NAME_SUFFIX'] . '</h6> <div class="heading-elements clearfix"><div class="btn-group heading-btn"> <A HREF=Side.php?student_id=new&modcat=' . $_REQUEST['modcat'] . ' class="btn btn-danger btn-xs">' . _deselect . '</A></div></div></div></div>');
         }
 
-        $extra['SELECT_ONLY'] .= 'ap.COURSE_PERIOD_ID, s.STUDENT_ID, s.FIRST_NAME, s.LAST_NAME, ap.SCHOOL_DATE, cp.TITLE, ap.PERIOD_ID, sc.START_DATE, sc.END_DATE ';
+        $extra['SELECT_ONLY'] .= 'ap.COURSE_PERIOD_ID, s.STUDENT_ID, s.FIRST_NAME, s.LAST_NAME, ap.INSTITUTE_DATE, cp.TITLE, ap.PERIOD_ID, sc.START_DATE, sc.END_DATE ';
         $extra['FROM'] .= ' ,attendance_period ap, course_periods cp, schedule sc ';
         $extra['WHERE'] .= ' AND ap.STUDENT_ID=s.STUDENT_ID AND sc.STUDENT_ID=s.STUDENT_ID AND ap.COURSE_PERIOD_ID = cp.COURSE_PERIOD_ID AND ap.COURSE_PERIOD_ID = sc.COURSE_PERIOD_ID AND (sc.END_DATE > \'' . date('Y-m-d') . ' \' OR sc.END_DATE IS NULL OR sc.END_DATE=\'0000-00-00\' ) ';
 
         if (isset($_SESSION['student_id']) && $_SESSION['student_id'] != '')
             $extra['WHERE'] .= ' AND s.STUDENT_ID =' . $_SESSION['student_id'];
 
-        $extra['ORDER_BY'] = ' STUDENT_ID, COURSE_PERIOD_ID, SCHOOL_DATE';
+        $extra['ORDER_BY'] = ' STUDENT_ID, COURSE_PERIOD_ID, INSTITUTE_DATE';
         Widgets('course');
         Widgets('gpa');
         Widgets('class_rank');
@@ -156,18 +130,18 @@ if ((!$_REQUEST['search_modfunc'] || $_openSIS['modules_search']) && $_REQUEST['
             $periodidr = $rr['PERIOD_ID'];
             $firstr = $rr['FIRST_NAME'];
             $lastr = $rr['LAST_NAME'];
-            $schooldater = $rr['SCHOOL_DATE'];
+            $institutedater = $rr['INSTITUTE_DATE'];
             $titler = $rr['TITLE'];
             $startr = $rr['START_DATE'];
             $endr = $rr['END_DATE'];
 
-            if ($schooldater > $endr) {
+            if ($institutedater > $endr) {
                 $afterr = "Y";
             }
 
-            if (($studentidr == $studentid2) && ($courseidr == $courseid2) && ($schooldater == $schooldate2) && ($startr == $start2)) {
+            if (($studentidr == $studentid2) && ($courseidr == $courseid2) && ($institutedater == $institutedate2) && ($startr == $start2)) {
                 $totalrows++;
-            } else if (($schooldater > $endr) && ($endr != NULL) && ($startr == $start2)) {
+            } else if (($institutedater > $endr) && ($endr != NULL) && ($startr == $start2)) {
                 $totalrows++;
             } else {
                 //Do nothing
@@ -176,7 +150,7 @@ if ((!$_REQUEST['search_modfunc'] || $_openSIS['modules_search']) && $_REQUEST['
             $studentid2 = $studentidr;
             $courseid2 = $courseidr;
             $periodid2 = $periodidr;
-            $schooldate2 = $schooldater;
+            $institutedate2 = $institutedater;
             $first2 = $firstr;
             $last2 = $lastr;
             $title2 = $titler;
@@ -186,10 +160,10 @@ if ((!$_REQUEST['search_modfunc'] || $_openSIS['modules_search']) && $_REQUEST['
 
 
         unset($extra);
-        $extra['SELECT_ONLY'] .= 'ap.COURSE_PERIOD_ID, s.STUDENT_ID, s.FIRST_NAME, s.LAST_NAME, ap.SCHOOL_DATE, cp.TITLE, cp.SHORT_NAME, ap.PERIOD_ID, sc.START_DATE, sc.END_DATE ';
+        $extra['SELECT_ONLY'] .= 'ap.COURSE_PERIOD_ID, s.STUDENT_ID, s.FIRST_NAME, s.LAST_NAME, ap.INSTITUTE_DATE, cp.TITLE, cp.SHORT_NAME, ap.PERIOD_ID, sc.START_DATE, sc.END_DATE ';
         $extra['FROM'] .= ' ,attendance_period ap, course_periods cp, schedule sc ';
         $extra['WHERE'] .= ' AND ap.STUDENT_ID=s.STUDENT_ID AND sc.STUDENT_ID=s.STUDENT_ID AND ap.COURSE_PERIOD_ID = cp.COURSE_PERIOD_ID AND ap.COURSE_PERIOD_ID = sc.COURSE_PERIOD_ID AND (sc.END_DATE > \'' . date('Y-m-d') . ' \' OR sc.END_DATE IS NULL OR sc.END_DATE=\'0000-00-00\' ) ';
-        $extra['ORDER_BY'] = ' STUDENT_ID, COURSE_PERIOD_ID, SCHOOL_DATE';
+        $extra['ORDER_BY'] = ' STUDENT_ID, COURSE_PERIOD_ID, INSTITUTE_DATE';
         Widgets('course');
         Widgets('gpa');
         Widgets('class_rank');
@@ -250,17 +224,17 @@ if ((!$_REQUEST['search_modfunc'] || $_openSIS['modules_search']) && $_REQUEST['
             $periodid = $r['PERIOD_ID'];
             $first = $r['FIRST_NAME'];
             $last = $r['LAST_NAME'];
-            $schooldate = $r['SCHOOL_DATE'];
+            $institutedate = $r['INSTITUTE_DATE'];
             $title = $r['TITLE'];
             $short_name = $r['SHORT_NAME'];
             $start = $r['START_DATE'];
             $end = $r['END_DATE'];
 
-            if ($schooldate > $end) {
+            if ($institutedate > $end) {
                 $after = "Y";
             }
 
-            if (($studentid == $studentid2) && ($courseid == $courseid2) && ($schooldate == $schooldate2) && ($start == $start2) && ($periodid == $periodid2)) {
+            if (($studentid == $studentid2) && ($courseid == $courseid2) && ($institutedate == $institutedate2) && ($start == $start2) && ($periodid == $periodid2)) {
 
                 $URIcount++;
 
@@ -269,7 +243,7 @@ if ((!$_REQUEST['search_modfunc'] || $_openSIS['modules_search']) && $_REQUEST['
                     echo "<input type=hidden name=delete value=true>";
                     echo "<input type=hidden name=studentidx[$count] value=$studentid>";
                     echo "<input type=hidden name=periodidx[$count] value=$courseid>";
-                    echo "<input type=hidden name=schooldatex[$count] value=$schooldate>";
+                    echo "<input type=hidden name=institutedatex[$count] value=$institutedate>";
 
                     if ($yellow == 0) {
                         $color = 'F8F8F9';
@@ -278,11 +252,11 @@ if ((!$_REQUEST['search_modfunc'] || $_openSIS['modules_search']) && $_REQUEST['
                         $color = Preferences('COLOR');
                         $yellow = 0;
                     }
-                    echo "<tr class=odd><td ><input type=checkbox name=deletecheck[$count] value=$count></td><td bgcolor=#$color><font color=#000000><FONT size=-1>$first $last ($studentid)</td><td bgcolor=#$color><font color=#000000><FONT size=-1>$short_name ($courseid)</td><td bgcolor=#$color><font color=#000000><FONT size=-1>$start &nbsp</td><td bgcolor=#$color><font color=#000000><FONT size=-1>$end &nbsp</td><td bgcolor=#$color><font color=#000000><FONT size=-1>$schooldate</td></tr>";
+                    echo "<tr class=odd><td ><input type=checkbox name=deletecheck[$count] value=$count></td><td bgcolor=#$color><font color=#000000><FONT size=-1>$first $last ($studentid)</td><td bgcolor=#$color><font color=#000000><FONT size=-1>$short_name ($courseid)</td><td bgcolor=#$color><font color=#000000><FONT size=-1>$start &nbsp</td><td bgcolor=#$color><font color=#000000><FONT size=-1>$end &nbsp</td><td bgcolor=#$color><font color=#000000><FONT size=-1>$institutedate</td></tr>";
 
                     $count++;
                 }
-            } else if (($schooldate > $end) && ($end != NULL) && ($start == $start2)) {
+            } else if (($institutedate > $end) && ($end != NULL) && ($start == $start2)) {
 
                 $URIcount++;
 
@@ -291,7 +265,7 @@ if ((!$_REQUEST['search_modfunc'] || $_openSIS['modules_search']) && $_REQUEST['
                     echo "<input type=hidden name=delete value=true>";
                     echo "<input type=hidden name=studentidx[$count] value=$studentid>";
                     echo "<input type=hidden name=periodidx[$count] value=$courseid>";
-                    echo "<input type=hidden name=schooldatex[$count] value=$schooldate>";
+                    echo "<input type=hidden name=institutedatex[$count] value=$institutedate>";
 
                     if ($yellow == 0) {
                         $color = 'F8F8F9';
@@ -300,7 +274,7 @@ if ((!$_REQUEST['search_modfunc'] || $_openSIS['modules_search']) && $_REQUEST['
                         $color = Preferences('COLOR');
                         $yellow = 0;
                     }
-                    echo "<tr class=even><td ><input type=checkbox name=deletecheck[$count] value=$count></td><td bgcolor=#$color><font color=#000000><FONT size=-1>$first $last ($studentid)</td><td bgcolor=#$color><font color=#000000><FONT size=-1>$short_name ($courseid)</td><td bgcolor=#$color><font color=#000000><FONT size=-1>$start &nbsp</td><td bgcolor=#$color><font color=#000000><FONT size=-1>$end &nbsp</td><td bgcolor=#$color><font color=#000000><FONT size=-1>$schooldate</td></tr>";
+                    echo "<tr class=even><td ><input type=checkbox name=deletecheck[$count] value=$count></td><td bgcolor=#$color><font color=#000000><FONT size=-1>$first $last ($studentid)</td><td bgcolor=#$color><font color=#000000><FONT size=-1>$short_name ($courseid)</td><td bgcolor=#$color><font color=#000000><FONT size=-1>$start &nbsp</td><td bgcolor=#$color><font color=#000000><FONT size=-1>$end &nbsp</td><td bgcolor=#$color><font color=#000000><FONT size=-1>$institutedate</td></tr>";
 
                     $count++;
                 }
@@ -311,7 +285,7 @@ if ((!$_REQUEST['search_modfunc'] || $_openSIS['modules_search']) && $_REQUEST['
             $studentid2 = $studentid;
             $courseid2 = $courseid;
             $periodid2 = $periodid;
-            $schooldate2 = $schooldate;
+            $institutedate2 = $institutedate;
             $first2 = $first;
             $last2 = $last;
             $title2 = $title;

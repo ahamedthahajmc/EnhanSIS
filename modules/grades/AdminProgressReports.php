@@ -1,30 +1,5 @@
 <?php
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+ 
 include('../../RedirectModulesInc.php');
 include '_makeLetterGrade.fnc.php';
 
@@ -72,9 +47,9 @@ if($_REQUEST['modfunc']=='save')
                         $tot_weighted_percent=array();
                            $assignment_type_count=array();
                           
-			unset($_openSIS['DrawHeader']);
+			unset($_HaniIMS['DrawHeader']);
 			echo "<table width=100%  style=\" font-family:Arial; font-size:12px;\" >";
-			echo "<tr><td width=105>".DrawLogo()."</td><td  style=\"font-size:15px; font-weight:bold; padding-top:20px;\">". GetSchool(UserSchool())."<div style=\"font-size:12px;\">"._studentProgressReport."</div></td><td align=right style=\"padding-top:20px;\">". ProperDate(DBDate()) ."<br/>"._studentProgressReport."</td></tr><tr><td colspan=3 style=\"border-top:1px solid #333;\">&nbsp;</td></tr></table>";
+			echo "<tr><td width=105>".DrawLogo()."</td><td  style=\"font-size:15px; font-weight:bold; padding-top:20px;\">". GetInstitute(UserInstitute())."<div style=\"font-size:12px;\">"._studentProgressReport."</div></td><td align=right style=\"padding-top:20px;\">". ProperDate(DBDate()) ."<br/>"._studentProgressReport."</td></tr><tr><td colspan=3 style=\"border-top:1px solid #333;\">&nbsp;</td></tr></table>";
 			echo '<table border=0 style=\"font-size:12px;\">';
 			echo "<tr><td>"._studentName.":</td>";
 			echo "<td>" .$student['FULL_NAME']. "</td></tr>";
@@ -96,18 +71,18 @@ if($_REQUEST['modfunc']=='save')
                         }
                         if($MP_TYPE=="QTR")
                                 {
-                                    $quarter_val=DBGet(DBQuery('SELECT START_DATE, END_DATE FROM school_quarters WHERE MARKING_PERIOD_ID='.UserMP().' '));
+                                    $quarter_val=DBGet(DBQuery('SELECT START_DATE, END_DATE FROM institute_quarters WHERE MARKING_PERIOD_ID='.UserMP().' '));
                                     $q=$quarter_val[1];
-                                    $quarter=DBGet(DBQuery('SELECT MARKING_PERIOD_ID  FROM school_quarters WHERE ((\''.$q['START_DATE'].'\'Between START_DATE And END_DATE ) OR(\''.$q['END_DATE'].'\'Between START_DATE And END_DATE ))  AND SCHOOL_ID=999'));
+                                    $quarter=DBGet(DBQuery('SELECT MARKING_PERIOD_ID  FROM institute_quarters WHERE ((\''.$q['START_DATE'].'\'Between START_DATE And END_DATE ) OR(\''.$q['END_DATE'].'\'Between START_DATE And END_DATE ))  AND INSTITUTE_ID=999'));
                                     $EVAL=$quarter[1];
 
                                 }
                             if($MP_TYPE=="SEM")
                                 {
-                                    $semester_val=DBGet(DBQuery('SELECT START_DATE, END_DATE FROM school_semesters WHERE MARKING_PERIOD_ID='.UserMP().' '));
+                                    $semester_val=DBGet(DBQuery('SELECT START_DATE, END_DATE FROM institute_semesters WHERE MARKING_PERIOD_ID='.UserMP().' '));
                                     $q=$semester_val[1];
                                     
-                                    $semester=DBGet(DBQuery('SELECT MARKING_PERIOD_ID  FROM school_semesters WHERE ((\''.$q['START_DATE'].'\'Between START_DATE And END_DATE ) OR(\''.$q['END_DATE'].'\'Between START_DATE And END_DATE )) AND SCHOOL_ID=999'));
+                                    $semester=DBGet(DBQuery('SELECT MARKING_PERIOD_ID  FROM institute_semesters WHERE ((\''.$q['START_DATE'].'\'Between START_DATE And END_DATE ) OR(\''.$q['END_DATE'].'\'Between START_DATE And END_DATE )) AND INSTITUTE_ID=999'));
                                     $EVAL=$semester[1];
                                    
                                   
@@ -115,9 +90,9 @@ if($_REQUEST['modfunc']=='save')
                                 }
                             if($MP_TYPE=="FY")
                                 {
-                                    $year_val=DBGet(DBQuery('SELECT START_DATE, END_DATE FROM school_years WHERE MARKING_PERIOD_ID='.UserMP().' '));
+                                    $year_val=DBGet(DBQuery('SELECT START_DATE, END_DATE FROM institute_years WHERE MARKING_PERIOD_ID='.UserMP().' '));
                                     $q=$year_val[1];
-                                    $year=DBGet(DBQuery('SELECT MARKING_PERIOD_ID  FROM school_years WHERE ((\''.$q['START_DATE'].'\'Between START_DATE And END_DATE ) OR(\''.$q['END_DATE'].'\'Between START_DATE And END_DATE )) AND SCHOOL_ID=999 '));
+                                    $year=DBGet(DBQuery('SELECT MARKING_PERIOD_ID  FROM institute_years WHERE ((\''.$q['START_DATE'].'\'Between START_DATE And END_DATE ) OR(\''.$q['END_DATE'].'\'Between START_DATE And END_DATE )) AND INSTITUTE_ID=999 '));
                                     $EVAL=$year[1];
 
                                 }
@@ -127,8 +102,8 @@ if($_REQUEST['modfunc']=='save')
 				echo '<tr><TD colspan=2>'.$student['MAILING_LABEL'].'</TD></TR>';
 
 			
-                    $school_years = DBGet(DBQuery('SELECT marking_period_id from  school_years where  syear='.UserSyear().' and school_id='.UserSchool()));
-                                    $fy_mp_id = $school_years[1]['MARKING_PERIOD_ID'];  
+                    $institute_years = DBGet(DBQuery('SELECT marking_period_id from  institute_years where  syear='.UserSyear().' and institute_id='.UserInstitute()));
+                                    $fy_mp_id = $institute_years[1]['MARKING_PERIOD_ID'];  
                     $courselist_ret = DBGet(DBQuery('SELECT s.TITLE AS COURSE, s.COURSE_ID, cp.COURSE_PERIOD_ID,cp.TEACHER_ID 
                                                     FROM gradebook_grades g, courses s, course_periods cp, gradebook_assignments ga, schedule sc
                                                         WHERE (cp.COURSE_PERIOD_ID = ga.COURSE_PERIOD_ID OR cp.COURSE_ID = ga.COURSE_ID) AND sc.COURSE_PERIOD_ID=cp.COURSE_PERIOD_ID AND sc.STUDENT_ID=g.STUDENT_ID 
@@ -180,8 +155,8 @@ if($_REQUEST['modfunc']=='save')
                 $assignment_type_weight = DBGet(DBQuery('SELECT SUM(FINAL_GRADE_PERCENT) AS FINAL_GRADE_PERCENT FROM gradebook_assignment_types WHERE assignment_type_id IN (' . $assignment_type_list . ')'));
                 $assignment_type_weight = $assignment_type_weight[1]['FINAL_GRADE_PERCENT'];
 
-                $school_years = DBGet(DBQuery('select marking_period_id from  school_years where  syear='.UserSyear().' and school_id='.UserSchool()));
-                $fy_mp_id = $school_years[1]['MARKING_PERIOD_ID'];
+                $institute_years = DBGet(DBQuery('select marking_period_id from  institute_years where  syear='.UserSyear().' and institute_id='.UserInstitute()));
+                $fy_mp_id = $institute_years[1]['MARKING_PERIOD_ID'];
                 // $sql = 'SELECT '.$course_period_id.' as COURSE_PERIOD_ID,a.TITLE,t.TITLE AS ASSIGN_TYP,a.ASSIGNED_DATE,a.DUE_DATE,      t.ASSIGNMENT_TYPE_ID, (t.FINAL_GRADE_PERCENT / (SELECT SUM(FINAL_GRADE_PERCENT) FROM gradebook_assignment_types WHERE COURSE_ID = \''.$course_id.'\')) as FINAL_GRADE_PERCENT,(t.FINAL_GRADE_PERCENT / (SELECT SUM(FINAL_GRADE_PERCENT) FROM gradebook_assignment_types WHERE COURSE_ID = \''.$course_id.'\')) as ASSIGN_TYP_WG,t.FINAL_GRADE_PERCENT AS WEIGHT_GRADE  ,g.POINTS,a.POINTS AS TOTAL_POINTS,g.COMMENT,g.POINTS AS LETTER_GRADE,g.POINTS AS LETTERWTD_GRADE,'.$course['TEACHER_ID'].' AS CP_TEACHER_ID,CASE WHEN (a.ASSIGNED_DATE IS NULL OR CURRENT_DATE>=a.ASSIGNED_DATE) AND (a.DUE_DATE IS NULL OR CURRENT_DATE>=a.DUE_DATE) THEN \'Y\' ELSE NULL END AS DUE FROM gradebook_assignment_types t,gradebook_assignments a 
                 //     LEFT OUTER JOIN gradebook_grades g ON (a.ASSIGNMENT_ID=g.ASSIGNMENT_ID AND g.STUDENT_ID=\''.$student['STUDENT_ID'].'\' AND g.COURSE_PERIOD_ID=\''.$course_period_id.'\') 
                 //          WHERE   a.ASSIGNMENT_TYPE_ID=t.ASSIGNMENT_TYPE_ID AND (a.COURSE_PERIOD_ID=\''.$course_period_id.'\' OR a.COURSE_ID=\''.$course_id.'\' ) AND t.COURSE_ID=\''.$course_id.'\' AND (a.MARKING_PERIOD_ID=\''.UserMP().'\' OR a.MARKING_PERIOD_ID=\''.$fy_mp_id.'\')';
@@ -213,8 +188,8 @@ if($_REQUEST['modfunc']=='save')
                         }else{
                             $course_periods = DBGet(DBQuery('select marking_period_id from course_periods where course_period_id='.$course_period_id));
                                 if($course_periods[1]['MARKING_PERIOD_ID']==NULL){
-                                    $school_years = DBGet(DBQuery('select marking_period_id from  school_years where  syear='.UserSyear().' and school_id='.UserSchool()));
-                                    $fy_mp_id = $school_years[1]['MARKING_PERIOD_ID'];
+                                    $institute_years = DBGet(DBQuery('select marking_period_id from  institute_years where  syear='.UserSyear().' and institute_id='.UserInstitute()));
+                                    $fy_mp_id = $institute_years[1]['MARKING_PERIOD_ID'];
                                     
                 $sql = 'SELECT '.$course_period_id.' as COURSE_PERIOD_ID,a.TITLE,t.TITLE AS ASSIGN_TYP,a.ASSIGNED_DATE,a.DUE_DATE,\'-1\' AS ASSIGNMENT_TYPE_ID,\'1\' AS FINAL_GRADE_PERCENT,\'N/A\' as ASSIGN_TYP_WG,\'N/A\' as WEIGHT_GRADE,g.POINTS,a.POINTS AS TOTAL_POINTS,g.COMMENT,g.POINTS AS LETTER_GRADE,g.POINTS AS LETTERWTD_GRADE,'.$course['TEACHER_ID'].' AS CP_TEACHER_ID,CASE WHEN (a.ASSIGNED_DATE IS NULL OR CURRENT_DATE>=a.ASSIGNED_DATE) AND (a.DUE_DATE IS NULL OR CURRENT_DATE>=a.DUE_DATE) THEN \'Y\' ELSE NULL END AS DUE FROM    gradebook_assignment_types t,gradebook_assignments a
                                         LEFT OUTER JOIN gradebook_grades g ON (a.ASSIGNMENT_ID=g.ASSIGNMENT_ID AND g.STUDENT_ID=\''.$student['STUDENT_ID'].'\' AND g.COURSE_PERIOD_ID=\''.$course_period_id.'\')
@@ -338,7 +313,7 @@ if(!$_REQUEST['modfunc'])
         }
 	if($_REQUEST['search_modfunc']=='list') 
 	{
-		echo "<FORM id=F1 action=ForExport.php?modname=".strip_tags(trim($_REQUEST[modname]))."&modfunc=save&include_inactive=".strip_tags(trim($_REQUEST['include_inactive']))."&_openSIS_PDF=true method=POST target=_blank>";
+		echo "<FORM id=F1 action=ForExport.php?modname=".strip_tags(trim($_REQUEST[modname]))."&modfunc=save&include_inactive=".strip_tags(trim($_REQUEST['include_inactive']))."&HaniIMS_PDF=true method=POST target=_blank>";
 		
 		$extra['extra_header_left'] = '<div class="checkbox">';
 		$extra['extra_header_left'] .= '<label class="checkbox-inline"><INPUT type=checkbox value=Y name=assigned_date id=assigned_date>'._assignedDate.'</label>';

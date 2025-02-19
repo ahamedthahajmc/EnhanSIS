@@ -1,31 +1,5 @@
 <?php
-
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+ 
 session_start();
 !empty($_SESSION['USERNAME']) or die('Access denied!');
 include('../../RedirectModulesInc.php');
@@ -140,29 +114,29 @@ if ($_REQUEST['button'] == 'Send') {
         $to_bcc_array = explode(',', $to_bcc_array);
 
     if (User('PROFILE_ID') != 0 && User('PROFILE') == 'admin') {
-        $schools = DBGet(DBQuery('SELECT GROUP_CONCAT(SCHOOL_ID) as SCHOOL_ID FROM staff_school_relationship WHERE STAFF_ID=' . $user_id . ' AND (START_DATE=\'0000-00-00\' OR START_DATE<=\'' . date('Y-m-d') . '\') AND (END_DATE=\'0000-00-00\' OR END_DATE IS NULL OR END_DATE>=\'' . date('Y-m-d') . '\') '));
-        $schools = $schools[1]['SCHOOL_ID'];
+        $institutes = DBGet(DBQuery('SELECT GROUP_CONCAT(INSTITUTE_ID) as INSTITUTE_ID FROM staff_institute_relationship WHERE STAFF_ID=' . $user_id . ' AND (START_DATE=\'0000-00-00\' OR START_DATE<=\'' . date('Y-m-d') . '\') AND (END_DATE=\'0000-00-00\' OR END_DATE IS NULL OR END_DATE>=\'' . date('Y-m-d') . '\') '));
+        $institutes = $institutes[1]['INSTITUTE_ID'];
 
 
         $tmp_q = '';
         $tmp_a = array();
         $tmp_arr = array();
 
-        $tmp_q = DBGet(DBQuery('SELECT DISTINCT la.USERNAME FROM login_authentication la,student_enrollment se WHERE se.STUDENT_ID=la.USER_ID AND la.PROFILE_ID=3 AND se.SCHOOL_ID IN (' . $schools . ') AND (se.START_DATE=\'0000-00-00\' OR se.START_DATE<=\'' . date('Y-m-d') . '\') AND (se.END_DATE=\'0000-00-00\' OR se.END_DATE IS NULL OR se.END_DATE>=\'' . date('Y-m-d') . '\') AND la.USERNAME IS NOT NULL'));
+        $tmp_q = DBGet(DBQuery('SELECT DISTINCT la.USERNAME FROM login_authentication la,student_enrollment se WHERE se.STUDENT_ID=la.USER_ID AND la.PROFILE_ID=3 AND se.INSTITUTE_ID IN (' . $institutes . ') AND (se.START_DATE=\'0000-00-00\' OR se.START_DATE<=\'' . date('Y-m-d') . '\') AND (se.END_DATE=\'0000-00-00\' OR se.END_DATE IS NULL OR se.END_DATE>=\'' . date('Y-m-d') . '\') AND la.USERNAME IS NOT NULL'));
         foreach ($tmp_q as $tmp_a)
             $tmp_arr[] = $tmp_a['USERNAME'];
 
 
         $tmp_q = '';
         $tmp_a = array();
-        $tmp_q = DBGet(DBQuery('SELECT DISTINCT la.USERNAME  FROM login_authentication la,staff_school_relationship ssr,user_profiles up WHERE ssr.SCHOOL_ID IN (' . $schools . ') AND (ssr.START_DATE=\'0000-00-00\' OR ssr.START_DATE<=\'' . date('Y-m-d') . '\') AND (ssr.END_DATE=\'0000-00-00\' OR ssr.END_DATE IS NULL OR ssr.END_DATE>=\'' . date('Y-m-d') . '\') AND ssr.STAFF_ID=la.USER_ID AND la.USERNAME IS NOT NULL AND la.PROFILE_ID=up.ID AND up.PROFILE NOT IN (\'student\',\'parent\')'));
+        $tmp_q = DBGet(DBQuery('SELECT DISTINCT la.USERNAME  FROM login_authentication la,staff_institute_relationship ssr,user_profiles up WHERE ssr.INSTITUTE_ID IN (' . $institutes . ') AND (ssr.START_DATE=\'0000-00-00\' OR ssr.START_DATE<=\'' . date('Y-m-d') . '\') AND (ssr.END_DATE=\'0000-00-00\' OR ssr.END_DATE IS NULL OR ssr.END_DATE>=\'' . date('Y-m-d') . '\') AND ssr.STAFF_ID=la.USER_ID AND la.USERNAME IS NOT NULL AND la.PROFILE_ID=up.ID AND up.PROFILE NOT IN (\'student\',\'parent\')'));
         foreach ($tmp_q as $tmp_a)
             $tmp_arr[] = $tmp_a['USERNAME'];
 
 
         $tmp_q = '';
         $tmp_a = array();
-        $tmp_q = DBGet(DBQuery('SELECT DISTINCT la.USERNAME  FROM login_authentication la,student_enrollment se,students_join_people sjp WHERE se.SCHOOL_ID IN (' . $schools . ') AND (se.START_DATE=\'0000-00-00\' OR se.START_DATE<=\'' . date('Y-m-d') . '\') AND (se.END_DATE=\'0000-00-00\' OR se.END_DATE IS NULL OR se.END_DATE>=\'' . date('Y-m-d') . '\') AND se.STUDENT_ID=sjp.STUDENT_ID AND sjp.PERSON_ID=la.USER_ID AND la.USERNAME IS NOT NULL AND la.PROFILE_ID=4'));
+        $tmp_q = DBGet(DBQuery('SELECT DISTINCT la.USERNAME  FROM login_authentication la,student_enrollment se,students_join_people sjp WHERE se.INSTITUTE_ID IN (' . $institutes . ') AND (se.START_DATE=\'0000-00-00\' OR se.START_DATE<=\'' . date('Y-m-d') . '\') AND (se.END_DATE=\'0000-00-00\' OR se.END_DATE IS NULL OR se.END_DATE>=\'' . date('Y-m-d') . '\') AND se.STUDENT_ID=sjp.STUDENT_ID AND sjp.PERSON_ID=la.USER_ID AND la.USERNAME IS NOT NULL AND la.PROFILE_ID=4'));
         foreach ($tmp_q as $tmp_a)
             $tmp_arr[] = $tmp_a['USERNAME'];
     } elseif (User('PROFILE') == 'parent' || User('PROFILE') == 'student') {
@@ -216,12 +190,12 @@ if ($_REQUEST['button'] == 'Send') {
         $tmp_q = '';
         $tmp_a = array();
 
-        $tmp_q = DBGet(DBQuery('SELECT la.USERNAME FROM login_authentication la,staff s,staff_school_relationship ssr,user_profiles up WHERE s.PROFILE=\'admin\' AND ssr.STAFF_ID=s.STAFF_ID AND (ssr.START_DATE=\'0000-00-00\' OR ssr.START_DATE<=\'' . date('Y-m-d') . '\') AND (ssr.END_DATE=\'0000-00-00\' OR ssr.END_DATE IS NULL OR ssr.END_DATE>=\'' . date('Y-m-d') . '\') AND ssr.SCHOOL_ID=' . UserSchool() . '  AND la.USER_ID=s.STAFF_ID AND la.PROFILE_ID=up.ID AND up.PROFILE=s.PROFILE AND la.USERNAME IS NOT NULL '));
+        $tmp_q = DBGet(DBQuery('SELECT la.USERNAME FROM login_authentication la,staff s,staff_institute_relationship ssr,user_profiles up WHERE s.PROFILE=\'admin\' AND ssr.STAFF_ID=s.STAFF_ID AND (ssr.START_DATE=\'0000-00-00\' OR ssr.START_DATE<=\'' . date('Y-m-d') . '\') AND (ssr.END_DATE=\'0000-00-00\' OR ssr.END_DATE IS NULL OR ssr.END_DATE>=\'' . date('Y-m-d') . '\') AND ssr.INSTITUTE_ID=' . UserInstitute() . '  AND la.USER_ID=s.STAFF_ID AND la.PROFILE_ID=up.ID AND up.PROFILE=s.PROFILE AND la.USERNAME IS NOT NULL '));
         foreach ($tmp_q as $tmp_a)
             $tmp_arr[] = $tmp_a['USERNAME'];
     } elseif (User('PROFILE') == 'teacher') {
-        $schools = DBGet(DBQuery('SELECT GROUP_CONCAT(SCHOOL_ID) as SCHOOL_ID FROM staff_school_relationship WHERE STAFF_ID=' . $user_id . ' AND (START_DATE=\'0000-00-00\' OR START_DATE<=\'' . date('Y-m-d') . '\') AND (END_DATE=\'0000-00-00\' OR END_DATE IS NULL OR END_DATE>=\'' . date('Y-m-d') . '\') '));
-        $schools = $schools[1]['SCHOOL_ID'];
+        $institutes = DBGet(DBQuery('SELECT GROUP_CONCAT(INSTITUTE_ID) as INSTITUTE_ID FROM staff_institute_relationship WHERE STAFF_ID=' . $user_id . ' AND (START_DATE=\'0000-00-00\' OR START_DATE<=\'' . date('Y-m-d') . '\') AND (END_DATE=\'0000-00-00\' OR END_DATE IS NULL OR END_DATE>=\'' . date('Y-m-d') . '\') '));
+        $institutes = $institutes[1]['INSTITUTE_ID'];
 
         $course_periods = DBGet(DBQuery('SELECT GROUP_CONCAT(course_period_id) as COURSE_PERIOD_ID FROM course_periods WHERE TEACHER_ID=' . $user_id . ' OR SECONDARY_TEACHER_ID=' . $user_id));
         $course_periods = $course_periods[1]['COURSE_PERIOD_ID'];
@@ -243,7 +217,7 @@ if ($_REQUEST['button'] == 'Send') {
 
         $tmp_q = '';
         $tmp_a = array();
-        $tmp_q = DBGet(DBQuery('SELECT la.USERNAME FROM login_authentication la,staff s,staff_school_relationship ssr,user_profiles up WHERE  ssr.STAFF_ID=s.STAFF_ID AND (ssr.START_DATE=\'0000-00-00\' OR ssr.START_DATE<=\'' . date('Y-m-d') . '\') AND (ssr.END_DATE=\'0000-00-00\' OR ssr.END_DATE IS NULL OR ssr.END_DATE>=\'' . date('Y-m-d') . '\') AND ssr.SCHOOL_ID IN (' . $schools . ')  AND la.USER_ID=s.STAFF_ID AND la.PROFILE_ID=up.ID AND up.PROFILE=s.PROFILE AND la.USERNAME IS NOT NULL '));
+        $tmp_q = DBGet(DBQuery('SELECT la.USERNAME FROM login_authentication la,staff s,staff_institute_relationship ssr,user_profiles up WHERE  ssr.STAFF_ID=s.STAFF_ID AND (ssr.START_DATE=\'0000-00-00\' OR ssr.START_DATE<=\'' . date('Y-m-d') . '\') AND (ssr.END_DATE=\'0000-00-00\' OR ssr.END_DATE IS NULL OR ssr.END_DATE>=\'' . date('Y-m-d') . '\') AND ssr.INSTITUTE_ID IN (' . $institutes . ')  AND la.USER_ID=s.STAFF_ID AND la.PROFILE_ID=up.ID AND up.PROFILE=s.PROFILE AND la.USERNAME IS NOT NULL '));
         foreach ($tmp_q as $tmp_a)
             $tmp_arr[] = $tmp_a['USERNAME'];
     }
@@ -457,7 +431,7 @@ if (isset($_REQUEST['modfunc']) && $_REQUEST['modfunc'] == 'body') {
         $profile = DBGet(DBQuery('SELECT * FROM user_profiles WHERE ID=' . $login_authentication[1]['PROFILE_ID']));
         if ($profile[1]['PROFILE'] != 'parent') {
             if ($profile[1]['PROFILE'] == 'student') {
-                $stu_img_info = DBGet(DBQuery('SELECT * FROM user_file_upload WHERE USER_ID=' . $login_authentication[1]['USER_ID'] . ' AND PROFILE_ID=3 AND SCHOOL_ID=' . UserSchool() . ' AND SYEAR=' . UserSyear() . ' AND FILE_INFO=\'stuimg\''));
+                $stu_img_info = DBGet(DBQuery('SELECT * FROM user_file_upload WHERE USER_ID=' . $login_authentication[1]['USER_ID'] . ' AND PROFILE_ID=3 AND INSTITUTE_ID=' . UserInstitute() . ' AND SYEAR=' . UserSyear() . ' AND FILE_INFO=\'stuimg\''));
             } else {
                 $staff = DBGet(DBQuery('SELECT * FROM staff WHERE STAFF_ID=' . $login_authentication[1]['USER_ID']));
             }
@@ -814,9 +788,9 @@ function CheckAuthenticMail($userName, $toUsers, $toCCUsers, $toBCCUsers, $grpNa
 
                 $fileName = addslashes($fileName);
                 if (User('PROFILE') == 'student')
-                    DBQuery('INSERT INTO user_file_upload (USER_ID,PROFILE_ID,SCHOOL_ID,SYEAR,NAME, SIZE, TYPE, CONTENT,FILE_INFO) VALUES (' . UserStudentID() . ',\'3\',' . UserSchool() . ',' . UserSyear() . ',\'' . $fileName . '\', \'' . $fileSize . '\', \'' . $fileType . '\', \'' . $content . '\',\'intmsg\')');
+                    DBQuery('INSERT INTO user_file_upload (USER_ID,PROFILE_ID,INSTITUTE_ID,SYEAR,NAME, SIZE, TYPE, CONTENT,FILE_INFO) VALUES (' . UserStudentID() . ',\'3\',' . UserInstitute() . ',' . UserSyear() . ',\'' . $fileName . '\', \'' . $fileSize . '\', \'' . $fileType . '\', \'' . $content . '\',\'intmsg\')');
                 else
-                    DBQuery('INSERT INTO user_file_upload (USER_ID,PROFILE_ID,SCHOOL_ID,SYEAR,NAME, SIZE, TYPE, CONTENT,FILE_INFO) VALUES (' . User('STAFF_ID') . ',' . User('PROFILE_ID') . ',' . UserSchool() . ',' . UserSyear() . ',\'' . $fileName . '\', \'' . $fileSize . '\', \'' . $fileType . '\', \'' . $content . '\',\'intmsg\')');
+                    DBQuery('INSERT INTO user_file_upload (USER_ID,PROFILE_ID,INSTITUTE_ID,SYEAR,NAME, SIZE, TYPE, CONTENT,FILE_INFO) VALUES (' . User('STAFF_ID') . ',' . User('PROFILE_ID') . ',' . UserInstitute() . ',' . UserSyear() . ',\'' . $fileName . '\', \'' . $fileSize . '\', \'' . $fileType . '\', \'' . $content . '\',\'intmsg\')');
 
                 $file_id = DBGet(DBQuery('SELECT MAX(ID) AS ID FROM user_file_upload WHERE FILE_INFO =\'intmsg\''));
                 if (count($file_id) > 0)

@@ -1,31 +1,6 @@
 <?php
 
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+ 
 include('../../RedirectModulesInc.php');
 
 if(isset($_SESSION['student_id']) && $_SESSION['student_id'] != '')
@@ -38,9 +13,9 @@ if(isset($_SESSION['student_id']) && $_SESSION['student_id'] != '')
 if ($_REQUEST['modfunc'] == 'save') {
     if (is_countable($_REQUEST['st_arr']) && count($_REQUEST['st_arr'])) {
 
-        if ($_REQUEST['_search_all_schools'] == 'Y') {
+        if ($_REQUEST['_search_all_institutes'] == 'Y') {
 
-            $_REQUEST['_search_all_schools'] = 'Y';
+            $_REQUEST['_search_all_institutes'] = 'Y';
         }
         
         $st_list = '\'' . implode('\',\'', $_REQUEST['st_arr']) . '\'';
@@ -63,7 +38,7 @@ if ($_REQUEST['modfunc'] == 'save') {
         $columns = array('COURSE' => _course, 'MARKING_PERIOD_ID' => _term, 'DAYS' => _days, 'PERIOD_TITLE' => _periodTeacher, 'DURATION' => _time, 'ROOM' => _room);
 
         $extra['SELECT'] .= ',p_cp.COURSE_PERIOD_ID,r.TITLE as ROOM,CONCAT(sp.START_TIME,\'' . ' to ' . '\', sp.END_TIME) AS DURATION,sp.TITLE AS PERIOD,cpv.DAYS,cpv.COURSE_PERIOD_DATE,p_cp.SCHEDULE_TYPE,c.TITLE AS COURSE,p_cp.TITLE AS PERIOD_TITLE,sr.MARKING_PERIOD_ID';
-        $extra['FROM'] .= ' LEFT OUTER JOIN schedule sr ON (sr.STUDENT_ID=ssm.STUDENT_ID),courses c,course_periods p_cp,course_period_var cpv,school_periods sp,rooms r ';
+        $extra['FROM'] .= ' LEFT OUTER JOIN schedule sr ON (sr.STUDENT_ID=ssm.STUDENT_ID),courses c,course_periods p_cp,course_period_var cpv,institute_periods sp,rooms r ';
 
 //        if($_REQUEST['include_inactive']!='Y')
 //        {
@@ -106,15 +81,15 @@ if ($_REQUEST['modfunc'] == 'save') {
 //                          }
 //                  else
 //                  {
-        if ($_REQUEST['_search_all_schools'] == 'Y') {
+        if ($_REQUEST['_search_all_institutes'] == 'Y') {
             $extra['WHERE'] .= ' AND (sr.MARKING_PERIOD_ID IN (SELECT MARKING_PERIOD_ID FROM marking_periods WHERE SYEAR='. UserSyear().') or sr.MARKING_PERIOD_ID is NULL)';
         }
         else
         $extra['WHERE'] .= ' AND (sr.MARKING_PERIOD_ID IN (' . GetAllMP_mod(GetMPTable(GetMP($_REQUEST['mp_id']
         , 'TABLE')), $_REQUEST['mp_id']
         ) . ') or sr.MARKING_PERIOD_ID is NULL)';
-       if ($_REQUEST['_search_all_schools'] == 'Y')
-        $extra['functions'] = array('MARKING_PERIOD_ID' => 'GetMPAllSchool');
+       if ($_REQUEST['_search_all_institutes'] == 'Y')
+        $extra['functions'] = array('MARKING_PERIOD_ID' => 'GetMPAllInstitute');
         else
             $extra['functions'] = array('MARKING_PERIOD_ID' => 'GetMP');
         $extra['group'] = array('STUDENT_ID');
@@ -126,7 +101,7 @@ if ($_REQUEST['modfunc'] == 'save') {
         foreach ($RET as $ri => $rd) {
             foreach ($rd as $rdi => $rdd) {
 
-                $get_det = DBGet(DBQuery('SELECT cpv.DAYS,cpv.COURSE_PERIOD_DATE,CONCAT(sp.START_TIME,\'' . ' to ' . '\', sp.END_TIME) AS DURATION,r.TITLE as ROOM FROM course_period_var cpv,school_periods sp,rooms r WHERE sp.PERIOD_ID=cpv.PERIOD_ID AND cpv.ROOM_ID=r.ROOM_ID AND cpv.COURSE_PERIOD_ID=' . $rdd['COURSE_PERIOD_ID']));
+                $get_det = DBGet(DBQuery('SELECT cpv.DAYS,cpv.COURSE_PERIOD_DATE,CONCAT(sp.START_TIME,\'' . ' to ' . '\', sp.END_TIME) AS DURATION,r.TITLE as ROOM FROM course_period_var cpv,institute_periods sp,rooms r WHERE sp.PERIOD_ID=cpv.PERIOD_ID AND cpv.ROOM_ID=r.ROOM_ID AND cpv.COURSE_PERIOD_ID=' . $rdd['COURSE_PERIOD_ID']));
 
                 if ($rdd['SCHEDULE_TYPE'] == 'FIXED') {
                     $RET[$ri][$rdi]['DAYS'] = _makeDays($get_det[1]['DAYS']);
@@ -200,9 +175,9 @@ if ($_REQUEST['modfunc'] == 'save') {
 
             foreach ($RET as $student_id => $courses) {
                 echo "<table width=100%  style=\" font-family:Arial; font-size:12px;\" >";
-                echo "<tr><td width=105>" . DrawLogo() . "</td><td  style=\"font-size:15px; font-weight:bold; padding-top:20px;\">" . GetSchool(UserSchool()) . "<div style=\"font-size:12px;\">"._studentSchedulesReport."</div></td><td align=right style=\"padding-top:20px;\">" . ProperDate(DBDate()) . "<br />"._poweredByOpenSis."</td></tr><tr><td colspan=3 style=\"border-top:1px solid #333;\">&nbsp;</td></tr></table>";
+                echo "<tr><td width=105>" . DrawLogo() . "</td><td  style=\"font-size:15px; font-weight:bold; padding-top:20px;\">" . GetInstitute(UserInstitute()) . "<div style=\"font-size:12px;\">"._studentSchedulesReport."</div></td><td align=right style=\"padding-top:20px;\">" . ProperDate(DBDate()) . "<br />"._poweredByhani."</td></tr><tr><td colspan=3 style=\"border-top:1px solid #333;\">&nbsp;</td></tr></table>";
 
-                unset($_openSIS['DrawHeader']);
+                unset($_HaniIMS['DrawHeader']);
                 echo '<br>';
                 echo '<table  border=0>';
                 echo '<tr><td>'._studentId.':</td>';
@@ -233,13 +208,13 @@ if (!$_REQUEST['modfunc']) {
     DrawBC(""._scheduling." > " . ProgramTitle());
 
     if ($_REQUEST['search_modfunc'] == 'list') {
-        $mp_RET = DBGet(DBQuery('SELECT MARKING_PERIOD_ID,TITLE,SORT_ORDER,1 AS TBL FROM school_years WHERE SYEAR=\'' . UserSyear() . '\' AND SCHOOL_ID=\'' . UserSchool() . '\' UNION SELECT MARKING_PERIOD_ID,TITLE,SORT_ORDER,2 AS TBL FROM school_semesters WHERE SYEAR=\'' . UserSyear() . '\' AND SCHOOL_ID=\'' . UserSchool() . '\' UNION SELECT MARKING_PERIOD_ID,TITLE,SORT_ORDER,3 AS TBL FROM school_quarters WHERE SYEAR=\'' . UserSyear() . '\' AND SCHOOL_ID=\'' . UserSchool() . '\' ORDER BY TBL,SORT_ORDER'));
+        $mp_RET = DBGet(DBQuery('SELECT MARKING_PERIOD_ID,TITLE,SORT_ORDER,1 AS TBL FROM institute_years WHERE SYEAR=\'' . UserSyear() . '\' AND INSTITUTE_ID=\'' . UserInstitute() . '\' UNION SELECT MARKING_PERIOD_ID,TITLE,SORT_ORDER,2 AS TBL FROM institute_semesters WHERE SYEAR=\'' . UserSyear() . '\' AND INSTITUTE_ID=\'' . UserInstitute() . '\' UNION SELECT MARKING_PERIOD_ID,TITLE,SORT_ORDER,3 AS TBL FROM institute_quarters WHERE SYEAR=\'' . UserSyear() . '\' AND INSTITUTE_ID=\'' . UserInstitute() . '\' ORDER BY TBL,SORT_ORDER'));
         $mp_select = '<SELECT class="form-control" name=mp_id><OPTION value="">'._NA.'';
         foreach ($mp_RET as $mp)
             $mp_select .= '<OPTION value=' . $mp['MARKING_PERIOD_ID'] . '>' . $mp['TITLE'];
         $mp_select .= '</SELECT>';
 
-        echo "<FORM class=form-horizontal name=sch id=sch action=ForExport.php?modname=" . strip_tags(trim($_REQUEST[modname])) . "&head_html=Student+Schedules+Report&modfunc=save&include_inactive=$_REQUEST[include_inactive]&_openSIS_PDF=true method=POST target=_blank>";
+        echo "<FORM class=form-horizontal name=sch id=sch action=ForExport.php?modname=" . strip_tags(trim($_REQUEST[modname])) . "&head_html=Student+Schedules+Report&modfunc=save&include_inactive=$_REQUEST[include_inactive]&HaniIMS_PDF=true method=POST target=_blank>";
 
         Widgets('mailing_labels', true);
         $extra['extra_header_left'] = '<div class="row">';

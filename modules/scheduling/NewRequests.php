@@ -1,30 +1,5 @@
 <?php
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
+ 
 include('../../RedirectModulesInc.php');
 DrawHeader(ProgramTitle());
 Widgets('request');
@@ -35,7 +10,7 @@ if(!$_REQUEST['modfunc'] && UserStudentID())
 	$_REQUEST['modfunc'] = 'choose';
 if($_REQUEST['modfunc']=='verify')
 {
-	$QI = DBQuery('SELECT TITLE,COURSE_ID,SUBJECT_ID FROM courses WHERE SCHOOL_ID=\''.UserSchool().'\' AND SYEAR=\''.UserSyear().'\'');
+	$QI = DBQuery('SELECT TITLE,COURSE_ID,SUBJECT_ID FROM courses WHERE INSTITUTE_ID=\''.UserInstitute().'\' AND SYEAR=\''.UserSyear().'\'');
 	$courses_RET = DBGet($QI,array(),array('COURSE_ID'));
 	DBQuery('DELETE FROM schedule_requests WHERE STUDENT_ID=\''.UserStudentID().'\' AND SYEAR=\''.UserSyear().'\'');
 	foreach($_REQUEST['courses'] as $subject=>$courses)
@@ -46,8 +21,8 @@ if($_REQUEST['modfunc']=='verify')
 			$course = $courses[$i];
 			if(!$course)
 				continue;
-			$sql = 'INSERT INTO schedule_requests (SYEAR,SCHOOL_ID,STUDENT_ID,SUBJECT_ID,COURSE_ID,MARKING_PERIOD_ID,WITH_TEACHER_ID,NOT_TEACHER_ID,WITH_PERIOD_ID,NOT_PERIOD_ID)
-						values(\''.UserSyear().'\',\''.UserSchool().'\',\''.UserStudentID().'\',\''.$courses_RET[$course][1]['SUBJECT_ID'].'\',\''.$course.'\',NULL,\''.$_REQUEST['with_teacher'][$subject][$i].'\',\''.$_REQUEST['without_teacher'][$subject][$i].'\',\''.$_REQUEST['with_period'][$subject][$i].'\',\''.$_REQUEST['without_period'][$subject][$i].'\')';
+			$sql = 'INSERT INTO schedule_requests (SYEAR,INSTITUTE_ID,STUDENT_ID,SUBJECT_ID,COURSE_ID,MARKING_PERIOD_ID,WITH_TEACHER_ID,NOT_TEACHER_ID,WITH_PERIOD_ID,NOT_PERIOD_ID)
+						values(\''.UserSyear().'\',\''.UserInstitute().'\',\''.UserStudentID().'\',\''.$courses_RET[$course][1]['SUBJECT_ID'].'\',\''.$course.'\',NULL,\''.$_REQUEST['with_teacher'][$subject][$i].'\',\''.$_REQUEST['without_teacher'][$subject][$i].'\',\''.$_REQUEST['with_period'][$subject][$i].'\',\''.$_REQUEST['without_period'][$subject][$i].'\')';
 			DBQuery($sql);
 		}
 	}

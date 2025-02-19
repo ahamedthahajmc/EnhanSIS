@@ -1,31 +1,5 @@
 <?php
 
-#**************************************************************************
-#  openSIS is a free student information system for public and non-public 
-#  schools from Open Solutions for Education, Inc. web: www.os4ed.com
-#
-#  openSIS is  web-based, open source, and comes packed with features that 
-#  include student demographic info, scheduling, grade book, attendance, 
-#  report cards, eligibility, transcripts, parent portal, 
-#  student portal and more.   
-#
-#  Visit the openSIS web site at http://www.opensis.com to learn more.
-#  If you have question regarding this system or the license, please send 
-#  an email to info@os4ed.com.
-#
-#  This program is released under the terms of the GNU General Public License as  
-#  published by the Free Software Foundation, version 2 of the License. 
-#  See license.txt.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#***************************************************************************************
 include('../../RedirectModulesInc.php');
 if ($_REQUEST['From'] && $_REQUEST['to']) {
     $From = $_REQUEST['From'];
@@ -34,11 +8,11 @@ if ($_REQUEST['From'] && $_REQUEST['to']) {
     $_REQUEST['placed_From'] = $_REQUEST['day_From'] . '-' . $_REQUEST['month_From'] . '-' . $_REQUEST['year_From'];
     $From = (date('Y-m-d', strtotime($_REQUEST['placed_From'])));
 } elseif (!$_REQUEST['month_From'] && !$_REQUEST['day_From'] && !$_REQUEST['year_From']) {
-    $missing_date= DBGet(DBQuery('SELECT MIN(SCHOOL_DATE) AS SCHOOL_DATE FROM missing_attendance WHERE SCHOOL_ID='.UserSchool().' AND SYEAR='.UserSyear()));
+    $missing_date= DBGet(DBQuery('SELECT MIN(INSTITUTE_DATE) AS INSTITUTE_DATE FROM missing_attendance WHERE INSTITUTE_ID='.UserInstitute().' AND SYEAR='.UserSyear()));
     
-    if(count($missing_date) > 0 && $missing_date[1]['SCHOOL_DATE']!="")
+    if(count($missing_date) > 0 && $missing_date[1]['INSTITUTE_DATE']!="")
     {
-     $_REQUEST['placed_From'] = $missing_date[1]['SCHOOL_DATE'];
+     $_REQUEST['placed_From'] = $missing_date[1]['INSTITUTE_DATE'];
     }
     else
     $_REQUEST['placed_From'] = '01-' . date('m') . '-' . date('Y');
@@ -52,14 +26,14 @@ if ($_REQUEST['month_to'] && $_REQUEST['day_to'] && $_REQUEST['year_to']) {
     $to = date('Y-m-d', strtotime(DBDate()));
 
 
-$extra['WHERE2'] = ' AND mi.school_date>=\'' . $From . '\' AND mi.school_date<\'' . $to . '\' AND mi.SYEAR=' . UserSyear();
+$extra['WHERE2'] = ' AND mi.institute_date>=\'' . $From . '\' AND mi.institute_date<\'' . $to . '\' AND mi.SYEAR=' . UserSyear();
 
 if (User('PROFILE') == 'admin') {
     
     echo '<div class="panel panel-default">';
 
-    $qr = DBGet(DBQuery('select START_DATE from school_years where SCHOOL_ID=' . UserSchool() . ' AND SYEAR=' . UserSyear()));
-//    $qr=  DBGet(DBQuery('select START_DATE from school_years where SCHOOL_ID='.UserSchool()));	
+    $qr = DBGet(DBQuery('select START_DATE from institute_years where INSTITUTE_ID=' . UserInstitute() . ' AND SYEAR=' . UserSyear()));
+//    $qr=  DBGet(DBQuery('select START_DATE from institute_years where INSTITUTE_ID='.UserInstitute()));	
     $start_date = strtotime($qr[1]['START_DATE']);
 
     $date = strtotime($_REQUEST['placed_From']);
@@ -72,7 +46,7 @@ if (User('PROFILE') == 'admin') {
     if ($_REQUEST['day_From'] == '' && $_REQUEST['day_to'])
         $ERR = "please select from date";
     if ($date < $start_date) {
-        $ERR = " From date cannot be before school start date.";
+        $ERR = " From date cannot be before institute start date.";
     } else if (($_REQUEST['day_From'] && $_REQUEST['day_to']) || ($From && $to))
         $staff_RET = GetStaffList_Miss_Atn($extra);
 
